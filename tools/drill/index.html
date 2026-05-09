@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ISC2 CC Drill Trainer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f3ee;
+      color: #20242a;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .muted {
+      color: #6d7280;
+    }
+    .prompt {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 18px 0;
+    }
+    .answer {
+      font-size: 22px;
+      line-height: 1.4;
+      background: #f2f5f8;
+      border-radius: 14px;
+      padding: 18px;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      background: #8052ff;
+      color: white;
+    }
+    button.secondary {
+      background: #e9eef5;
+      color: #18202a;
+    }
+    button.weak {
+      background: #c73232;
+    }
+    button.known {
+      background: #16833a;
+    }
+    .pill {
+      display: inline-block;
+      background: #eef2f7;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-right: 6px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      border-radius: 12px;
+      border: 1px solid #c8d0dc;
+      padding: 12px;
+      font-family: Consolas, monospace;
+      box-sizing: border-box;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>ISC2 CC Drill Trainer</h1>
+      <p class="muted">Fast recall trainer for concepts, definitions, acronyms, and weak areas.</p>
+      <div class="row">
+        <span class="pill" id="progress">Card 1 of 2</span>
+        <span class="pill" id="domain">Domain</span>
+        <span class="pill" id="weakCount">Weak 0</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="prompt" id="prompt">Prompt</div>
+      <div class="answer hidden" id="answer"></div>
+      <p class="muted" id="memoryHook"></p>
+      <div class="row">
+        <button id="revealBtn">Reveal answer</button>
+        <button class="known" id="knownBtn">Known</button>
+        <button class="weak" id="weakBtn">Weak</button>
+        <button class="secondary" id="nextBtn">Next</button>
+        <button class="secondary" id="weakOnlyBtn">Review weak only</button>
+        <button class="secondary" id="resetBtn">Reset</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Load Drill Cards</h2>
+      <p class="muted">Paste generated drill card JSON here, then click Load.</p>
+      <textarea id="jsonInput"></textarea>
+      <div class="row">
+        <button class="secondary" id="loadBtn">Load pasted JSON</button>
+        <button class="secondary" id="exportWeakBtn">Export weak cards</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const seedCards = [
+      {
+        id: 'd001',
+        domain: 'Security Principles',
+        prompt: 'CIA triad',
+        answer: 'Confidentiality, Integrity, and Availability.',
+        memoryHook: 'Protect secrecy, prevent unauthorised change, keep systems usable.',
+        confidence: 'high'
+      },
+      {
+        id: 'd002',
+        domain: 'Business Continuity, Disaster Recovery, and Incident Response Concepts',
+        prompt: 'Incident response phases',
+        answer: 'Preparation, detection and analysis, containment, eradication, recovery, and lessons learned.',
+        memoryHook: 'Prepare, detect, contain, remove, recover, improve.',
+        confidence: 'high'
+      }
+    ]
+
+    let allCards = seedCards
+    let activeCards = seedCards
+    let index = 0
+    let weakCards = []
+
+    const promptEl = document.getElementById('prompt')
+    const answerEl = document.getElementById('answer')
+    const memoryHookEl = document.getElementById('memoryHook')
+    const progressEl = document.getElementById('progress')
+    const domainEl = document.getElementById('domain')
+    const weakCountEl = document.getElementById('weakCount')
+    const jsonInput = document.getElementById('jsonInput')
+
+    function currentCard() {
+      return activeCards[index]
+    }
+
+    function render() {
+      const card = currentCard()
+      promptEl.textContent = card.prompt
+      answerEl.textContent = card.answer
+      memoryHookEl.textContent = ''
+      answerEl.classList.add('hidden')
+      progressEl.textContent = `Card ${index + 1} of ${activeCards.length}`
+      domainEl.textContent = card.domain || 'Unmapped domain'
+      weakCountEl.textContent = `Weak ${weakCards.length}`
+    }
+
+    function reveal() {
+      const card = currentCard()
+      answerEl.classList.remove('hidden')
+      memoryHookEl.textContent = card.memoryHook || ''
+    }
+
+    function markKnown() {
+      next()
+    }
+
+    function markWeak() {
+      const card = currentCard()
+      if (!weakCards.find(item => item.id === card.id)) weakCards.push(card)
+      weakCountEl.textContent = `Weak ${weakCards.length}`
+      next()
+    }
+
+    function next() {
+      if (activeCards.length === 0) return
+      index = index + 1
+      if (index >= activeCards.length) index = 0
+      render()
+    }
+
+    function reviewWeakOnly() {
+      if (weakCards.length === 0) {
+        alert('No weak cards yet')
+        return
+      }
+      activeCards = weakCards
+      index = 0
+      render()
+    }
+
+    function reset() {
+      activeCards = allCards
+      index = 0
+      weakCards = []
+      render()
+    }
+
+    function loadJson() {
+      try {
+        const parsed = JSON.parse(jsonInput.value)
+        if (!Array.isArray(parsed)) throw new Error('JSON must be an array of drill cards')
+        allCards = parsed
+        activeCards = parsed
+        index = 0
+        weakCards = []
+        render()
+      } catch (error) {
+        alert(error.message)
+      }
+    }
+
+    function exportWeak() {
+      const text = JSON.stringify(weakCards, null, 2)
+      navigator.clipboard.writeText(text)
+      alert('Weak cards copied to clipboard')
+    }
+
+    document.getElementById('revealBtn').onclick = reveal
+    document.getElementById('knownBtn').onclick = markKnown
+    document.getElementById('weakBtn').onclick = markWeak
+    document.getElementById('nextBtn').onclick = next
+    document.getElementById('weakOnlyBtn').onclick = reviewWeakOnly
+    document.getElementById('resetBtn').onclick = reset
+    document.getElementById('loadBtn').onclick = loadJson
+    document.getElementById('exportWeakBtn').onclick = exportWeak
+
+    jsonInput.value = JSON.stringify(seedCards, null, 2)
+    render()
+  </script>
+</body>
+</html>

@@ -28,37 +28,47 @@
         <section class="panel">
           <div class="pill-row">
             <span class="pill good" id="cardCounter">Card 1 of 1</span>
-            <span class="pill warn" id="weakCounter">Weak 0</span>
+            <span class="pill warn" id="weakCounter">Review pile 0</span>
           </div>
           <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
         </section>
 
         <section class="panel">
           <h3>Session controls</h3>
-          <p class="muted">Filter the deck, search terms, and jump into weak-only review when the pressure is on.</p>
+          <p class="muted">Use these only when you want to narrow the deck. For a normal cram session, leave the domain as All domains and work through the cards.</p>
           <label class="muted" for="domainFilter">Domain</label>
           <select class="select" id="domainFilter"></select>
           <br><br>
-          <label class="muted" for="searchInput">Search</label>
+          <label class="muted" for="searchInput">Search the deck</label>
           <input class="search" id="searchInput" placeholder="CIA, RTO, firewall, risk">
           <div class="actions">
-            <button class="ghost" id="shuffleBtn">Shuffle</button>
-            <button class="ghost" id="weakOnlyBtn">Weak only</button>
-            <button class="danger" id="resetBtn">Reset</button>
+            <button class="ghost" id="shuffleBtn">Shuffle deck</button>
+            <button class="ghost" id="weakOnlyBtn">Study review pile</button>
+            <button class="danger" id="resetBtn">Reset session</button>
           </div>
         </section>
 
         <section class="panel">
-          <h3>How to use</h3>
+          <h3>How this drill works</h3>
           <div class="table-list">
-            <div class="list-row"><span>1. Read prompt</span><span class="pill">focus</span></div>
-            <div class="list-row"><span>2. Recall before reveal</span><span class="pill">memory</span></div>
-            <div class="list-row"><span>3. Mark weak honestly</span><span class="pill">loop</span></div>
+            <div class="list-row"><span>1. Read the big prompt</span><span class="pill">try</span></div>
+            <div class="list-row"><span>2. Say the answer from memory</span><span class="pill">recall</span></div>
+            <div class="list-row"><span>3. Click Reveal answer</span><span class="pill">check</span></div>
+            <div class="list-row"><span>4. Choose Remembered or Needs review</span><span class="pill">sort</span></div>
           </div>
         </section>
       </aside>
 
       <section>
+        <article class="card">
+          <div class="pill-row">
+            <span class="pill good">What do I do now?</span>
+            <span class="pill" id="modePill">Normal cram mode</span>
+          </div>
+          <h2 id="taskTitle">Try to answer before looking.</h2>
+          <p class="muted" id="taskText">Read the big prompt below. Do not click Reveal until you have tried to say the answer out loud or in your head.</p>
+        </article>
+
         <article class="card flashcard">
           <div class="pill-row">
             <span class="pill" id="domainPill">Domain</span>
@@ -66,26 +76,26 @@
           </div>
           <h1 class="prompt-title" id="promptTitle">Loading</h1>
           <div class="answer-box hidden" id="answerBox">
-            <strong>Answer</strong>
+            <strong>Correct answer</strong>
             <p id="answerText"></p>
             <strong>Memory hook</strong>
             <p id="memoryHook"></p>
           </div>
           <div class="actions">
-            <button class="primary" id="revealBtn">Reveal answer</button>
-            <button id="knownBtn">Known</button>
-            <button class="danger" id="weakBtn">Weak</button>
-            <button class="ghost" id="nextBtn">Next card</button>
+            <button class="primary" id="revealBtn">1. Reveal answer</button>
+            <button id="knownBtn">2. I remembered it</button>
+            <button class="danger" id="weakBtn">2. I need to review it</button>
+            <button class="ghost" id="nextBtn">Skip card</button>
           </div>
         </article>
 
         <section class="section">
           <div class="section-head">
             <div>
-              <h2>Weak queue</h2>
-              <p class="muted">Cards marked weak appear here so you can turn fuzzy knowledge into fast recall.</p>
+              <h2>Review pile</h2>
+              <p class="muted">Cards you mark as needing review land here. Click Study review pile to drill only these weak cards.</p>
             </div>
-            <button class="ghost" id="copyWeakBtn">Copy weak JSON</button>
+            <button class="ghost" id="copyWeakBtn">Copy review pile</button>
           </div>
           <div class="panel table-list" id="weakList"></div>
         </section>
@@ -106,6 +116,7 @@
     let weakCards = []
     let currentIndex = 0
     let revealed = false
+    let weakReviewMode = false
 
     const els = {
       cardCounter: document.getElementById('cardCounter'),
@@ -119,7 +130,12 @@
       memoryHook: document.getElementById('memoryHook'),
       domainPill: document.getElementById('domainPill'),
       tagPill: document.getElementById('tagPill'),
-      weakList: document.getElementById('weakList')
+      weakList: document.getElementById('weakList'),
+      taskTitle: document.getElementById('taskTitle'),
+      taskText: document.getElementById('taskText'),
+      modePill: document.getElementById('modePill'),
+      knownBtn: document.getElementById('knownBtn'),
+      weakBtn: document.getElementById('weakBtn')
     }
 
     function init() {
@@ -147,6 +163,7 @@
     }
 
     function applyFilters() {
+      weakReviewMode = false
       const domain = els.domainFilter.value || 'All domains'
       const query = els.searchInput.value.trim().toLowerCase()
       filteredCards = allCards.filter(card => {
@@ -164,6 +181,8 @@
         els.answerBox.classList.add('hidden')
         els.cardCounter.textContent = 'Card 0 of 0'
         els.progressBar.style.width = '0%'
+        els.taskTitle.textContent = 'No matching cards found.'
+        els.taskText.textContent = 'Clear the search box or choose All domains to bring cards back.'
         return
       }
 
@@ -176,23 +195,40 @@
       els.tagPill.textContent = (card.tags || ['study card']).join(' • ')
       els.answerBox.classList.add('hidden')
       els.cardCounter.textContent = `Card ${currentIndex + 1} of ${filteredCards.length}`
-      els.weakCounter.textContent = `Weak ${weakCards.length}`
+      els.weakCounter.textContent = `Review pile ${weakCards.length}`
       els.progressBar.style.width = `${((currentIndex + 1) / filteredCards.length) * 100}%`
+      els.taskTitle.textContent = 'Try to answer before looking.'
+      els.taskText.textContent = 'Read the big prompt. Say what it means from memory, then click Reveal answer to check yourself.'
+      els.modePill.textContent = weakReviewMode ? 'Review pile mode' : 'Normal cram mode'
+      els.knownBtn.style.opacity = '0.48'
+      els.weakBtn.style.opacity = '0.48'
       renderWeakList()
     }
 
     function reveal() {
       revealed = true
       els.answerBox.classList.remove('hidden')
+      els.taskTitle.textContent = 'Now choose your result.'
+      els.taskText.textContent = 'If you knew it without help, click I remembered it. If it was fuzzy, wrong, or slow, click I need to review it.'
+      els.knownBtn.style.opacity = '1'
+      els.weakBtn.style.opacity = '1'
     }
 
     function markKnown() {
+      if (!revealed) {
+        reveal()
+        return
+      }
       const card = currentCard()
       weakCards = weakCards.filter(item => item.id !== card.id)
       nextCard()
     }
 
     function markWeak() {
+      if (!revealed) {
+        reveal()
+        return
+      }
       const card = currentCard()
       if (!weakCards.some(item => item.id === card.id)) weakCards.push(card)
       nextCard()
@@ -212,15 +248,17 @@
 
     function reviewWeakOnly() {
       if (!weakCards.length) {
-        alert('No weak cards marked yet')
+        alert('No review cards yet. Mark something as I need to review it first.')
         return
       }
+      weakReviewMode = true
       filteredCards = [...weakCards]
       currentIndex = 0
       render()
     }
 
     function resetSession() {
+      weakReviewMode = false
       weakCards = []
       filteredCards = [...allCards]
       currentIndex = 0
@@ -231,7 +269,7 @@
 
     function renderWeakList() {
       if (!weakCards.length) {
-        els.weakList.innerHTML = '<p class="muted">No weak cards yet. Mark a card weak and it will appear here.</p>'
+        els.weakList.innerHTML = '<p class="muted">No review cards yet. When a card is fuzzy, click I need to review it and it will appear here.</p>'
         return
       }
       els.weakList.innerHTML = weakCards.map(card => `<div class="list-row"><span>${card.prompt}</span><span class="pill warn">${card.domain}</span></div>`).join('')
@@ -239,7 +277,7 @@
 
     function copyWeak() {
       navigator.clipboard.writeText(JSON.stringify(weakCards, null, 2))
-      alert('Weak cards copied to clipboard')
+      alert('Review pile copied to clipboard')
     }
 
     init()

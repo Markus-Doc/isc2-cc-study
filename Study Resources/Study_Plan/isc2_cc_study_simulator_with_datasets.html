@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ISC2 CC Study Simulator</title>
+  <style>
+    :root {
+      --bg: #fdf6e3;
+      --panel: #eee8d5;
+      --panel2: #f5efdc;
+      --border: #d6cfb8;
+      --muted: #657b83;
+      --text: #586e75;
+      --text-strong: #073642;
+      --blue: #268bd2;
+      --blue2: #2aa198;
+      --green: #859900;
+      --green-soft: #eef6d8;
+      --red: #dc322f;
+      --red-soft: #fdeee7;
+      --gold: #b58900;
+      --d1: #cb4b16;
+      --d2: #b58900;
+      --d3: #859900;
+      --d4: #268bd2;
+      --d5: #6c71c4;
+      --shadow: 0 8px 20px rgba(7,54,66,0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px; }
+    .stack > * + * { margin-top: 16px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: 28px 24px;
+      background: linear-gradient(135deg, #fdf6e3, #f5efdc);
+    }
+    .hero-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1.3fr 1fr;
+      align-items: start;
+    }
+    .tinycaps {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blue);
+      font-weight: 700;
+    }
+    .title {
+      font-size: 34px;
+      line-height: 1.1;
+      color: var(--text-strong);
+      margin: 0 0 8px;
+      font-weight: 800;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .muted { color: var(--muted); }
+    .subtle {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .dataset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+    .dataset-card {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel2);
+    }
+    .dataset-card h3 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      color: var(--text-strong);
+    }
+    .dataset-meta {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fffdf7;
+      color: var(--text-strong);
+      font-size: 14px;
+    }
+    .btn {
+      width: 100%;
+      padding: 13px 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color: white;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .btn:hover { filter: brightness(1.03); }
+    .btn:disabled {
+      background: #d8d0ba;
+      color: #9e9a8f;
+      cursor: not-allowed;
+    }
+    .btn.secondary {
+      background: #fffdf7;
+      color: var(--text-strong);
+      border: 1px solid var(--border);
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fffdf7;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .pill.active {
+      background: #e8f1f8;
+      color: var(--blue);
+      border-color: var(--blue);
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .summary-box {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .summary-box .label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .summary-box .value {
+      font-size: 20px;
+      color: var(--text-strong);
+      font-weight: 800;
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .progress {
+      height: 8px;
+      background: #e6dfc9;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .progress > div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--blue2));
+      width: 0;
+      transition: width 0.25s ease;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .question {
+      font-size: 21px;
+      line-height: 1.45;
+      color: var(--text-strong);
+      margin: 0;
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .options {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0 18px;
+    }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fffdf7;
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      line-height: 1.5;
+    }
+    .option[disabled] { cursor: default; }
+    .optkey {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      color: var(--muted);
+      margin-top: 1px;
+    }
+    .rationale {
+      background: #fffdf7;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .score {
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1;
+      margin: 0;
+    }
+    .status {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 7px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .domain-row { margin-bottom: 12px; }
+    .domain-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .bar {
+      height: 8px;
+      background: #e6dfc9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar > div {
+      height: 100%;
+      width: 0;
+      transition: width 0.35s ease;
+    }
+    .missed {
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .missed-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .missed-item:last-child { border-bottom: none; }
+    .mini {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .warn {
+      background: #fff7dd;
+      border-color: #ead7a1;
+    }
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    @media (max-width: 760px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+      .title {
+        font-size: 28px;
+      }
+      .question {
+        font-size: 18px;
+      }
+      .score {
+        font-size: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const CORE_QUESTIONS = [
+      {id:1,d:1,q:"In the context of security principles, which of the following BEST exemplifies the concept of least privilege?",o:["Granting every user admin rights to ensure ease of system access","Assigning permissions based on the minimum necessary for job functions","Implementing multi-factor authentication for all system users","Encrypting all data stored on the company's servers"],a:1,r:"Least privilege means users receive only the access rights strictly required for their role."},
+      {id:2,d:1,q:"Which of the following BEST describes the principle of 'defence in depth' in cybersecurity?",o:["Using a single, strong firewall to protect the network perimeter","Implementing multiple layers of security controls throughout an IT system","Focusing exclusively on external threats to strengthen network security","Deploying antivirus software on all endpoint devices"],a:1,r:"Defence in depth layers multiple independent controls so that if one fails, others still protect."},
+      {id:3,d:1,q:"What does the principle of 'fail-safe defaults' entail?",o:["Systems default to an open access state in case of failure","Systems default to a secure state, denying access when a failure occurs","Automatic backup of all system data during a security breach","Immediate shutdown of systems when a security breach is detected"],a:1,r:"Fail-safe defaults: in the absence of a positive authorisation decision, access is denied."},
+      {id:4,d:1,q:"Which of the following BEST describes 'non-repudiation' in information security?",o:["Users can deny their actions on a system","Data cannot be duplicated without authorisation","An entity cannot deny the authenticity of their signature on a document or message","All network communications are encrypted"],a:2,r:"Non-repudiation ensures a party cannot deny having sent or received a message. Digital signatures are the primary mechanism."},
+      {id:5,d:1,q:"In cybersecurity, what is meant by the term 'risk transference'?",o:["Eliminating all potential risks from a system","Shifting the responsibility for risk to a third party, such as through insurance","Reducing risk by implementing security controls","Ignoring risk in favour of operational efficiency"],a:1,r:"Risk transference moves the financial burden of a risk to another party. Insurance is the classic example."},
+      {id:6,d:1,q:"What is the primary focus of 'data sovereignty' in cybersecurity?",o:["The encryption standards used to secure data","The physical location where data is stored and its legal implications","The amount of data an organisation can store","The speed at which data can be accessed"],a:1,r:"Data sovereignty means data is subject to the laws of the jurisdiction where it is stored."},
+      {id:7,d:1,q:"Which concept is central to 'information security governance'?",o:["Ensuring all users have unrestricted access to information","Bypassing standard security protocols to speed up system performance","Aligning information security strategies with business objectives","Focusing solely on technical solutions to secure information"],a:2,r:"Governance aligns security with mission, risk appetite, and business goals."},
+      {id:8,d:1,q:"Which principle underlies 'compartmentalisation' in securing information systems?",o:["Granting every user access to all system resources for transparency","Dividing system resources and information into distinct segments to limit access","Centralising all data storage for easier management and security","Removing all barriers to information flow within an organisation"],a:1,r:"Compartmentalisation limits blast radius by segmenting access."},
+      {id:9,d:1,q:"'Separation of duties' is designed to:",o:["Concentrate all critical tasks within a single department for efficiency","Assign all security-related tasks to the IT department only","Prevent fraud and errors by dividing tasks among multiple individuals or groups","Ensure that all employees have the ability to perform each other's jobs"],a:2,r:"Separation of duties requires no single individual controls all steps of a critical process."},
+      {id:10,d:1,q:"What is the primary objective of a risk assessment procedure?",o:["To assign risk priorities to identified risks","To assess the potential impact of risks on the organisation","To implement controls and measures to reduce or eliminate risks","To provide a structured approach for conducting risk assessments"],a:3,r:"A risk assessment procedure is a structured methodology for identifying, evaluating, and prioritising risks."},
+      {id:11,d:1,q:"In risk management, what does the term 'impact' refer to?",o:["The actions taken to transfer or mitigate risks","The frequency of security-related events","The magnitude of harm resulting from unauthorised disclosure, modification, destruction, or loss of information","The potential vulnerabilities in a system or process"],a:2,r:"Impact is the magnitude of harm from a threat exploiting a vulnerability."},
+      {id:12,d:1,q:"The concept of 'zero trust security' is based on which assumption?",o:["Trust is granted once and is valid for all network interactions","Trust is never assumed and must be continuously verified","Trust is only necessary for external connections","Trust is based solely on the physical location of access attempts"],a:1,r:"Zero Trust means never trust, always verify. No implicit trust even inside the perimeter."},
+      {id:13,d:1,q:"What is the primary goal of 'data minimisation' in privacy and security practices?",o:["To collect as much data as possible for future analysis","To limit data collection to the minimum necessary for the intended purpose","To maximise the storage of data for regulatory compliance","To encrypt all collected data regardless of its sensitivity"],a:1,r:"Data minimisation reduces exposure by not retaining data beyond operational need."},
+      {id:14,d:1,q:"'Quantitative risk analysis' primarily involves:",o:["Estimating the impact of risks using descriptive language","Calculating the potential impact of risks using numerical data","Ignoring low-impact risks to focus on high-impact ones","Focusing solely on the qualitative aspects of security vulnerabilities"],a:1,r:"Quantitative analysis uses numbers like SLE, ARO, and ALE."},
+      {id:15,d:1,q:"What is the primary goal of 'threat modelling'?",o:["To design aesthetically pleasing security interfaces","To predict and prioritise potential threats to an IT system","To ensure compliance with international cybersecurity standards","To monitor network traffic in real-time for anomaly detection"],a:1,r:"Threat modelling identifies and prioritises threats during design."},
+      {id:16,d:1,q:"'Security convergence' refers to:",o:["The merging of physical and information security practices","The use of a single password across multiple systems","The consolidation of all security logs into one database","The alignment of security and business goals"],a:0,r:"Security convergence integrates physical and logical security under unified governance."},
+      {id:17,d:1,q:"Which principle advocates for security policies that adapt over time based on new insights and evolving threats?",o:["Static security policy","Adaptive security policy","Fixed security framework","Immutable security guidelines"],a:1,r:"Adaptive policies are reviewed and updated as the threat landscape changes."},
+      {id:18,d:1,q:"Which ISC2 Code of Ethics canon requires members to protect society, the common good, and necessary public trust?",o:["Provide diligent and competent service to principals","Act honourably, honestly, justly, responsibly, and legally","Protect society, the common good, necessary public trust and confidence, and the infrastructure","Advance and protect the profession"],a:2,r:"Canon 1 is to protect society, the common good, necessary public trust and confidence, and the infrastructure."},
+      {id:19,d:1,q:"What distinguishes 'policies' from 'procedures' in an organisational security context?",o:["Policies are technical, procedures are managerial","Policies state what must be done, procedures describe how to do it","Procedures are legally binding, policies are voluntary","There is no meaningful distinction"],a:1,r:"Policy is what and why. Procedure is step by step how."},
+      {id:20,d:1,q:"Which of the following is a PREVENTIVE security control?",o:["An intrusion detection system","A firewall","A security audit","A backup generator"],a:1,r:"A firewall is preventive. IDS is detective. Audit is detective. Generator is compensating."},
+      {id:21,d:1,q:"Which type of security control is a backup generator?",o:["Preventive","Detective","Compensating/Recovery","Corrective"],a:2,r:"A backup generator compensates for power failure to maintain availability."},
+      {id:22,d:1,q:"In cybersecurity, 'asset classification and control' is crucial because:",o:["It ensures all users have equal access to information resources","It mandates the use of strong passwords for all system accounts","It helps identify and apply appropriate protections based on asset value","It requires the encryption of all data, regardless of sensitivity"],a:2,r:"Classification enables proportional controls based on asset sensitivity and value."},
+      {id:23,d:1,q:"Which of the following BEST describes the concept of 'privacy'?",o:["Protecting personal information from unauthorised access or disclosure","Ensuring data is accurate and unchanged","Making sure data is always accessible when needed","All of the above"],a:0,r:"Privacy protects personal information from unauthorised disclosure. Accuracy is integrity. Accessibility is availability."},
+      {id:24,d:1,q:"A DevOps team has updated application source code and many unauthorised changes have been made. What is the BEST control to prevent recurrence?",o:["Backup","File labels","Security audit","Hashing"],a:3,r:"Hashing detects any modification to file content by producing a unique digest."},
+      {id:25,d:1,q:"What would a security professional use to ensure a specific control is working as expected?",o:["Security testing","Security assessment","Security audit","Security walkthrough"],a:0,r:"Security testing actively verifies a control functions as intended."},
+      {id:26,d:1,q:"Communication between end systems is encrypted using a key, often known as a:",o:["Symmetric key","Private key","Asymmetric key","Public key"],a:0,r:"Session encryption usually uses a symmetric key because it is fast for bulk data."},
+      {id:27,d:1,q:"Which of the following documents are created by governments or national authorities?",o:["Standards","Guidelines","Regulations","Policies"],a:2,r:"Regulations are created by governments and carry legal or financial penalties."},
+      {id:28,d:1,q:"Which of the following is NOT a social engineering technique?",o:["Pretexting","Segregation","Quid pro quo","Tailgating"],a:1,r:"Segregation of duties is a security control, not a social engineering technique."},
+      {id:29,d:1,q:"When a company hires an insurance company to mitigate the financial consequences of risk, which risk management technique is being applied?",o:["Risk transfer","Risk avoidance","Risk mitigation","Risk tolerance"],a:0,r:"Insurance is risk transfer."},
+      {id:30,d:1,q:"What is the PRIMARY purpose of the ISC2 Code of Ethics?",o:["To establish technical security standards","To guide the professional conduct of ISC2 members","To define penalties for cybersecurity breaches","To outline specific security technologies to use"],a:1,r:"The Code of Ethics governs professional behaviour of ISC2 certified members."},
+      {id:31,d:1,q:"Sensitivity is a measure of the:",o:["Pertinence assigned to information by its owner for representing need for urgency","Protection and timeliness assigned to information by its owner","Importance assigned to information by its owner, or the purpose of representing its need for protection","Availability and redundancy of information based on storage location"],a:2,r:"Sensitivity is the importance assigned by the owner that represents need for protection."},
+      {id:32,d:1,q:"Risk management is BEST defined as:",o:["The assessment of the potential impact of a threat","The identification, evaluation and prioritisation of risks","The impact and likelihood of a threat","The creation of an incident response team"],a:1,r:"Risk management means identifying, evaluating, and prioritising risks, then applying resources to reduce impact."},
+      {id:33,d:1,q:"Which regulations address data protection and privacy in Europe?",o:["FISMA","HIPAA","SOX","GDPR"],a:3,r:"GDPR covers EU data protection and privacy."},
+      {id:34,d:1,q:"Which of the following is the THIRD canon of the ISC2 Code of Ethics?",o:["Protect society, the common good, necessary public trust and confidence, and the infrastructure","Act honourably, honestly, justly, responsibly, and legally","Provide diligent and competent service to principals","Advance and protect the profession"],a:2,r:"Canon order is protect society, act honourably, provide diligent service, advance the profession."},
+      {id:35,d:2,q:"What is the PRIMARY goal of conducting a Business Impact Analysis (BIA)?",o:["To identify and prioritise the organisation's risks","To determine the impact of disruptions on business operations","To assess the organisation's compliance with legal requirements","To evaluate the effectiveness of current security measures"],a:1,r:"BIA identifies critical functions and quantifies disruption impact. Common outputs are MTD, RTO, and RPO."},
+      {id:36,d:2,q:"During an incident response, which step should be taken FIRST when a breach is detected?",o:["Begin data recovery procedures immediately","Notify external authorities and stakeholders","Isolate affected systems to prevent further compromise","Conduct a post-incident review to identify lessons learned"],a:2,r:"First priority is containment. Isolate affected systems to stop the spread."},
+      {id:37,d:2,q:"What is the PRIMARY purpose of an off-site data backup?",o:["To facilitate rapid access to data in case of a system failure","To comply with industry regulations regarding data preservation","To ensure data availability in the event of a geographical disaster","To reduce the overall cost of the disaster recovery process"],a:2,r:"Off-site backup provides geographic redundancy and survives site-level disasters."},
+      {id:38,d:2,q:"Which of the following BEST describes the purpose of a hot site in disaster recovery planning?",o:["A location where backup media is stored off-site","A fully equipped facility where operations can be immediately resumed","A secure facility for the incident response team to meet during a disaster","A temporary office space with basic amenities but no pre-installed equipment"],a:1,r:"A hot site is fully operational and supports immediate failover."},
+      {id:39,d:2,q:"Which of the following BEST describes the role of a cold site in disaster recovery?",o:["A fully operational secondary office location","An alternate facility with infrastructure but without pre-installed equipment","A virtual environment activated only during an incident","A secure storage location for backup data and software"],a:1,r:"A cold site has basic infrastructure like power and HVAC but no installed equipment."},
+      {id:40,d:2,q:"In incident response, 'lessons learned' is MOST closely associated with which phase?",o:["Preparation","Detection and Analysis","Containment, Eradication, and Recovery","Post-Incident Activity"],a:3,r:"Lessons learned belongs to the post-incident activity phase."},
+      {id:41,d:2,q:"In the context of disaster recovery strategies, what is the significance of an RPO (Recovery Point Objective)?",o:["It defines the maximum tolerable amount of data loss measured in time","It outlines the total budget allocated for disaster recovery efforts","It specifies the minimum required bandwidth for remote backup","It identifies the critical personnel needed for recovery operations"],a:0,r:"RPO is the maximum acceptable data loss measured in time and drives backup frequency."},
+      {id:42,d:2,q:"What is the MOST critical factor to consider when determining the RTO for a critical system?",o:["The cost of downtime per hour for the system","The system's role in daily operations","The maximum tolerable period of disruption for the system","The geographic location of the system's backups"],a:2,r:"RTO is constrained by the maximum tolerable downtime for the system."},
+      {id:43,d:2,q:"Which of the following is the MOST critical component to ensure effective incident response actions?",o:["The availability of a dedicated incident response team","The inclusion of an automatic data backup system","The detailed list of potential incidents and their definitions","The integration of the plan with the organisation's overall security policy"],a:3,r:"An incident response plan must align with the overall security policy for authority and consistency."},
+      {id:44,d:2,q:"Which of the following options does NOT represent a possible model for an Incident Response Team (IRT)?",o:["Leveraged","Dedicated","Hybrid","Pre-existing"],a:3,r:"Dedicated, leveraged, and hybrid are recognised IRT models. Pre-existing is not."},
+      {id:45,d:2,q:"What is the PRIMARY goal of a Disaster Recovery Plan (DRP)?",o:["Outline a safe escape procedure for the organisation's personnel","Maintain crucial company operations in the event of a disaster","Restore company operations to the last-known reliable operational state","Provide a safe environment for recovery team members"],a:2,r:"A DRP focuses on restoring IT systems and technical operations."},
+      {id:46,d:2,q:"What is the PRIMARY goal of a Business Continuity Plan (BCP) test?",o:["To fulfil audit requirements","To verify the effectiveness of the plan under simulated conditions","To train new employees on their roles during an incident","To satisfy stakeholder demands for organisational resilience"],a:1,r:"A BCP test validates that the plan will work under simulated conditions."},
+      {id:47,d:2,q:"The term 'Business Impact Plan' refers to:",o:["A strategic plan for measuring financial losses from disruptions","This term does not exist in standard business continuity terminology","An alternate name for the Business Continuity Plan","A subsidiary plan within the DRP"],a:1,r:"Business Impact Plan is not a standard term. Correct terms include BIA, BCP, and DRP."},
+      {id:48,d:3,q:"Which access control model is MOST appropriate for a military organisation with highly classified information?",o:["Discretionary Access Control (DAC)","Mandatory Access Control (MAC)","Role-Based Access Control (RBAC)","Attribute-Based Access Control (ABAC)"],a:1,r:"MAC uses labels from a central authority and is ideal for classified environments."},
+      {id:49,d:3,q:"Which access control model is BEST suited for environments requiring dynamic adjustments based on changing contexts such as user location or time of access?",o:["Mandatory Access Control (MAC)","Discretionary Access Control (DAC)","Role-Based Access Control (RBAC)","Attribute-Based Access Control (ABAC)"],a:3,r:"ABAC evaluates multiple attributes such as user, resource, device, and environment."},
+      {id:50,d:3,q:"In a Role-Based Access Control system, which scenario BEST demonstrates 'role explosion'?",o:["A system with a few predefined roles that cover all necessary permissions","A system where individual permissions are directly assigned to users instead of roles","A system that requires a new role for each unique combination of permissions","A system with roles defined at a very high level such as 'user' and 'administrator'"],a:2,r:"Role explosion happens when too many overly specific roles are created."},
+      {id:51,d:3,q:"What is the biggest challenge in a Discretionary Access Control (DAC) system?",o:["Ensuring users have minimum necessary permissions","Preventing propagation of access rights when objects are shared widely","Establishing fixed roles that accurately reflect organisational structure","Automatically adjusting permissions based on real-time data attributes"],a:1,r:"DAC can allow uncontrolled propagation of rights when users share objects widely."},
+      {id:52,d:3,q:"Which principle of access control is primarily concerned with ensuring users are who they claim to be?",o:["Authentication","Authorisation","Accounting","Auditing"],a:0,r:"Authentication proves identity. Authorisation grants access. Accounting records activity."},
+      {id:53,d:3,q:"Which type of authentication is 'something you are'?",o:["Type 1","Type 2","Type 3","Type 4"],a:2,r:"Type 3 is biometric or something you are."},
+      {id:54,d:3,q:"In an organisation using RBAC, which of the following BEST describes 'role mining'?",o:["Defining new roles based on observed user behaviour patterns","Manual assignment of users to predefined roles","Using automated tools to identify and correct improper role assignments","Reviewing and updating roles on a periodic basis"],a:0,r:"Role mining analyses existing user-permission assignments to derive appropriate roles."},
+      {id:55,d:3,q:"What access control mechanism is MOST effective in preventing unauthorised access to sensitive resources in a cloud computing environment?",o:["Password complexity requirements","Multifactor authentication (MFA)","Periodic access reviews","Single sign-on (SSO)"],a:1,r:"MFA requires independent factors so compromise of one factor does not grant access."},
+      {id:56,d:3,q:"In federated access management, what does a SAML assertion provide?",o:["A digital certificate for encrypting data in transit","A request for access between federated domains","A format for exchanging authentication and authorisation data","A schema for role-based access control settings"],a:2,r:"SAML assertions carry authentication and authorisation data between identity and service providers."},
+      {id:57,d:3,q:"Which access control principle is violated when a user retains access rights to resources after changing roles?",o:["Separation of duties","Least privilege","Mandatory access control","Role explosion"],a:1,r:"Privilege creep violates least privilege."},
+      {id:58,d:3,q:"Which is the MOST effective access control for preventing unauthorised access to a door?",o:["Fences","Turnstiles","Barriers","Locks"],a:3,r:"A lock directly prevents the door from being opened by unauthorised people."},
+      {id:59,d:3,q:"What is the primary purpose of 'separation of duties' in access control?",o:["To ensure no single individual has control over all aspects of a transaction","To divide responsibilities among multiple systems to improve performance","To segregate network segments for security purposes","To allocate different shifts to employees for 24/7 coverage"],a:0,r:"Separation of duties helps prevent fraud and errors by splitting control."},
+      {id:60,d:3,q:"What is the primary security concern associated with delegation of rights?",o:["Increased complexity of access control lists","Potential for privilege escalation","Decreased efficiency in access control administration","Reduced granularity of access control"],a:1,r:"Improper delegation can enable privilege escalation."},
+      {id:61,d:3,q:"In context-aware access control, which factor would NOT typically influence access decisions?",o:["The time of the access request","The user's compliance with corporate security training","The risk level associated with the accessed resource","The device used to make the access request"],a:1,r:"Real-time access engines usually evaluate context, device, risk, and timing, not HR training completion."},
+      {id:62,d:3,q:"Which access control model specifies access to an object based on the subject's role in the organisation?",o:["RBAC","MAC","ABAC","DAC"],a:0,r:"RBAC assigns permissions to roles and users to roles."},
+      {id:63,d:3,q:"What type of security control is a biometric reader that grants access to a data centre building?",o:["Administrative control","Physical control","Technical/Logical control","Compensating control"],a:1,r:"A biometric reader on a physical entrance is a physical security control."},
+      {id:64,d:3,q:"Which of the following is an example of two-factor authentication (2FA)?",o:["Password and PIN","Smart card and fingerprint","Username and password","Two different passwords"],a:1,r:"Two-factor means two different factor types, such as have and are."},
+      {id:65,d:4,q:"In the OSI model, at which layer does a network-based IDS typically operate?",o:["Layer 2 (Data Link)","Layer 3 (Network)","Layer 4 (Transport)","Layer 7 (Application)"],a:3,r:"A network IDS performing deep inspection often operates at the application layer."},
+      {id:66,d:4,q:"Which encryption method is considered MOST secure for wireless networks?",o:["WEP","WPA","WPA2","WPA3"],a:3,r:"WPA3 is the strongest of the listed wireless security options."},
+      {id:67,d:4,q:"Which protocol is primarily used for securely managing network devices remotely?",o:["SNMP","SSH","FTP","HTTP"],a:1,r:"SSH provides encrypted remote shell access for secure administration."},
+      {id:68,d:4,q:"What is the primary purpose of using a VPN in network security?",o:["To create a secure and encrypted connection over a less secure network","To increase the speed of internet connections","To block malicious traffic and protect against malware","To manage network devices without using secure protocols"],a:0,r:"A VPN creates an encrypted tunnel over an untrusted network."},
+      {id:69,d:4,q:"What is the primary function of a network access control (NAC) system?",o:["To encrypt data traffic on a network","To manage the distribution of IP addresses","To control access to a network based on compliance with defined security policies","To monitor network traffic for malicious activities"],a:2,r:"NAC evaluates device compliance before granting network access."},
+      {id:70,d:4,q:"Which technology is typically used to isolate broadcast domains in a network environment?",o:["VPN","VLAN","NAT","Proxy"],a:1,r:"VLANs logically segment a network into separate broadcast domains."},
+      {id:71,d:4,q:"What is the main security advantage of implementing network segmentation?",o:["Reducing the overall cost of the network infrastructure","Increasing the speed of the network","Limiting the spread of malware and reducing the attack surface","Simplifying the management of the network"],a:2,r:"Segmentation limits lateral movement and contains compromise."},
+      {id:72,d:4,q:"Which protocol is designed to secure SNMP traffic, ensuring both encryption and data integrity?",o:["SNMPv3","SSH","HTTPS","SNMPv2"],a:0,r:"SNMPv3 adds authentication and encryption that earlier versions lack."},
+      {id:73,d:4,q:"What is the primary purpose of implementing a DMZ (Demilitarised Zone)?",o:["To segregate internal network traffic from external traffic","To encrypt all inbound and outbound communications","To provide a secure area for users to access the internet","To host public-facing services while protecting the internal network"],a:3,r:"A DMZ hosts public-facing services while shielding the internal network."},
+      {id:74,d:4,q:"In the context of network security, which BEST describes a Zero Trust model?",o:["Trusting all devices within the network but not external devices","Never trusting, always verifying every device whether inside or outside the network","Trusting devices based on their IP addresses","Implementing default allow rules in firewall configurations"],a:1,r:"Zero Trust removes implicit trust and verifies every access request."},
+      {id:75,d:4,q:"Which of the following is a characteristic of symmetric encryption within network security?",o:["It uses the same key for encryption and decryption","It uses a public key for encryption and a private key for decryption","It cannot be used for encrypting internet traffic","It provides a method for digital signatures"],a:0,r:"Symmetric encryption uses one shared key and is efficient for bulk data."},
+      {id:76,d:4,q:"What is the main function of a SIEM system in network security?",o:["To physically secure network hardware","To manage IP address allocations","To aggregate and analyse security-related events and information","To encrypt all data traffic within the network"],a:2,r:"A SIEM aggregates, correlates, and analyses security events."},
+      {id:77,d:4,q:"What is a honeypot primarily used for?",o:["To serve as a primary defence mechanism against DDoS attacks","To act as a decoy, attracting attackers to monitor their activities","To encrypt data traffic passing through the network","To provide high availability and redundancy for network services"],a:1,r:"A honeypot is a decoy system used to attract and observe attackers."},
+      {id:78,d:4,q:"Which type of firewall is BEST suited for deep packet inspection (DPI)?",o:["Packet filtering firewall","Stateful firewall","Proxy firewall","Next-Generation Firewall (NGFW)"],a:3,r:"An NGFW combines stateful inspection with application-aware inspection and often IPS features."},
+      {id:79,d:4,q:"What is the primary security concern associated with BYOD policies?",o:["Increased complexity of network topology","Potential for unauthorised access to the network","Difficulty in managing IP address allocations","Requirement for additional physical security measures"],a:1,r:"Unmanaged personal devices may lack corporate controls and create entry points."},
+      {id:80,d:4,q:"Internet Protocol (IP) is known as which level protocol in the OSI model?",o:["Level 7 (Application)","Level 4 (Transport)","Level 3 (Network)","Level 2 (Data Link)"],a:2,r:"IP belongs to Layer 3, the network layer."},
+      {id:81,d:4,q:"When the mail server sends mail to other mail servers it operates as a:",o:["SMTP Server","SMTP Peer","SMTP Master","SMTP Client"],a:3,r:"When originating mail to another server, it acts as an SMTP client."},
+      {id:82,d:4,q:"How many bits represent the OUI (Organisationally Unique Identifier) in a MAC address?",o:["16 bits","48 bits","24 bits","32 bits"],a:2,r:"The first 24 bits of a MAC address form the OUI."},
+      {id:83,d:4,q:"Which of the following is a primary security concern when implementing IPv6?",o:["The increased address space makes scanning more difficult","The mandatory use of encryption for IPv6 traffic","Misconfigured devices leading to security vulnerabilities","The elimination of NAT reducing security"],a:2,r:"Misconfiguration is a major IPv6 risk, especially in dual-stack environments."},
+      {id:84,d:4,q:"Which of the following communication layers contains errors pertaining to syntax and format?",o:["Application layer","Session layer","Presentation layer","Physical layer"],a:0,r:"Application protocols define and enforce syntax and message format."},
+      {id:85,d:4,q:"Which solution would ensure the LOWEST possible latency for a global e-commerce platform's customers?",o:["CDN","SaaS","Load balancing","Decentralised data centres"],a:0,r:"A CDN places cached content closer to users and reduces round-trip latency."},
+      {id:86,d:4,q:"Which type of attack primarily aims to make a resource inaccessible to its intended users?",o:["Phishing","Denial of Service","Trojans","Cross-Site Scripting"],a:1,r:"A denial of service attack targets availability."},
+      {id:87,d:4,q:"Which device is used to connect a LAN to the Internet?",o:["Router","Firewall","HIDS","SIEM"],a:0,r:"A router connects different networks and forwards traffic between them."},
+      {id:88,d:4,q:"What does the TCP three-way handshake consist of?",o:["SYN â†’ ACK â†’ FIN","Offer â†’ Request â†’ ACK","SYN â†’ SYN/ACK â†’ ACK","Discover â†’ Offer â†’ Request"],a:2,r:"The TCP handshake is SYN, SYN/ACK, ACK."},
+      {id:89,d:5,q:"Which of the following BEST describes the primary purpose of a post-incident review?",o:["To update firewall rules to prevent future incidents","To evaluate the incident response process for improvements","To determine the financial impact of the incident on the organisation","To assign blame to team members who failed to prevent the incident"],a:1,r:"A post-incident review is for blameless process improvement."},
+      {id:90,d:5,q:"When configuring a SIEM system, which of the following is MOST critical to its effectiveness in detecting anomalies?",o:["The physical location of the SIEM server","The frequency of signature updates","The integration of threat intelligence feeds","The storage capacity for logs"],a:2,r:"Threat intelligence enriches SIEM correlation with current indicators and tactics."},
+      {id:91,d:5,q:"In the deployment of an IDS, what is the significance of tuning the IDS?",o:["To decrease the system's power consumption","To reduce the number of false positives and false negatives","To increase the data storage capacity of the system","To improve the graphical user interface for easier use"],a:1,r:"Tuning reduces noise and missed detections."},
+      {id:92,d:5,q:"When conducting vulnerability assessments, why is it important to perform both automated scanning and manual testing?",o:["Automated scanning can replace manual testing entirely","Manual testing is only necessary for systems that cannot be scanned automatically","Automated scanning identifies all vulnerabilities while manual testing verifies them","Automated scanning and manual testing complement each other, identifying different types of vulnerabilities"],a:3,r:"Automated and manual methods complement each other because they find different issues."},
+      {id:93,d:5,q:"What is the primary function of a digital forensic tool in cybersecurity operations?",o:["To block malicious traffic in real-time","To analyse and recover digital evidence after a security incident","To encrypt data to prevent unauthorised access","To serve as a firewall between internal and external networks"],a:1,r:"Digital forensics preserves, examines, and analyses digital evidence."},
+      {id:94,d:5,q:"What role does a SOC analyst primarily play in threat hunting activities?",o:["Designing the company's website","Proactively searching for undetected threats within the network","Managing social media accounts for cybersecurity awareness","Organising company team-building events"],a:1,r:"Threat hunting is proactive searching for hidden threats."},
+      {id:95,d:5,q:"Why is it important to conduct periodic security assessments?",o:["To ensure controls continue to meet organisational security requirements","To comply with the interior design policies of the organisation","To determine the colour scheme for the security team's dashboard","To assess the entertainment value of security training programmes"],a:0,r:"Periodic assessments confirm controls remain effective as systems and risks change."},
+      {id:96,d:5,q:"What is the PRIMARY benefit of implementing a regular patch management process?",o:["To enhance the graphical user interface of security tools","To ensure that all systems are running the latest, most secure software versions","To increase the storage capacity of servers","To improve the aesthetic appeal of the software"],a:1,r:"Patch management reduces exposure to known vulnerabilities."},
+      {id:97,d:5,q:"What is the PRIMARY purpose of conducting a penetration test within the scope of security operations?",o:["To evaluate the performance of network equipment","To identify vulnerabilities in systems and networks before attackers do","To test the physical strength of the hardware","To assess the company's compliance with security policies"],a:1,r:"A penetration test simulates attacks to find exploitable weaknesses."},
+      {id:98,d:5,q:"When establishing a security baseline, which factor is MOST critical for maintaining system security?",o:["The popularity of the software used","The initial cost of the security tools","The compatibility of security settings with operational requirements","The colour themes of the user interface"],a:2,r:"A secure baseline must still support operations or it will be bypassed."},
+      {id:99,d:5,q:"In the implementation of network segmentation, what is the PRIMARY security benefit?",o:["Increasing the network's bandwidth and reducing latency","Isolating network segments and containing security breaches","Replacing traditional firewalls with more modern technologies","Centralising all network security controls in one location"],a:1,r:"Segmentation contains breaches and reduces lateral movement."},
+      {id:100,d:5,q:"Why is User Behaviour Analytics (UBA) important in detecting insider threats?",o:["UBA focuses solely on external threat actors","UBA eliminates the need for traditional security measures","UBA uses machine learning to identify deviations from normal behaviour patterns","UBA increases network traffic for better analysis"],a:2,r:"UBA helps detect abnormal behaviour by users who already have valid access."},
+      {id:101,d:5,q:"Before applying patches to production systems, which of the following is considered BEST practice?",o:["Apply patches as quickly as possible to production immediately","Test patches in a qualification environment before applying to production","Apply patches based on vendor reputation alone","Apply patches on fixed days regardless of urgency"],a:1,r:"Testing patches before production helps avoid service disruption."},
+      {id:102,d:5,q:"In Change Management, which component addresses the procedures needed to undo changes?",o:["Request for Approval","Rollback","Request for Change","Disaster Recovery"],a:1,r:"Rollback is the planned path to reverse a change if needed."},
+      {id:103,d:5,q:"Which of the following is NOT a type of learning activity used in Security Awareness?",o:["Tutorial","Awareness","Education","Training"],a:0,r:"Awareness, training, and education are the common categories. Tutorial is not."},
+      {id:104,d:5,q:"Malicious emails that aim to attack company executives are an example of:",o:["Phishing","Trojans","Whaling","Rootkits"],a:2,r:"Whaling is phishing that targets senior executives."},
+      {id:105,d:5,q:"What is an effective way of hardening a system?",o:["Patch the system","Create a DMZ for web application services","Have an IDS in place","Run a vulnerability scan"],a:0,r:"Patching is a direct hardening activity."},
+      {id:106,d:5,q:"Which of these social engineering attacks corrupts an infrastructure service such as Domain Name System (DNS)?",o:["Spear Phishing","Pharming","Vishing","Whaling"],a:1,r:"Pharming manipulates DNS or related infrastructure to redirect users."},
+      {id:107,d:5,q:"Vishing refers to which type of social engineering attack?",o:["Using a fraudulent interactive voice response system to trick victims into divulging sensitive information","Impersonating an authority figure via email","Following an authorised user into a restricted area","Requesting passwords in exchange for compensation"],a:0,r:"Vishing is voice phishing, typically over phone or IVR systems."},
+      {id:108,d:5,q:"Which of the following is NOT an example of a physical security control?",o:["Security cameras","Biometric access controls at a building entrance","Remote control electronic locks","Firewalls"],a:3,r:"A firewall is a technical or logical control, not a physical one."},
+      {id:109,d:5,q:"Which devices have the PRIMARY objective of collecting and analysing security events?",o:["Firewall","Hubs","Routers","SIEM"],a:3,r:"A SIEM is built for collecting, correlating, and analysing security events."},
+      {id:110,d:5,q:"An organisation needs a network security tool that detects malicious activity. Which of these tools will BEST meet their requirements?",o:["Router","Firewall","IDS","IPS"],a:2,r:"An IDS is designed to detect and alert on malicious activity."},
+      {id:111,d:5,q:"Which type of attack will MOST effectively provide privileged access (root access on Unix or Linux) to a computer while hiding its presence?",o:["Rootkits","Phishing","Cross-Site Scripting","Trojans"],a:0,r:"A rootkit is designed for hidden privileged persistence."},
+      {id:112,d:5,q:"How many data labels are generally considered manageable for an organisation?",o:["1","1 to 2","2 to 8","More than 10"],a:2,r:"A moderate number of labels is manageable. Too many labels create confusion."},
+      {id:113,d:5,q:"A community cloud deployment model is where:",o:["A single organisation exclusively uses the cloud infrastructure","Several organisations with similar needs share the infrastructure and resources","Cloud infrastructure is available to the general public","Two or more distinct cloud models are bound together"],a:1,r:"A community cloud is shared by organisations with similar requirements or concerns."},
+      {id:114,d:5,q:"Which of the following is protected by regulations such as GDPR, HIPAA, and PCI-DSS?",o:["Protected Health Information (PHI)","Secure Credit Card Payments (SCCP)","Personally Identifiable Information (PII)","Publicly Identifiable Information (PII)"],a:2,r:"PII is the broad concept protected across multiple privacy and data protection regimes."},
+      {id:115,d:5,q:"A contract between a service provider and a customer that defines the expected level of service is known as a:",o:["Rules of Engagement (ROE)","Memorandum of Understanding (MOU)","Service Level Agreement (SLA)","Non-Disclosure Agreement (NDA)"],a:2,r:"An SLA defines measurable service commitments between provider and customer."}
+    ];
+    const EXTRA_DATASETS = {
+      additional69: [{"id": 1, "d": 0, "q": "A cyberattacker changes the website of a pharmacy so it displays incorrect information about COVID testing. This is an example of what kind of compromise?", "o": ["Confidentiality", "Integrity", "Availability", "Nonrepudiation"], "a": 1, "r": "Changing data without proper authorization is a compromise of integrity.", "src": "additional"}, {"id": 2, "d": 0, "q": "The function of a computer system that verifies the identity of a user is called _________.", "o": ["Authentication", "Authorization", "Authenticity", "Availability"], "a": 0, "r": "Authentication is the function of verifying a user’s identity.", "src": "additional"}, {"id": 3, "d": 0, "q": "Jane received an electronic message from Fred that was digitally signed proving it came from him. However, Fred said he never sent it. This is an example of what message integrity characteristic?", "o": ["Nonreputation", "Nonrefutability", "Nonrepudiation", "Authenticity"], "a": 2, "r": "Nonrepudiation technologies are used to guarantee that a sender of a message cannot later deny that they sent the message.", "src": "additional"}, {"id": 4, "d": 0, "q": "Which of the following elements do not apply to privacy?", "o": ["Confidentiality", "Integrity", "Availability", "None of the above"], "a": 3, "r": "All of the items listed apply to privacy.", "src": "additional"}, {"id": 5, "d": 0, "q": "Information assurance refers to the ____________ of information security.", "o": ["Quality", "Confidentiality", "Ethics", "Measurement"], "a": 3, "r": "Information assurance is the measurement of the security controls an organization has put into place.", "src": "additional"}, {"id": 6, "d": 0, "q": "What is the first thing a cyberattacker would want to do to launch an attack against an organization?", "o": ["Learn about the organization’s vulnerabilities.", "Learn about the organization’s business, including domain names,"], "a": 1, "r": "While learning about vulnerabilities might seem like a good answer, the best answer is learning about the organization’s business details because that will provide the basic information the cyberattacker can use to launch the attack.", "src": "additional"}, {"id": 7, "d": 0, "q": "An earthquake is an example of a ____________?", "o": ["Threat agent", "Threat", "Vulnerability", "Risk"], "a": 1, "r": "An earthquake is a natural disaster that may occur and that could cause harm to an organization; therefore it is a threat to the organization.", "src": "additional"}, {"id": 8, "d": 0, "q": "Which of the following statements is most correct?", "o": ["Security should be done the same way regardless of the situation.", "Security should be tailored based on the situation.", "It’s always best to mitigate risks rather than transfer them.", "Risk avoidance trumps security controls every time."], "a": 1, "r": "Answers A, C, and D all contain absolute statements about applying security. But security is never absolute; it is tailored based on the situation and the organization’s tolerance for risk, so the best answer is B.", "src": "additional"}, {"id": 9, "d": 0, "q": "You are asked to perform a risk assessment of an information system for the purpose of recommending the most appropriate security controls. You have a short amount of time to do this. You have information about how each asset in the system is used and its importance to the business, but you have no financial information about the assets or the information systems. Which is the most appropriate method to use for this assessment?", "o": ["Qualitative", "Threat modeling", "Quantitative", "Delphi"], "a": 0, "r": "Since you have no financial data, a quantitative assessment is not possible, but since you have information about how each asset in the system is used and its importance to the business, you have what you need to do a qualitative analysis.", "src": "additional"}, {"id": 10, "d": 0, "q": "You are asked to implement a risk treatment in which your IT department is removing a server from the environment that it deems is too risky due to having too many vulnerabilities in it. You have just practiced which type of risk treatment?", "o": ["Risk transfer", "Risk avoidance", "Risk acceptance", "Risk mitigation"], "a": 2, "r": "Risk avoidance is the best answer because by removing the risky server altogether, you are avoiding the risk. Answer D may have been considered because vulnerability mitigation is a type of risk treatment, but that usually involves addressing specific vulnerabilities, not removing entire systems or services.", "src": "additional"}, {"id": 11, "d": 0, "q": "A security engineer is performing a review of an organization’s datacenter security controls. They document that the datacenter lacks security cameras for monitoring the facilities. What type of control does this represent?", "o": ["Administrative", "Technical", "Physical", "Logical"], "a": 2, "r": "Security cameras used for monitoring facilities are an example of physical security controls. Administrative controls are managementoriented controls such as documentation, policies, procedures, and training. Technical or logical controls are hardware or software components implemented by computer systems or network devices.", "src": "additional"}, {"id": 12, "d": 0, "q": "Which of the following statements is true regarding the types of security controls?", "o": ["Physical controls are also referred to as logical controls.", "Logical controls are also referred to as managerial controls.", "Physical controls are also referred to as managerial controls.", "Administrative controls are also referred to as soft controls."], "a": 3, "r": "Administrative controls are also referred to as soft controls or managerial controls. Technical controls are also referred to as logical controls.", "src": "additional"}, {"id": 13, "d": 0, "q": "The senior security engineer is creating a document that provides step-by-step instructions on how to launch a vulnerability scan utilizing the organization’s vulnerability scanning tool that all security engineers will be required to follow. Which of the following governance elements is this an example of?", "o": ["Policy", "Procedure", "Guideline", "Law"], "a": 1, "r": "A document containing step-by-step instructions on how to perform a vulnerability scanning is an example of a procedure. Policies are high-level management statements providing directives to the organization but do not prescribe exact steps. Guidelines serve as best practice references but are not required to be followed. While following the procedure may be a requirement of the business, the procedure itself is not a law.", "src": "additional"}, {"id": 14, "d": 0, "q": "An information security policy is an example of which of the following types of controls?", "o": ["Administrative", "Technical", "Logical", "Physical"], "a": 0, "r": "A policy is an example of an administrative control. Administrative controls are management-oriented controls that provide directives and instruction aimed at people within the organization, such as documentation, training, and other personnel management practices. Technical controls, also known as logical controls, are hardware or software components that protect virtual resources. Physical controls are tangible controls put in place to protect physical resources against physical threats", "src": "additional"}, {"id": 15, "d": 0, "q": "Sarah is a security engineer for a Software as a Service (SaaS) organization. Her friend Kyle is a systems administrator for the organization and helped her get the job by serving as a reference. While reviewing some system logs, Sarah discovered that Kyle is running a crypto-mining program on a company server for his own financial gain. How should Sarah respond to this situation?", "o": ["Ask Kyle to stop", "Ask Kyle to share the profits with her", "Mind her own business", "Escalate to senior management"], "a": 3, "r": "Sarah should immediately escalate this to senior leadership in accordance with the organization’s policies and procedures. This would be the ethical response to this situation.", "src": "additional"}, {"id": 16, "d": 0, "q": "Jane is a security administrator setting up access for a new employee who works in the manufacturing department. Jane makes sure to enable the employee’s access for the manufacturing area but not for the parts storage area. What best describes the principle Jane is applying?", "o": ["Principle of authentication", "Two-person rule", "Need to know", "Least privilege"], "a": 3, "r": "Least privilege is the most correct answer. By giving the employee access to the area the employee requires access to but no more, Jane is applying the principle of least privilege.", "src": "additional"}, {"id": 17, "d": 0, "q": "Which statement best describes the relationship between subjects, objects, and rules?", "o": ["A subject grants access to an object based on rules.", "An object is granted access to a subject based on rules.", "A subject is granted access to an object based on rules.", "An object is granted access to a subject based on credentials."], "a": 2, "r": "After first requesting access, a subject gets access to an object based on rules.", "src": "additional"}, {"id": 18, "d": 0, "q": "Credentials are composed of which of the following elements?", "o": ["Username and password", "Authorization and accountability", "Something you know and something you have", "Subjects and objects"], "a": 0, "r": "Identification (commonly a username, ID, or account number) and authentication (commonly a password, PIN, or token) are typically used in combination and are called credentials.", "src": "additional"}, {"id": 19, "d": 0, "q": "Joe has to log in to many systems on a daily basis and has too many passwords to remember. What is the best way for Joe to manage his passwords?", "o": ["Write the passwords down on a piece of paper.", "Store the passwords in a text file and store it in a safe place.", "Use the same password for every system so he only has to"], "a": 3, "r": "The best answer is to use a password manager or password vault software to manage passwords. These products require credentials to log in and protect the passwords with encryption and good access control. None of the other answers provide a secure solution.", "src": "additional"}, {"id": 20, "d": 0, "q": "Debby has been an employee of Acme Corp. for over 20 years. During that time, she has been able to access more and more systems. Now she has access to systems she doesn’t even need access to in order to do her job. This is an example of what type of situation?", "o": ["Privilege modification", "Access management", "Privileged access management", "Privilege creep"], "a": 3, "r": "The situation described is an example of privilege creep, where over time a person’s access increases beyond that which they require to do their job.", "src": "additional"}, {"id": 21, "d": 0, "q": "The identity and access management lifecycle consists of which steps?", "o": ["Provisioning, review, revocation", "Setup, review, auditing", "Creation, monitoring, termination", "Identification, authentication, authorization"], "a": 0, "r": "The identity and access management lifecycle consists of provisioning, review, and revocation steps.", "src": "additional"}, {"id": 22, "d": 0, "q": "Which of the following access control models leverages roles to provision access, where users with similar access needs are assigned to the same role?", "o": ["DAC", "MAC", "RBAC", "None of the above"], "a": 2, "r": "Role-based access control (RBAC) enforces access based on roles that define permissions and the level of access provided to any user assigned to that role. Roles are typically developed for similar users with the same access needs (e.g., HR, Sales, IT, Security).", "src": "additional"}, {"id": 23, "d": 0, "q": "An organization is concerned about the risk of a car driving from the parking lot through the entrance of the building. Which of the following security measures would best help address this concern?", "o": ["Biometrics", "RBAC", "Badge system", "Bollards"], "a": 3, "r": "Bollards are pillars or spheres made out of hard material used to prevent vehicles from driving through entrances. Biometrics and badge systems are measures to implement physical access control but would not prevent a car from driving through the entrance. RBAC is an access control model.", "src": "additional"}, {"id": 24, "d": 0, "q": "The security team is reviewing the configuration of the door that serves as the only entrance or exit to the datacenter. Organization personnel commonly access the datacenter to perform their work. In the event of a fire that impacts power to the door-locking mechanism, which of the following configurations is best?", "o": ["The door should always remain locked.", "The door should fail-secure.", "The door should fail-open.", "The door should automatically lock when there is no power."], "a": 2, "r": "The door should fail-open (also known as fail-safe). While this is a less secure option, it ensures the preservation of human life, which is the number-one priority.", "src": "additional"}, {"id": 25, "d": 0, "q": "The security team of an organization is concerned about the physical security of datacenter access. They want the datacenter entrance built in such a way that there are two doors with locks and the first door must close before the next door can be unlocked. Which of the following is this an example of?", "o": ["Bollard", "Mantrap", "Fence", "Biometric"], "a": 1, "r": "A mantrap is an area that has two doors built in such a way that the first door must be closed before the second door can be opened.", "src": "additional"}, {"id": 26, "d": 0, "q": "Which of the following access control models allows the creator of a resource the ability to assign permissions to other users?", "o": ["DAC", "MAC", "RBAC", "None of the above"], "a": 0, "r": "Discretionary access control (DAC) provides the owner of the resource, typically the creator, full control to configure which users can access the resource.", "src": "additional"}, {"id": 27, "d": 0, "q": "Which of the following is referred to as a physical address in computer networking?", "o": ["IPv4 address", "IPv6 address", "MAC address", "Loopback address"], "a": 2, "r": "Media access control (MAC) addresses are often referred to as a physical address or hardware address since they are assigned to the device’s physical hardware. Internet Protocol (IP) addresses are known as logical addresses. A loopback address is a special type of IP address.", "src": "additional"}, {"id": 28, "d": 0, "q": "How many layers are there in the OSI model?", "o": ["8", "7", "6", "5"], "a": 1, "r": "There are seven layers in the OSI model. These Include Application, Presentation, Session, Transport, Network, Data, and Physical.", "src": "additional"}, {"id": 29, "d": 0, "q": "Which of the following terms best describes a computer that provides content to other computers such as a website or an application?", "o": ["Client", "Server", "Endpoint", "Router"], "a": 1, "r": "Server is a term that describes a computer that serves content or provides a service to another computer on a network. A client is a computer that accesses or uses the content or service provided by the server. An endpoint is a computing device on a network, which could include a server but is not the best answer. A router is a network device that routes traffic on a network.", "src": "additional"}, {"id": 30, "d": 0, "q": "What is the name of the seventh layer of the OSI model?", "o": ["Application", "Session", "Presentation", "Network"], "a": 0, "r": "The Application Layer is Layer 7 (the uppermost layer) of the OSI model. The order of the layers from top (Layer 7) to bottom (Layer 1) are Application, Presentation, Session, Transport, Network, Data Link, and Physical.", "src": "additional"}, {"id": 31, "d": 0, "q": "Which of the following attacks are most likely to be carried out by a botnet?", "o": ["Advanced persistent threat attack", "DDoS attack", "Trojan horse attack", "Backdoor attack"], "a": 1, "r": "A botnet is a group of computers under the control of an attacker, most often for a coordinated attacker such as a DDoS attack. Advanced persistent threat and backdoors are not specific types of attacks, but rather features of attacks. A trojan horse is a type of attack but unlikely to be carried out by a botnet.", "src": "additional"}, {"id": 32, "d": 0, "q": "What is the best description of the difference between a phishing email and a spear phishing e-mail?", "o": ["A phishing e-mail is sent to a specific person; a spear phishing email is sent to an entire company.", "A phishing e-mail is sent to random recipients; a spear phishing email is sent to specific recipients.", "A phishing e-mail is sent to an entire company; a spear phishing"], "a": 0, "r": "", "src": "additional"}, {"id": 33, "d": 0, "q": "Which of the following is not a true statement about a worm?", "o": ["It can replicate itself.", "It is a type of malware.", "It is a type of botnet.", "It does not require a host program to infect and deliver it to the"], "a": 2, "r": "A worm is not a type of botnet. A worm can replicate itself and is a type of malware, but since it isn’t a virus, it does not require a host program to infect and serve as the delivery mechanism.", "src": "additional"}, {"id": 34, "d": 0, "q": "A rainbow table attack seeks to mitigate the limitations of dictionary or brute force attacks by precomputing the hash of passwords and storing them for later comparison.", "o": ["True", "False"], "a": 0, "r": "The answer is true. Dictionary and brute force attacks take a lot of processing time and resources, whereas rainbow table attacks do the processing ahead of time and store the hashes in a table or database.", "src": "additional"}, {"id": 35, "d": 0, "q": "What is the primary difference between an IDS and an IPS?", "o": ["They both do the same thing.", "An IDS detects malicious activity, whereas an IPS prevents the"], "a": 3, "r": "An IDS, which stands for intrusion detection system, detects malicious activity, whereas an IPS, which stands for intrusion prevention system, detects malicious activity and takes action on it.", "src": "additional"}, {"id": 36, "d": 0, "q": "Joe is a cyber criminal who has targeted a web server for a potential cyberattack. Joe wants to know if the server has any unpatched vulnerabilities he might be able to exploit. Which of the following actions is Joe most likely to take?", "o": ["Launch a smurf attack against the target server.", "Run a vulnerability scan against the target server.", "Send a phishing e-mail to the target server.", "Send a spear phishing e-mail to the target server."], "a": 1, "r": "The answer is to run a vulnerability scan, as that is the only one of the choices that will reveal vulnerabilities on the server.", "src": "additional"}, {"id": 37, "d": 0, "q": "__________________ is a method of attack where a hacker enters SQL commands into fields on a vulnerable web page. The commands are executed without proper authorization.", "o": ["Buffer overflow", "SQL injection", "HTTP response splitting", "Backdoor"], "a": 1, "r": "If a web server software does not properly check the data input by the user, it could allow an attacker to put SQL commands in the field, which are then executed by the SQL database without proper authorization. This is called a SQL injection attack.", "src": "additional"}, {"id": 38, "d": 0, "q": "Most cyber criminals would agree that _________________ are the weakest link in cybersecurity.", "o": ["Passwords", "Backdoors", "Laws", "People"], "a": 3, "r": "It is widely acknowledged that people are the weakest link in cybersecurity. Despite extensive progress in technical tools and controls, deliberate or accidental acts by people lead to the largest number of and most damaging security breaches.", "src": "additional"}, {"id": 39, "d": 0, "q": "A hacker uses a phishing attack to obtain a user’s credentials, access their company’s database, and steal proprietary information. This is an example of _______________.", "o": ["Denial of service", "Advanced persistent threat", "Extortion", "Data exfiltration"], "a": 3, "r": "The correct answer is data exfiltration, which is the unauthorized transfer of data from a computer or network.", "src": "additional"}, {"id": 40, "d": 0, "q": "A sophisticated cyber criminal gains access to a financial institution’s e-mail server, installs malware, and then over a period of weeks, moves to other servers and systems on the company’s network, installing other malware and tools, finding other credentials, stealing data, and scrubbing logs to cover her tracks. Which term best describes this type of activity?", "o": ["Denial of service attack", "Advanced persistent threat attack", "Extortion attack", "Website defacement attack"], "a": 1, "r": "During an advanced persistent threat attack, there is a sophisticated cyber criminal seeking to expand the attack over time, probing the network, finding more systems with vulnerabilities, exploiting them, and gaining unauthorized access to more and more systems and data, all the while doing things to cover their tracks.", "src": "additional"}, {"id": 41, "d": 0, "q": "Mary is a network engineer who wants to install a firewall in front of a database server to hide its IP address. What type of firewall should Mary choose?", "o": ["Proxy", "Packet filter", "Stateful/dynamic packet filter", "Database filter"], "a": 0, "r": "A proxy firewall impersonates the system at the other end of the connection and hides the IP address of the devices within the network it is protecting.", "src": "additional"}, {"id": 42, "d": 0, "q": "Antivirus software vendors use ______________ to keep up with the latest information about viruses and threats.", "o": ["Google", "National Vulnerability Database", "Threat intelligence", "National Security Agency"], "a": 2, "r": "Organizations and product vendors use threat intelligence from a variety of sources. By collecting and studying data about threats, vendors can prepare for and defend against them.", "src": "additional"}, {"id": 43, "d": 0, "q": "When leveraging a third-party cloud service provider, which of the following is always the responsibility of the provider?", "o": ["Data security", "Physical security of the datacenter", "Identity and access management controls", "Endpoint protection"], "a": 1, "r": "Physical security of the datacenter is always the responsibility of the cloud service provider.", "src": "additional"}, {"id": 44, "d": 0, "q": "An organization is utilizing a public cloud from a cloud service whose service offering allows the organization to use a framework to build and deploy custom applications. Which of the following cloud service models is being utilized?", "o": ["IaaS", "PaaS", "SaaS", "On-premises"], "a": 1, "r": "Platform as a service (PaaS) provides cloud service customers with development or application platforms to build and deploy applications.", "src": "additional"}, {"id": 45, "d": 0, "q": "An organization is using a cloud service provider to host their infrastructure. The cloud service provider manages the underlying infrastructure, and the organization manages the platforms and software (such as the OS, development tools, and applications). Which of the following cloud service models is being utilized?", "o": ["IaaS", "PaaS", "SaaS", "On-premises"], "a": 0, "r": "Infrastructure as a service (IaaS) provides customers with access to a pool of infrastructure resources such as network, server, and storage resources that can be virtually provisioned. The cloud service provider manages the underlying physical infrastructure, and the cloud service customer manages the platforms and software (such as OS, development tools, and applications) that run on the infrastructure.", "src": "additional"}, {"id": 46, "d": 0, "q": "An organization has built out a cloud environment in their own datacenter for exclusive use by their employees to allow other teams to provision and manage virtual resources. Which of the following cloud deployment models is this an example of?", "o": ["Public", "Private", "Community", "Hybrid"], "a": 1, "r": "A private cloud deployment model consists of computing infrastructure and resources that are dedicated for use by a single organization.", "src": "additional"}, {"id": 47, "d": 0, "q": "An organization is hosting applications in a private cloud environment and also making use of Amazon Web Services (AWS) to load-balance the traffic for applications if there is a spike in demand. Which of the following cloud deployment models is this an example of?", "o": ["Public", "Private", "Community", "Hybrid"], "a": 3, "r": "A hybrid cloud deployment model is a mix of the other models (such as a public and private model).", "src": "additional"}, {"id": 48, "d": 0, "q": "An organization is utilizing Google Mail (Gmail) as their e-mail service provider. Which of the following types of cloud service models is being utilized?", "o": ["SaaS", "PaaS", "IaaS", "On-premises"], "a": 0, "r": "Software as a service (SaaS) provides customers with access to an application hosted by the cloud service provider (such as an e-mail service).", "src": "additional"}, {"id": 49, "d": 0, "q": "Alice sends Bob a message encrypted with a private key. Bob decrypts the message with the same private key. Which of the following types of encryption is this an example of?", "o": ["Asymmetric", "Symmetric", "Hashing", "None of the above"], "a": 1, "r": "Symmetric encryption uses the same key for encryption and decryption. This means that the sender and receiver of a message need to have a copy of the same key in order to encrypt/decrypt the message.", "src": "additional"}, {"id": 50, "d": 0, "q": "Which of the following is not a secure method of data deletion?", "o": ["Emptying the recycle bin on your computer desktop", "Physical destruction of a hard drive", "Zeroization", "Overwriting"], "a": 0, "r": "Pressing the delete key on a computer and emptying the recycle bin on your desktop are not secure methods of data destruction, as the data is not actually securely deleted from the hard drive. These actions simply tell the operating system that the location on the hard drive is free for use.", "src": "additional"}, {"id": 51, "d": 0, "q": "Which of the following can be used to create message digests?", "o": ["Symmetric encryption algorithms", "Asymmetric encryption algorithms", "Hash functions", "All of the above"], "a": 2, "r": "Hash functions transform information into fixed-length output known as a hash value, message digest, or fingerprint.", "src": "additional"}, {"id": 52, "d": 0, "q": "A security administrator is looking for ways to automate the monitoring of logs throughout the environment. Which of the following solutions would help provide automated monitoring capability?", "o": ["Regularly review the logs", "Store the logs on a centralized log server", "Implement a SIEM", "Implement a firewall"], "a": 2, "r": "Implementing a security information and event management (SIEM) system is one example of how an organization can implement automated monitoring. A SIEM system is a tool that ingests logs from various sources, serves as a central secure log repository, and contains rules that alert on suspicious events identified in logs.", "src": "additional"}, {"id": 53, "d": 0, "q": "Which of the following types of encryption uses two keys: one for encryption and a separate key for decryption?", "o": ["Asymmetric", "Symmetric", "Hashing", "None of the above"], "a": 0, "r": "Asymmetric encryption uses two keys: a public key (for encryption) and a private key (for decryption).", "src": "additional"}, {"id": 54, "d": 0, "q": "As the new CISO of his organization, Joe decided to initiate a comprehensive set of scans. The scans reported that nearly all of his endpoints have known operating system vulnerabilities. What is the most likely root cause of this situation?", "o": ["The organization is the victim of an advanced persistent threat.", "The endpoints do not have up-to-date antimalware software"], "a": 2, "r": "The most likely reason endpoints have known operating system vulnerabilities is they do not have the latest patches installed from the vendors. Poorly configured antimalware software or a brute force attack would not cause this, and an APT might be the result of this situation but not the cause of it.", "src": "additional"}, {"id": 55, "d": 0, "q": "A network administrator found that one of the firewalls was no longer configured in accordance with recommended settings from DISA as it once was. What is the most likely reason for this?", "o": ["The settings from DISA were in.", "Configuration management procedures for the device were not"], "a": 1, "r": "The best answer is that it is most likely that someone changed a setting without the proper approval and documentation; therefore, CM procedures were not followed.", "src": "additional"}, {"id": 56, "d": 0, "q": "Mary isn’t sure if she is allowed to use her company-owned laptop to send messages to her friend on Facebook. To find out if she can, which policy should she refer to?", "o": ["AUP", "BYOD policy", "Data handling policy", "None of the above"], "a": 0, "r": "Of the choices provided, the AUP is the one most likely to provide guidance concerning whether or not Mary can use the company-owned laptop for nonbusiness use.", "src": "additional"}, {"id": 57, "d": 0, "q": "Of the policies listed, which one is most likely to provide guidance on connecting a home computer to the work network via VPN?", "o": ["AUP", "BYOD", "Data handling policy", "None of the above"], "a": 1, "r": "Of the choices provided, the BYOD policy is the best choice. The BYOD policy is used by organizations that want to allow their employees to use their personally owned devices to connect to the corporate network.", "src": "additional"}, {"id": 58, "d": 0, "q": "An employee notices a poster in the lunchroom reminding her about not writing down her passwords but instead to use the companyprovided password vault software. What is this an example of?", "o": ["Security awareness", "Security training", "Security policy", "Security testing"], "a": 0, "r": "The use of posters and reminders in the workplace is an example of security awareness.", "src": "additional"}, {"id": 59, "d": 0, "q": "What is the best reason to provide social engineering training to employees?", "o": ["To show people how to perform a social engineering attack", "So employees can report security violations to management", "To teach people what to look out for", "None of the above"], "a": 2, "r": "The correct answer is to show people what kinds of things they should look out for as a way to defend against social engineering attacks.", "src": "additional"}, {"id": 60, "d": 0, "q": "During which phase of the incident response process is the incident response plan developed and documented?", "o": ["Preparation", "Containment, eradication, and recovery", "Detection and analysis", "Post-incident activity"], "a": 0, "r": "The incident response plan is developed and documented during the preparation phase of the incident response process.", "src": "additional"}, {"id": 61, "d": 0, "q": "During which phase of the incident response process does the lessonslearned assessment take place?", "o": ["Detection and analysis", "Containment, eradication, and recovery", "Preparation", "Post-incident activity"], "a": 3, "r": "The lessons-learned assessment occurs during the post-incident activity phase of the incident response process.", "src": "additional"}, {"id": 62, "d": 0, "q": "A security analyst is reviewing log files from a system to determine if a security incident has occurred. This is an example of an activity that takes place in which of the following incident response process phases?", "o": ["Containment, eradication, and recovery", "Detection and analysis", "Preparation", "Post-incident activity"], "a": 1, "r": "Reviewing logs to determine if a security incident has occurred is an example of an activity that takes place in the detection and analysis phase of the incident response process.", "src": "additional"}, {"id": 63, "d": 0, "q": "In which phase of the incident response process would a security analyst recover a system from a backup?", "o": ["Preparation", "Detection and analysis", "Post-incident activity", "Containment, eradication, and recovery"], "a": 3, "r": "Recovering a system from backup would take place during the containment, eradication, and recovery phase of the incident response process.", "src": "additional"}, {"id": 64, "d": 0, "q": "What phase comes after the detection and analysis phase in the incident response process?", "o": ["Containment, eradication, and recovery.", "Preparation.", "Post-incident activity.", "Detection and analysis is the last phase of the process."], "a": 0, "r": "The containment, eradication, and recovery phase comes after the detection and analysis phase of the incident response process. The process steps are Preparation -> Detection and Analysis -> Containment, Eradication, and Recovery -> Post-Incident Activity.", "src": "additional"}, {"id": 65, "d": 0, "q": "Carol is tasked with creating a business continuity plan for her organization. What should she do to determine which of her organization’s business functions should be restored in the event of an incident?", "o": ["Conduct a risk assessment.", "Interview key stakeholders throughout the organization.", "Calculate the MTD for each business function.", "Conduct a business impact analysis."], "a": 3, "r": "The purpose of a business impact analysis is to determine which business functions should be restored after an incident.", "src": "additional"}, {"id": 67, "d": 0, "q": "Of the following which is the most likely reason(s) a business continuity program might fail?", "o": ["Failure to test the plan and procedures", "Failure to document activation procedures", "Failure to address the threats the organization is most likely to"], "a": 3, "r": "Failure to test the plan and procedures, document activation procedures, and address likely threats are all reasons the business continuity program may fail.", "src": "additional"}, {"id": 68, "d": 0, "q": "Alice is responsible for designing her organization’s datacenter to provide resiliency in the event of a disaster. If a disaster occurs, she wants to have the new datacenter up and running within a few days, but she does not want to incur the cost of building a full datacenter with all equipment fully installed and configured. Which of the following options is the best choice for her situation?", "o": ["Hot site", "Warm site", "Cold site", "Tertiary site"], "a": 1, "r": "A warm site is a facility that is configured with equipment suitable for supporting IT operations but without the computing equipment itself. The warm site has power, HVAC, physical infrastructure, and possibly telecommunications and peripheral equipment.", "src": "additional"}, {"id": 69, "d": 0, "q": "Which of the following is the best example of a hot site?", "o": ["A facility that is configured with equipment suitable for supporting IT operations but without the computing equipment itself", "A facility that is configured with equipment suitable for supporting IT operations and has the computing equipment installed and"], "a": 1, "r": "A hot site is a facility that is configured with equipment suitable for supporting IT operations and has the computing equipment", "src": "additional"}, {"id": 70, "d": 0, "q": "Which of the following is the best example of a cold site?", "o": ["A facility that is configured with equipment suitable for supporting IT operations but without the computing equipment itself", "A facility that is configured with equipment suitable for supporting IT operations and has the computing equipment installed and configured", "A facility that is configured with equipment suitable for supporting IT operations and has the computing equipment installed but not"], "a": 0, "r": "A cold site is a facility that is configured with equipment suitable", "src": "additional"}],
+      accurate12: [{"id": 1, "d": 0, "q": "Triffid Corporation requires employees working with sensitive hardcopy documents to place them in a safe at the end of each workday. What type of control is the process of putting the documents into the safe?", "o": ["Administrative", "Tangential", "Physical", "Technical"], "a": 0, "r": "The process or rule requiring documents to be placed in the safe is an administrative control. - Administrative controls are policies, rules, and procedures. - The safe itself is a physical control, but the process of using it is administrative. - Tangential is not a recognised control category. - Technical controls relate to IT systems.", "src": "accurate"}, {"id": 2, "d": 0, "q": "A vendor publishes different sets of instructions for installing an operating system depending on the platform used. This is an example of a:", "o": ["Law", "Procedure", "Standard", "Policy"], "a": 1, "r": "A procedure provides step by step instructions for completing a specific task. - Law is government issued. - Standards are generally accepted across an industry. - Policies are high level organisational directives.", "src": "accurate"}, {"id": 3, "d": 0, "q": "Triffid Corporation publishes a policy requiring employees to act in a way that protects health and safety. The security office writes detailed instructions on how to wear protective gear in hazardous areas. What are these detailed instructions?", "o": ["Policy", "Procedure", "Standard", "Law"], "a": 1, "r": "A procedure describes the exact steps to perform a task inside an organisation. - Policy is the high level directive. - Standards apply broadly across an industry. - Law is issued by government.", "src": "accurate"}, {"id": 4, "d": 0, "q": "A widely recognised set of industry security rules called the Data Security Standard is followed by organisations worldwide. This is an example of a:", "o": ["Law", "Policy", "Standard", "Procedure"], "a": 2, "r": "A standard is a set of rules or best practices recognised across an industry. - Not a law because it is not issued by government. - Not a policy because it is not internal to one organisation. - Not a procedure because it does not describe specific steps for one task.", "src": "accurate"}, {"id": 5, "d": 0, "q": "Olaf, an ISC2 member and security analyst, knows his company is not following a security standard during an audit. What should Olaf do?", "o": ["Tell the auditors the truth", "Ask supervisors for guidance", "Ask ISC2 for guidance", "Lie to the auditors"], "a": 0, "r": "The ISC2 Code of Ethics requires members to: - Act honestly - Protect the profession - Act responsibly Therefore Olaf must report the truth.", "src": "accurate"}, {"id": 6, "d": 0, "q": "Siobhan, an ISC2 member, receives a parking ticket after work. What should she do?", "o": ["Inform ISC2", "Pay the ticket", "Inform supervisors", "Resign"], "a": 1, "r": "A parking ticket is a minor legal issue and unrelated to professional conduct. It does not need to be reported to ISC2 or the employer.", "src": "accurate"}, {"id": 7, "d": 0, "q": "In risk management, what is something that poses risk to an organisation or asset?", "o": ["Fear", "Threat", "Control", "Asset"], "a": 1, "r": "A threat is any potential cause of harm to an asset. - Control mitigates risk - Asset is something of value - Fear is not a formal risk management term", "src": "accurate"}, {"id": 8, "d": 0, "q": "A system records transactions to show which users performed certain actions. This provides:", "o": ["Non-repudiation", "Multifactor authentication", "Biometrics", "Privacy"], "a": 0, "r": "Non-repudiation ensures a user cannot deny performing an action. Logging transactions supports this.", "src": "accurate"}, {"id": 9, "d": 0, "q": "A software firewall blocks certain network traffic on a device. What type of control is this?", "o": ["Physical", "Administrative", "Passive", "Technical"], "a": 3, "r": "Technical controls are implemented using IT systems and technology. Firewalls operate within the IT environment.", "src": "accurate"}, {"id": 10, "d": 0, "q": "Triffid leadership publishes a document stating the company will follow SANS best practices. The Triffid document is a ______ and the SANS documents are ______.", "o": ["Law, policy", "Policy, standard", "Policy, law", "Procedure, procedure"], "a": 1, "r": "- The internal document created by management is a policy. - SANS best practices are industry standards.", "src": "accurate"}, {"id": 11, "d": 0, "q": "Phrenal sells a laptop online and hopes to get $100 but is willing to accept less. This demonstrates:", "o": ["Risk tolerance", "Risk inversion", "Threat", "Vulnerability"], "a": 0, "r": "Risk tolerance is the level of risk someone is willing to accept.", "src": "accurate"}, {"id": 12, "d": 0, "q": "A router is configured to allow only specific MAC addresses to join the network. This is an example of a:", "o": ["Physical control", "Administrative control", "Substantial control", "Technical control"], "a": 3, "r": "If the control is implemented through technology or IT systems, it is a technical control. A helpful rule of thumb often used in exams: > If it uses electricity or is part of an IT system, it is likely a technical control.", "src": "accurate"}],
+      thor21: [{"id": 1, "d": 0, "q": "If we wanted to implement the CHEAPEST and the WEAKEST type of authentication, what would we implement?", "o": ["Biometric authentication", "Token-based authentication", "Password-based authentication", "One-time password"], "a": 2, "r": "Password-based authentication: Password-based authentication is generally the cheapest and weakest form of authentication, especially when compared to the other options listed. Password-based systems are relatively easy and cheap to implement since they require minimal infrastructure. For instance, an email or website login system would primarily require only a username and password field in a database, and some code to compare input values against the stored ones.", "src": "thor"}, {"id": 2, "d": 0, "q": "Our senior management wants to collect more Personal Identifiable Information (PII) from our customers in order to be able to sell more products to them. Which of these should be the MOST important when we decide how much PII (Personally Identifiable Information) we collect?", "o": ["The potential value of the data to malicious actors", "The laws and regulations that apply to the data", "The amount of data we need for our project", "The convenience for the user"], "a": 1, "r": "The laws and regulations that apply to the data: The collection, use, and storage of Personal Identifiable Information (PII) is highly regulated. Different jurisdictions may have differing rules for what constitutes PII and how it can be collected, stored, used, and shared. Notably, regulations like the General Data Protection Regulation (GDPR) in the European Union and the California Consumer Privacy Act (CCPA) in the United States provide strict guidelines about consent, transparency, data minimization, and purpose limitation. Companies must ensure compliance with these laws to avoid heavy fines and potential damage to their reputation. Therefore, when deciding how much PII to collect, the", "src": "thor"}, {"id": 3, "d": 0, "q": "What are the key differences between a botnet and a worm?", "o": ["A botnet is a type of malware that is used to launch distributed denial of service (DDoS) attacks, while a worm is a type of malware that is used to steal sensitive data.", "A botnet is a type of malware that infects a single computer, while a worm is a type of malware that infects multiple computers.", "A botnet is a type of malware that is used to launch spam campaigns, while a worm is a type of malware that is used to encrypt files and hold them for ransom.", "A botnet is a network of infected computers that are controlled by a single attacker, while a worm is a self-replicating piece of malware that spreads through networks."], "a": 3, "r": "A botnet is a network of infected computers that are controlled by a single attacker, while a worm is a self-replicating piece of malware that spreads through networks: A botnet is essentially a network of private computers infected with malicious software and controlled as a group without the owners' knowledge. The term comes from the words \"robot\" and \"network\". An attacker, also known as a 'bot-herder', typically uses the botnet for illicit purposes such as sending spam or carrying out Distributed Denial of Service (DDoS) attacks. A worm, on the other hand, is a type of malware that replicates itself in order to spread to other computers. It typically uses a network to spread, relying on", "src": "thor"}, {"id": 4, "d": 0, "q": "When we are talking about the governance part of our organization, who are we referring to?", "o": ["The employees", "The shareholders", "The CEO and other executives", "The board of directors"], "a": 3, "r": "The board of directors: When discussing the governance of an organization, we're primarily referring to the board of directors. The board of directors is a group of individuals who are elected by shareholders to oversee the management of an organization. They make strategic decisions, oversee the company's performance, and ensure the company is acting in the best interests of its shareholders. Their responsibilities include hiring and firing the CEO, approving budgets, setting company-wide policies, and making high-level decisions about the direction of the organization.", "src": "thor"}, {"id": 5, "d": 0, "q": "Which of the following is the MOST important factor in aligning a security function to a business strategy?", "o": ["Ensuring compliance with industry regulationswrong", "Developing strong communication with business stakeholders", "Conducting regular security assessments", "Implementing technical controls"], "a": 1, "r": "Developing strong communication with business stakeholders: While technical controls, compliance, and security assessments are all crucial aspects of a robust security strategy, aligning the security function to a business strategy primarily requires strong communication with business stakeholders.", "src": "thor"}, {"id": 6, "d": 0, "q": "To ensure the confidentiality, integrity, and availability of our backup tapes, where would it be appropriate to store them?", "o": ["In a secure, climate-controlled storage room within our office building", "In a secure, climate-controlled storage room in a commercial storage place", "In a secure, climate-controlled storage room at a tape storage vendor", "In a fire-proof safe in the office manager's office"], "a": 2, "r": "In a secure, climate-controlled storage room at a tape storage vendor: Storing backup tapes at a secure, climate-controlled storage room at a tape storage vendor ensures the highest level of protection for the tapes.", "src": "thor"}, {"id": 7, "d": 0, "q": "What is the main goal of implementing a defense-in-depth strategy in information security?", "o": ["To reduce the cost of security measures", "To prevent all external attacks", "To provide multiple layers of security controls", "To eliminate the need for security policies"], "a": 2, "r": "To provide multiple layers of security controls: Defense-in-depth is a security approach that involves implementing multiple layers of security controls to protect against potential threats.", "src": "thor"}, {"id": 8, "d": 0, "q": "Which of the following security controls would be the MOST effective at protecting against insider threats?", "o": ["Security awareness training", "Access controls", "Firewalls", "Encryption"], "a": 1, "r": "Access controls: Access controls are the most effective at protecting against insider threats.", "src": "thor"}, {"id": 9, "d": 0, "q": "In the context of cryptography, what is the main purpose of a hash function?", "o": ["To generate a random number", "To encrypt data", "To create a digital signature", "To create a unique representation of data"], "a": 3, "r": "To create a unique representation of data: A hash function in cryptography is primarily used to create a unique representation of data.", "src": "thor"}, {"id": 10, "d": 0, "q": "What is the LEAST common vulnerability of IoT (Internet of Things) devices?", "o": ["Lack of security updates", "Insufficient encryption", "Lack of physical security", "Inadequate authentication"], "a": 2, "r": "Lack of physical security: While IoT devices can have multiple vulnerabilities due to their connectivity and the vast ecosystem, the lack of physical security is not typically cited as a primary vulnerability.", "src": "thor"}, {"id": 11, "d": 0, "q": "When we are talking about the different states of data, where would we have data in use?", "o": ["In a data storage device", "In a database server", "In a data transmissionwrong", "In a computer memory"], "a": 3, "r": "In a computer memory: When we refer to data \"in use\", it means that the data is currently being processed or manipulated by the system.", "src": "thor"}, {"id": 12, "d": 0, "q": "What is the MOST common cause of data breaches in organizations?", "o": ["Malicious insider attacks", "Lack of employee training on security protocols", "External cyber attacks", "Poorly implemented security policieswrong"], "a": 2, "r": "External cyber attacks: According to a study by the Verizon Data Breach Investigation Report, the MOST common cause of data breaches in organizations is external cyber attacks.", "src": "thor"}, {"id": 13, "d": 0, "q": "Which type of control would best describe a security guard?", "o": ["Technical control", "Physical control", "Operational control", "Environmental control"], "a": 1, "r": "Physical control: Physical controls are security measures that are designed to deny unauthorized access to physical resources.", "src": "thor"}, {"id": 14, "d": 0, "q": "What is the MOST secure way to store sensitive data?", "o": ["Encrypting the data and storing it on a single physical serverwrong", "Storing the data in plain text on a cloud-based server", "Storing the data in plain text on a physical server", "Encrypting the data and storing it on a cloud-based server"], "a": 3, "r": "Encrypting the data and storing it on a cloud-based server.", "src": "thor"}, {"id": 15, "d": 0, "q": "What is a commonly used method for assessing the potential consequences of a disruption to an organization's operations and resources?", "o": ["Risk management", "Risk assessment", "Business impact analysis", "Threat analysis"], "a": 2, "r": "Business impact analysis (BIA).", "src": "thor"}, {"id": 16, "d": 0, "q": "What is the primary benefit of implementing a security awareness program in an organization?", "o": ["To increase employee productivity", "To ensure compliance with industry regulations", "To improve the overall security posture of the organization", "To prevent employees from accidentally leaking sensitive information"], "a": 2, "r": "To improve the overall security posture of the organization.", "src": "thor"}, {"id": 17, "d": 0, "q": "What can we implement that could help DECREASE identity theft online?", "o": ["Encourage people to use the same password for multiple accounts", "Store sensitive information in plain text", "Implement a single sign-on system", "Implement two-factor authentication"], "a": 3, "r": "Implement two-factor authentication.", "src": "thor"}, {"id": 18, "d": 0, "q": "Which of the following would be the MOST effective way to ensure the security of sensitive data in a cloud environment?", "o": ["Implementing firewalls and intrusion detection systems", "Conducting regular penetration testing", "Establishing regular backups and data recovery processes", "Implementing a zero-trust security model"], "a": 3, "r": "Implementing a zero-trust security model.", "src": "thor"}, {"id": 19, "d": 0, "q": "Which of the following is the MOST important principle of layered security?", "o": ["Implementing the most expensive security solutions at each layer", "Ensuring that all layers are equally secure", "Regularly testing and updating each layer", "Implementing security measures in a hierarchical mannerwrong"], "a": 2, "r": "Regularly testing and updating each layer.", "src": "thor"}, {"id": 20, "d": 0, "q": "What is the ULTIMATE goal of a risk assessment?", "o": ["To create a comprehensive report for management and stakeholders", "To implement measures to prevent all potential cyber attacks", "To identify all possible vulnerabilities and threats in an organization's systems and networks", "To prioritize and allocate resources to address the most significant risks"], "a": 3, "r": "To prioritize and allocate resources to address the most significant risks.", "src": "thor"}, {"id": 21, "d": 0, "q": "How does a buffer overflow vulnerability occur?", "o": ["By sending a large amount of data to a server, overloading its memory and causing it to crash", "By exploiting a weakness in the encryption algorithm used by a website", "By using a malicious code to gain access to unauthorized information", "By writing more data to a buffer than it can hold, causing the excess data to overflow into adjacent memory locations."], "a": 0, "r": "By writing more data to a buffer than it is allocated to hold, causing the excess data to overflow into adjacent memory areas.", "src": "thor"}],
+      ucert115: [{"id": 1, "d": 0, "q": "In the context of cybersecurity, typical threat actors include the following:", "o": ["Insiders (either deliberately, by simple human error, or by gross incompetence).", "Outside individuals or informal groups (either planned or opportunistic, discovering vulnerability).", "Technology (such as free-running bots and artificial intelligence", "All"], "a": 3, "r": "", "src": "ucertify"}, {"id": 2, "d": 0, "q": "4 Embedded systems and network-enabled devices that communicate with the internet are considered as", "o": ["Endpoint", "Node", "IOT", "router"], "a": 2, "r": "", "src": "ucertify"}, {"id": 3, "d": 0, "q": "What is the recommended fire suppression system for server rooms", "o": ["Foam based", "Water based", "Powder based", "ftac hacorl"], "a": 3, "r": "", "src": "ucertify"}, {"id": 4, "d": 0, "q": "A chief information security officer (CISO) at a large organization documented a policy that establishes the acceptable use of cloud environments for all staff. This is an example of", "o": ["Technical control", "Physical control", "Cloud control", "Management/Administrative control"], "a": 3, "r": "", "src": "ucertify"}, {"id": 5, "d": 0, "q": "Configuration settings or parameters stored as data, managed through a software graphical user interface (GUI) is", "o": ["Logical access control", "Physical access control", "Administratirve Access control"], "a": 0, "r": "", "src": "ucertify"}, {"id": 6, "d": 0, "q": "A set of security controls or system settings used to ensure uniformity of configuration through the IT environment?", "o": ["Patches", "Inventory", "Baseline", "Policy"], "a": 2, "r": "", "src": "ucertify"}, {"id": 7, "d": 0, "q": "Ping flood attack target which OSI layer", "o": ["Layer 4", "Layer 3", "Layer 5", "Layer 6"], "a": 1, "r": "", "src": "ucertify"}, {"id": 8, "d": 0, "q": "Which is an approach to networking that uses software-based controllers or application programming interfaces (APIs) to communicate with underlying hardware infrastructure and direct traffic on a network. /CC-exam-dumps.html (407 New Questions)", "o": ["VLAN", "SDN", "VPN", "SAN"], "a": 1, "r": "", "src": "ucertify"}, {"id": 9, "d": 0, "q": "Which of the following is not a Social engineering technique", "o": ["Pretexting", "Baiting", "Quid pro quo", "Double Dealing"], "a": 3, "r": "", "src": "ucertify"}, {"id": 10, "d": 0, "q": "A organization's security system which involves in preventing, detecting, analyzing, and responding to cybersecurity incidents.", "o": ["Business continuity team", "Disaster recovery team", "Incident response team", "Security operations center"], "a": 3, "r": "", "src": "ucertify"}, {"id": 10, "d": 0, "q": "TCP and UDP reside at which layer of the osi model?", "o": ["Session", "Transport", "Data link", "Presentation"], "a": 3, "r": "", "src": "ucertify"}, {"id": 12, "d": 0, "q": "Mark has purchased a MAC LAPTOP. He is scared of losing his screen and planning to buy an insurance policy. So, which risk management strategy is?", "o": ["Risk acceptance", "Risk deterrence", "Risk transference", "Risk mitigation"], "a": 2, "r": "", "src": "ucertify"}, {"id": 17, "d": 0, "q": "Which OSI layer VPN works", "o": ["Layer 5", "Layer 6", "Layer 1", "Layer 3"], "a": 3, "r": "", "src": "ucertify"}, {"id": 19, "d": 0, "q": "A hacker gains access to a compony network and begins to intercept network traffic in order to steal login credentials which OSI layer is being attacked", "o": ["Data Link layer", "Physical layer", "Network Layer", "Application laver"], "a": 3, "r": "", "src": "ucertify"}, {"id": 23, "d": 0, "q": "System capabilities designed to detect and prevent the unauthorized use and transmission of information.", "o": ["SOC", "SIEM solutions", "Data Loss Prevention", "Crytography"], "a": 2, "r": "", "src": "ucertify"}, {"id": 27, "d": 0, "q": "IDS can be described in terms of what fundamental functional components?", "o": ["Response", "Information Sources", "Analysis", "All of the choices."], "a": 3, "r": "", "src": "ucertify"}, {"id": 30, "d": 0, "q": "Which of the following is a systematic approach to protecting against cyber threats that involves a continuous cycle of identifying, assessing and prioritizing risks and implementing measures to reduce or eliminate those risks?", "o": ["Security Assessment", "Incident response", "Peneteration testing", "Risk Management"], "a": 3, "r": "", "src": "ucertify"}, {"id": 32, "d": 0, "q": "Are a measure of an organization's baseline of security performance", "o": ["Security Assessment", "Secuirty Audit", "Security Benchmark", "Security Management"], "a": 2, "r": "", "src": "ucertify"}, {"id": 37, "d": 0, "q": "After an Earthquake disrupting business operations, which documents contains the reactive procedures required to return business to normal operations", "o": ["The Business Impact Analysis", "The Business Continuity Plan", "The Disaster Recovery plan", "The Business Impact Plan"], "a": 2, "r": "", "src": "ucertify"}, {"id": 40, "d": 0, "q": "What is the difference between BCP and DRP", "o": ["BCP is about restoring IT and communications back to full operations after a disruption, while DRP is about maintaining critical business functions", "DRP is about restoring IT and communications back to full operations after a disruption, while BCP i about maintaining critical business functions", "DRP and BCP are the same", "BCP is about maintaining critical business functions before a disaster occurs"], "a": 1, "r": "", "src": "ucertify"}, {"id": 45, "d": 0, "q": "Is a way to prevent unwanted devices from connecting to a network.", "o": ["DMZ", "VPN", "VLAN", "NAC"], "a": 3, "r": "", "src": "ucertify"}, {"id": 48, "d": 0, "q": "In information systems terms, the activities necessary to restore IT and communications services of an organization during and after an outage", "o": ["IR", "BC", "Risk Management", "DR"], "a": 3, "r": "", "src": "ucertify"}, {"id": 50, "d": 0, "q": "What security feature used in HTTPS", "o": ["IPSec", "SSH", "ICMP", "SSL/TLS"], "a": 3, "r": "", "src": "ucertify"}, {"id": 52, "d": 0, "q": "which is the short form of IPv6 address 2001:0db8:0000:0000:0000:ffff:0000:0001", "o": ["2001:db8::ffff:0:1", "2001:db8:0000:ffff:0:1", "2001:db80::ffff:0000:1", "2001:db8::ffff:0000:0001"], "a": 0, "r": "", "src": "ucertify"}, {"id": 53, "d": 0, "q": "Removing the design belief that the network has any trusted space. Security is managed at each possible level, representing the most granular asset. Micro segmentation of workloads is a tool of the model", "o": ["Zero Trust", "Defence in Depth", "Least Privileges", "AII"], "a": 0, "r": "", "src": "ucertify"}, {"id": 54, "d": 0, "q": "Which Regulation addresses personal privacy", "o": ["HIPAA", "GDPR", "NIST", "ISO"], "a": 1, "r": "", "src": "ucertify"}, {"id": 55, "d": 0, "q": "While taking the certification exam for ISC2 CC, You notice another candidate for the certification cheating. What should you do?", "o": ["Yell at the other candidate for violating test security.", "Nothing—each person is responsible for their own actions.", "Report the candidate to ISC2.", "Call local law enforcement."], "a": 2, "r": "", "src": "ucertify"}, {"id": 58, "d": 0, "q": "A company needs to protect its confidential data from unauthorized access which logical control is best suited for this scenario", "o": ["Encryption", "Firewall", "Antivirus", "Hashing"], "a": 0, "r": "", "src": "ucertify"}, {"id": 65, "d": 0, "q": "What is the purpose of non-repudiation in information security?", "o": ["To ensure data is always accessible when needed", "To protect data from unauthorized access", "To prevent the sender or recipient of a message from denying having sent or received the message", "To ensure data is accurate and unchanged"], "a": 2, "r": "", "src": "ucertify"}, {"id": 67, "d": 0, "q": "Which is the component of a Business Continuity (BC) plan", "o": ["Immediate response procedures and checklists", "Notification systems and call trees for alerting personnel", "Guidance for management, including designation of authority for specific managers", "ALL"], "a": 3, "r": "", "src": "ucertify"}, {"id": 68, "d": 0, "q": "Which of the following is a type of risk that involves the unauthorized use or disclosure of confidential information such as passwords, financial data or personal information?", "o": ["Compliance risk", "Reputatuinal risk", "Operational risk", "Information risk"], "a": 3, "r": "", "src": "ucertify"}, {"id": 71, "d": 0, "q": "A structured approach used to oversee and manage risk for an enterprise", "o": ["Risk Assessment", "Risk threshold", "Risk Management Framework", "Risk appetite"], "a": 2, "r": "", "src": "ucertify"}, {"id": 75, "d": 0, "q": "Which of these is WEAKEST form of authentication we can implement?", "o": ["Something you know", "Something you are", "Something you have", "Biometric authentications"], "a": 0, "r": "", "src": "ucertify"}, {"id": 80, "d": 0, "q": "What is the primary purpose of a firewall in network security?", "o": ["Encrypt data transmissions", "Prevent unauthorized access", "Monitor network traffic", "Backup critical data"], "a": 1, "r": "", "src": "ucertify"}, {"id": 81, "d": 0, "q": "What is a threat in the context of cybersecurity", "o": ["An inherent weakness or flaw in a system", "Something in need of protection", "The means by which a threat actor carries out their objectives", "A person or thing that takes action to exploit a target organizations system vulnerabilities"], "a": 3, "r": "", "src": "ucertify"}, {"id": 83, "d": 0, "q": "Created by switches to logically segment a network without altering its physical topology.", "o": ["LAN", "WAN", "VLAN", "MAN"], "a": 2, "r": "", "src": "ucertify"}, {"id": 86, "d": 0, "q": "A company network has been infected with malware and all its servers are down. What is the first step that the Disaster Recovery team should take to restore the systems?", "o": ["Disconnect the affected systems from the network", "Conduct a risk assessment of determine the extent of the damage", "Restore data from backup systems", "Contact the enforcement to investigate the cyberattack"], "a": 0, "r": "", "src": "ucertify"}, {"id": 88, "d": 0, "q": "What is knowledge based authentication", "o": ["Authentication based on a passphrase or secret code", "Autheication based on a token or memory card", "Authentication based on biometrics or measurble charestrisirtcs", "Authencication based on something you do"], "a": 0, "r": "", "src": "ucertify"}, {"id": 93, "d": 0, "q": "Which phase of the access control process(AAA) does a user prove his/her identity?", "o": ["Authentication", "Authorization", "Identification", "Accounting"], "a": 0, "r": "", "src": "ucertify"}, {"id": 94, "d": 0, "q": "What is IPSEC reply attack", "o": ["An attack where an attacker modifies packets in transit", "An attack where an attacker eavesdrops on network traffic", "An attack where an attacker overloads a network with traffic", "An attack where an attacker attempts to inject packets in an existing sessio"], "a": 3, "r": "", "src": "ucertify"}, {"id": 99, "d": 0, "q": "When responding to a security incident, your team determines that the vulnerability that was exploited was not widely known to the security community, and that there are no currently known definitions/listings in common vulnerability databases or collections. This vulnerability and exploit might be called ______", "o": ["Malware", "Zero-day", "Event", "Attack"], "a": 1, "r": "", "src": "ucertify"}, {"id": 101, "d": 0, "q": "A company network experience a sudden flood of network packets that causes major slowdown in internet traffic. What type of event it this?", "o": ["Security incident", "Natural disaster", "Exploit", "Adverse event"], "a": 3, "r": "", "src": "ucertify"}, {"id": 103, "d": 0, "q": "How does IPSec protect against reply attacks", "o": ["By using sequence numbers", "By limiting access to the network", "By using digital signatures", "By encryption all network traffic"], "a": 0, "r": "", "src": "ucertify"}, {"id": 108, "d": 0, "q": "Organization experiences a security event that does not affect the confidentiality integrity and availability of its information system. What term BEST describes this situation?", "o": ["Exploit", "Breach", "Incident", "Event"], "a": 3, "r": "", "src": "ucertify"}, {"id": 110, "d": 0, "q": "What is the main purpose of creating baseline in ensuring system integrity", "o": ["To compare the baseline with the current state of the systems", "To protect the information", "To understand the current state of the system", "AII"], "a": 0, "r": "", "src": "ucertify"}, {"id": 113, "d": 0, "q": "How often should an organization test its business continuity plan", "o": ["Continually", "Annually", "Routinely", "Daily"], "a": 2, "r": "", "src": "ucertify"}, {"id": 114, "d": 0, "q": "Selvaa presents a userid and a password to a system in order to log on. Which of the following characteristics must the userid have?", "o": ["Autherization", "Authentication", "Availability", "Identification"], "a": 3, "r": "", "src": "ucertify"}, {"id": 116, "d": 0, "q": "A type of malware that is capable of self propagation and can infect multiple systems on network without the need for human intervention", "o": ["Worm", "Spy ware", "Adwre", "Virus"], "a": 0, "r": "", "src": "ucertify"}, {"id": 119, "d": 0, "q": "A _____ is a distributed denial-of-service (DDoS) attack in which an attacker attempts to flood a targeted server with Internet Control Message Protocol (ICMP) packets.", "o": ["DOS", "Syn flood", "Smurf attack", "Phishing attack"], "a": 2, "r": "", "src": "ucertify"}, {"id": 122, "d": 0, "q": "Which of these components is very likely to be instrumental to any disaster recovery (DR) effort? /CC-exam-dumps.html (407 New Questions)", "o": ["Routers", "Laptops", "Firewalls", "Backups"], "a": 3, "r": "", "src": "ucertify"}, {"id": 125, "d": 0, "q": "What is the priority of incident response in the context of incident management", "o": ["Protect the organization mission and objectives", "Reduce the impact of the incident", "Protect life health and safety", "Resume interrupted operations as soon as possible"], "a": 2, "r": "", "src": "ucertify"}, {"id": 128, "d": 0, "q": "Mark is configuring an automated data transfer between two hosts and is choosing an authentication technique for one host to connect to the other host. What approach would be best-suited for this scenario?", "o": ["Biometric", "Smart Card", "SSH Key", "Hard Coded Password"], "a": 2, "r": "", "src": "ucertify"}, {"id": 132, "d": 0, "q": "What is a security token used to authenticate a user to a web application, typically after they log in?", "o": ["Captcha", "API key", "CSRF token", "Session token"], "a": 3, "r": "", "src": "ucertify"}, {"id": 137, "d": 0, "q": "Derrick logs on to a system in order to read a file. In this example. Derrick is the ______?", "o": ["Subject", "Object", "Process", "Predicate"], "a": 0, "r": "", "src": "ucertify"}, {"id": 138, "d": 0, "q": "Which of the following documents contains elements that are NOT mandatory", "o": ["Procedures", "Policies", "Regulations", "Guidelines"], "a": 3, "r": "", "src": "ucertify"}, {"id": 143, "d": 0, "q": "Actions, processes and tools for ensuring an organization can continue critical operations during a contingency.", "o": ["BC", "DR", "IR", "AII"], "a": 0, "r": "", "src": "ucertify"}, {"id": 148, "d": 0, "q": "The Bell and LaPadula access control model is a form of", "o": ["RBAC", "MAC", "DAC", "ABAC"], "a": 1, "r": "", "src": "ucertify"}, {"id": 152, "d": 0, "q": "Who must follow HIPAA Compliance", "o": ["Energy Sector", "Health Care", "Finance Sector", "ALL"], "a": 1, "r": "", "src": "ucertify"}, {"id": 153, "d": 0, "q": "______ are virtual separations within a switch and are used mainly to limit broadcast traffic", "o": ["LAN", "WAN", "VLAN", "MAN"], "a": 2, "r": "", "src": "ucertify"}, {"id": 154, "d": 0, "q": "A company wants to ensure that its employees cannot bring unauthorized electronic devices into the workspace which physical control is best suited for this", "o": ["Metal Detectors", "Security gaurds", "RFID scanners", "Baggage X-ray machinces"], "a": 0, "r": "", "src": "ucertify"}, {"id": 156, "d": 0, "q": "Which of the following best describes the type of technology the team should implement to increase the work effort of buffer overflow attacks?", "o": ["Address space layout randomization", "Memory induction application", "Input memory isolation", "Read-only memory integrity checks"], "a": 0, "r": "", "src": "ucertify"}, {"id": 158, "d": 0, "q": "Which of these is WEAKEST form of authentication we can implement?", "o": ["Something you know", "Something you are", "Something you have", "Biometric authentications"], "a": 0, "r": "", "src": "ucertify"}, {"id": 159, "d": 0, "q": "Which type of authentication is something which you", "o": ["Type1", "Type 2", "Type 3", "Type 4"], "a": 2, "r": "", "src": "ucertify"}, {"id": 160, "d": 0, "q": "What is the process of verifying a users identity called?", "o": ["Confidentiality", "Autentication", "Authorization", "Identification"], "a": 1, "r": "", "src": "ucertify"}, {"id": 163, "d": 0, "q": "What is privacy in the context of Information Security? /CC-exam-dumps.html (407 New Questions)", "o": ["Protecting data from unauthorized access", "Ensuring data is accurate and unchanged", "Making sure data is always accessible when needed.", "Disclosed without their consent"], "a": 0, "r": "", "src": "ucertify"}, {"id": 165, "d": 0, "q": "Which document serve as specifications for the implementation of policy and dictates mandatory requirements", "o": ["Policy", "Guideline", "Standard", "Procedures"], "a": 2, "r": "", "src": "ucertify"}, {"id": 166, "d": 0, "q": "Why is security training important?", "o": ["Because it fulfills regulatory requirements.", "Because it helps people to perform their job duties more efficiently.", "Because it reduces the risk of certain types of attacks, like social engineering.", "AII"], "a": 2, "r": "", "src": "ucertify"}, {"id": 171, "d": 0, "q": "A Company IT system experienced a system crash that result in a loss of data. What term best describes this event?", "o": ["Breach", "Incident", "Event", "Adverse Event"], "a": 0, "r": "", "src": "ucertify"}, {"id": 174, "d": 0, "q": "Granting a user access to services or the system", "o": ["Authentication", "Identification", "Authorization", "Confidentiality"], "a": 2, "r": "", "src": "ucertify"}, {"id": 177, "d": 0, "q": "What is sensitivity in the context of confidentiality", "o": ["The harm caused to externl stakeholders if information is disclosed or modified", "The ability of information to be accessed only by authorized individuals", "The need for protection assigned to information by its owner", "The Health status of the individuals"], "a": 2, "r": "", "src": "ucertify"}, {"id": 178, "d": 0, "q": "Which is the first step in the risk management process", "o": ["Risk response", "Risk mitigation", "Risk identification", "Risk assessment"], "a": 2, "r": "", "src": "ucertify"}, {"id": 179, "d": 0, "q": "A/hich layer of the OSI Layer model is the target of a buffer overflow attack", "o": ["Layer 7", "Layer 3", "Layer 5", "Layer 4"], "a": 0, "r": "", "src": "ucertify"}, {"id": 180, "d": 0, "q": "Which type of attack attempts to gain information by observing the devices power consumption", "o": ["DOS", "Side Channles", "XSS", "XSRF"], "a": 1, "r": "", "src": "ucertify"}, {"id": 183, "d": 0, "q": "What is the purpose of immediate response procedures and checklists in a BCP", "o": ["To notify personnel that the BCP is being enacted", "To provide guidance for management", "To safeguard the confidentiality, integrity and availability of information", "To ensure business operations are accounted for in the plan"], "a": 0, "r": "", "src": "ucertify"}, {"id": 187, "d": 0, "q": "Which of the following is the least secure communications protocol?", "o": ["CHAP", "Ipsec", "PAP", "EAP"], "a": 2, "r": "", "src": "ucertify"}, {"id": 190, "d": 0, "q": "John joined the ISC2 Organizations, his manager asked to check the authentications in security module. What would John use to ensure a certain control is working as he want and expect it to?", "o": ["Security Testing", "Security assessment", "Security audit", "Security walkthrough"], "a": 0, "r": "", "src": "ucertify"}, {"id": 191, "d": 0, "q": "The practice of ensuring that an organizational process cannot be completed by a single person; forces collusion as a means to reduce insider threats.", "o": ["Segregation of Duties", "Principle of Least Privilege", "Privileged Account", "Rule-based access control"], "a": 0, "r": "", "src": "ucertify"}, {"id": 195, "d": 0, "q": "Which plan is activated when both the Incident response and BCP fails", "o": ["Risk Management", "BIA", "DRP", "None"], "a": 2, "r": "", "src": "ucertify"}, {"id": 198, "d": 0, "q": "A security event, or combination of security events, that constitutes a secu incident in which an intruder gains, or attempts to gain, access to a system or system resource without authorization", "o": ["Intrusion", "Exploit", "Threat", "Attack"], "a": 0, "r": "", "src": "ucertify"}, {"id": 199, "d": 0, "q": "Which access control model can grant access to a given object based on complex rules", "o": ["ABAC", "DAC", "MAC", "RBAC"], "a": 0, "r": "", "src": "ucertify"}, {"id": 201, "d": 0, "q": "What is Remanence", "o": ["The ability of retaining magnetization in storage disk after deletion", "Files or pieces of files get scattered throughout your disks.", "Data corruption due to disk failure", "AII"], "a": 0, "r": "", "src": "ucertify"}, {"id": 205, "d": 0, "q": "Who is responsible for publishing and signing the organization s policies?", "o": ["The security office", "Human resources", "Senior management", "The legal department"], "a": 2, "r": "", "src": "ucertify"}, {"id": 208, "d": 0, "q": "A company data center has been breached by hackers and all its systems have been taken down what is the main objective of the DRP in such a scenario?", "o": ["To relocate the data center to another location", "To ensure the physical safety of employees in the data center", "To investigate and prosecute the hackers responsible of the attack", "To restore the IT systems to their last known state"], "a": 3, "r": "", "src": "ucertify"}, {"id": 209, "d": 0, "q": "Which layer provides the services to user?", "o": ["Application layers", "Session Layers", "Presentation Layer", "Physical Layer"], "a": 0, "r": "", "src": "ucertify"}, {"id": 212, "d": 0, "q": "Which type of network is set up similar to the internet but is private to an organization. Select the MOST appropriate?", "o": ["Extranet", "VLAN", "Intranet", "VPN"], "a": 1, "r": "", "src": "ucertify"}, {"id": 214, "d": 0, "q": "What are the primary responsibilities of a computer incident response team (CIRT) during an incident?", "o": ["To determine the difference between minor and major incident", "To troubleshoot network and system issues", "To provide medical assistance at accident scenes", "To asses the amount and scope of damage caused by the incident"], "a": 3, "r": "", "src": "ucertify"}, {"id": 217, "d": 0, "q": "A new BYOD policy has been enforced in NEW Corp which type of control is used to enforce thissecurity policies", "o": ["Physical control", "Logical Control"], "a": 2, "r": "", "src": "ucertify"}, {"id": 220, "d": 0, "q": "The process of applying secure configurations (to reduce the attack surface)", "o": ["Security Assessment", "Security Evaluation", "Security Benchmark", "Security Hardening"], "a": 3, "r": "", "src": "ucertify"}, {"id": 223, "d": 0, "q": "An outward-facing IP address used to access the Internet.", "o": ["Global Address", "Private Address", "Public Address", "DNS"], "a": 2, "r": "", "src": "ucertify"}, {"id": 226, "d": 0, "q": "Which protocol is used for secure email", "o": ["POP3S", "IMAPS", "SMTPS", "AII"], "a": 3, "r": "", "src": "ucertify"}, {"id": 229, "d": 0, "q": "Which of the following does not normally influence an organization's retention policy for logs?", "o": ["Laws", "Corporate governance", "Regulations", "Audits"], "a": 3, "r": "", "src": "ucertify"}, {"id": 233, "d": 0, "q": "Dani is an ISC2 member and an employee of New Corporation. One of Dani's colleagues offers to share a file that contains an illicit copy of a newly released movie. What should Dani do", "o": ["Inform ISC2", "Inform law enforcement", "Accept the movie", "Refuse to accept"], "a": 3, "r": "", "src": "ucertify"}, {"id": 238, "d": 0, "q": "allows for extremely granular restrictions within the IT environment, to the point where rules can be applied to individual machines and/or users,", "o": ["DMZ", "Microsegmentation", "VLAN", "NAC"], "a": 1, "r": "", "src": "ucertify"}, {"id": 241, "d": 0, "q": "Example of Technical controls", "o": ["Security Guard", "GPS installed in vehicle to track location", "Door Lock", "None"], "a": 1, "r": "", "src": "ucertify"}, {"id": 243, "d": 0, "q": "Set of rules that everyone must comply with and usually carry monetary penalties for noncompliance", "o": ["Standard", "Policy", "Procedure", "Laws or Regulations"], "a": 0, "r": "", "src": "ucertify"}, {"id": 248, "d": 0, "q": "Provides confidentiality by hiding or obscuring a message so that it cannot be understood by anyone except the intended recipient.", "o": ["Hashing", "Encoding", "Cryptography", "AII"], "a": 2, "r": "", "src": "ucertify"}, {"id": 249, "d": 0, "q": "An external entity has tried to gain access to your organization's IT environment without proper authorization. This is an example of a(n)", "o": ["Exploit", "Intrusion", "Event", "Malware"], "a": 1, "r": "", "src": "ucertify"}, {"id": 250, "d": 0, "q": "Which is not the function of IPS", "o": ["To encrypt network traffic", "To monitor network traffic", "To filter network traffic", "To detect and prevent attacks"], "a": 0, "r": "", "src": "ucertify"}, {"id": 255, "d": 0, "q": "Which of the following is a common security measure to prevent Cross Site Scripting (XSS) attacks in web applications?", "o": ["implementing strong password policies", "using a firewall to block incoming traffic", "validating and sanitizing user input ()", "encrypting data during transmission"], "a": 2, "r": "", "src": "ucertify"}, {"id": 257, "d": 0, "q": "Which of the following is not a feature of a cryptographic hash function", "o": ["Deterministic", "Unique", "Useful", "Reversible"], "a": 3, "r": "", "src": "ucertify"}, {"id": 261, "d": 0, "q": "The practice of sending fraudulent communications that appear to come from a reputable source", "o": ["DOS", "Virus", "Spoofing", "Phishing"], "a": 3, "r": "", "src": "ucertify"}, {"id": 269, "d": 0, "q": "Why Red book is important in BCP", "o": ["To have hard copy for easy access", "Easy to carry and transfer", "A hurricane hits, the power is out and all the facilities are compromised and there is no access to electronic backups", "AII"], "a": 2, "r": "", "src": "ucertify"}, {"id": 274, "d": 0, "q": "What is the most important aspect of security awareness/training?", "o": ["Maximizing business capabilities", "Protecting assets", "Protecting health and human safety", "Ensuring the confidentiality of data"], "a": 2, "r": "", "src": "ucertify"}, {"id": 275, "d": 0, "q": "Load balancing safe guard which CIA triad", "o": ["Confidentiality", "Availablity", "Integrity", "All"], "a": 1, "r": "", "src": "ucertify"}, {"id": 280, "d": 0, "q": "Protection against an individual falsely denying having performed a particular action", "o": ["Authentication", "Identification", "Verification", "Non repudiation"], "a": 3, "r": "", "src": "ucertify"}, {"id": 283, "d": 0, "q": "What is the BEST defense against dumpster diving attacks?", "o": ["Anti-malware software", "Clean desk policy", "Data loss prevention tools", "Shredding"], "a": 3, "r": "", "src": "ucertify"}, {"id": 287, "d": 0, "q": "Which one of the following groups is NOT normally part of an organization's cybersecurity incident response team?", "o": ["Technical Subject Matter Experts", "Cybersecurity Experts", "Management", "Law Enforcement"], "a": 3, "r": "", "src": "ucertify"}, {"id": 290, "d": 0, "q": "Devid is worried about distributed denial of service attacks against his company's primary web application, which of the following options will provide the MOST resilience against large-scale ddos attacks?", "o": ["Implement a CDN", "Increase the number of servers in the web application server cluster", "Contract for DDoS mitigation services via the company's IPS", "Increase the amount of bandwidth available from one or more ISPs"], "a": 0, "r": "", "src": "ucertify"}, {"id": 293, "d": 0, "q": "The prevention of authorized access to resources or the delaying of time critical operations.", "o": ["ARP Poisoning", "Syn Flood", "Denial-of-Service (DoS)", "AII"], "a": 2, "r": "", "src": "ucertify"}, {"id": 296, "d": 0, "q": "Which is not possible models for an Incident Response Team (IRT):", "o": ["Leveraged", "Dedicated", "Hybrid", "Outsourced"], "a": 3, "r": "", "src": "ucertify"}, {"id": 300, "d": 0, "q": "You experienced a power outage that disrupted access to your data center. What type of security concern occurred?", "o": ["Availability", "Confidentiality", "Non-Repudiation", "Integrity"], "a": 0, "r": "", "src": "ucertify"}, {"id": 305, "d": 0, "q": "What is the purpose of the post incident phase of incident response?", "o": ["To detect and analyze incidents", "To prepare for future incidents", "To document lessons learned and improve future incident response effectiveness", "To containment and eradicate incidents"], "a": 2, "r": "", "src": "ucertify"}, {"id": 306, "d": 0, "q": "Four main components of Incident Response are", "o": ["Preparation, Detection and Analysis, Containment, Eradication a", "Preparation, Detection, Analysis and Containment", "Detection, Analysis, Containment, Eradication and Recovery", "AII"], "a": 0, "r": "", "src": "ucertify"}, {"id": 310, "d": 0, "q": "The harmonization of automated computing tasks, providing a consolidated and reusable workflow", "o": ["Cloud Orchestration", "Cloud Manager", "Cloud broker", "Cloud Controller"], "a": 0, "r": "", "src": "ucertify"}, {"id": 311, "d": 0, "q": "EKristal is the security administrator for a large online service provider. Kristal learns that the company is harvesting personal data of its customers and sharing the data with local governments where the company operates, without the knowledge of the users, to allow the governments to persecute users on the basis of their political and philosophical beliefs. The published user agreement states that the company will not share personal user data with any entities without the users' explicit permission. According to the ISC2 Code of Ethics, to whom does Kristal ultimately report in this situation?", "o": ["The company Kristal works for", "The governments of the countries where the company operates", "ISC2", "The users"], "a": 3, "r": "", "src": "ucertify"}],
+      cap20: [{"id": 1, "d": 0, "q": "DIACAP applies to the acquisition, operation, and sustainment of any DoD system that collects, stores, transmits, or processes unclassified or classified information since December 1997. What phases are identified by DIACAP? Each correct answer represents a complete solution. Choose all that apply.", "o": ["Validation", "Re-Accreditation", "Verification", "System Definition", "Identification", "Accreditation"], "a": [0, 1, 2, 3], "r": "", "src": "cap"}, {"id": 2, "d": 0, "q": "Which of the following is a subset discipline of Corporate Governance focused on information security systems and their performance and risk management?", "o": ["Lanham Act", "ISG", "Clinger-Cohen Act", "Computer Misuse Act"], "a": [1], "r": "", "src": "cap"}, {"id": 3, "d": 0, "q": "Ben is the project manager of the YHT Project for his company. Alice, one of his team members, is confused about when project risks will happen in the project. Which one of the following statements is the most accurate about when project risk happens?", "o": ["Project risk can happen at any moment.", "Project risk is uncertain, so no one can predict when the event will happen.", "Project risk happens throughout the project execution.", "Project riskis always in the future."], "a": [3], "r": "", "src": "cap"}, {"id": 4, "d": 0, "q": "You are the project manager of the NKJ Project for your company. The project's success or failure will have a significant impact on your organization's profitability for the coming year. Management has asked you to identify the risk events and communicate the event's probability and impact as early as possible in the project. Management wants to avoid risk events and needs to analyze the cost-benefits of each risk event in this project. What term is assigned to the low- level of stakeholder tolerance in this project?", "o": ["Risk avoidance", "Mitigation-ready project management", "Risk utility function", "Risk-reward mentality"], "a": [2], "r": "", "src": "cap"}, {"id": 5, "d": 0, "q": "Where can a project manager find risk-rating rules?", "o": ["Risk probability and impact matrix", "Organizational process assets", "Enterprise environmental factors", "Risk management plan"], "a": [1], "r": "", "src": "cap"}, {"id": 6, "d": 0, "q": "There are five inputs to the quantitative risk analysis process. Which one of the following is NOT an input to the perform quantitative risk analysis process?", "o": ["Risk register", "Cost management plan", "Risk management plan", "Enterprise environmental factors"], "a": [3], "r": "", "src": "cap"}, {"id": 7, "d": 0, "q": "Your project has several risks that may cause serious financial impact should they happen. You have studied the risk events and made some potential risk responses for the risk events but management wants you to do more. They'd like for you to create some type of a char t that identified the risk probability and impact with a financial amount for each risk event. What is the likely outcome of creating this type of chart?", "o": ["Risk response plan", "Quantitative analysis", "Risk response", "Contingency reserve"], "a": [3], "r": "", "src": "cap"}, {"id": 8, "d": 0, "q": "Which of the following professionals is responsible for starting the Certification & Accreditation (C&A) process?", "o": ["Authorizing Official", "Chief Risk Officer (CRO)", "Chief Information Officer (CIO)", "Information system owner"], "a": [3], "r": "", "src": "cap"}, {"id": 9, "d": 0, "q": "You are working as a project manager in your organization. You are nearing the final stages of project execution and looking towards the final risk monitoring and controlling activities. For your project archives, which one of the following is an output of risk monitoring and control?", "o": ["Quantitative risk analysis", "Qualitative risk analysis", "Requested changes", "Risk audits"], "a": [2], "r": "", "src": "cap"}, {"id": 10, "d": 0, "q": "Which of the following DoD directives is referred to as the Defense Automation Resources Management Manual?", "o": ["DoDD 8000.1", "DoD 7950.1-M", "DoD 5200.22-M", "DoD 8910.1", "DoD 5200.1-R"], "a": [1], "r": "", "src": "cap"}, {"id": 11, "d": 0, "q": "The phase 3 of the Risk Management Framework (RMF) process is known as mitigation planning. Which of the following processes take place in phase 3? Each correct answer represents a complete solution. Choose all that apply.", "o": ["Identify threats, vulnerabilities, and controls that will be evaluated.", "Document and implement a mitigation plan.", "Agree on a strategy to mitigate risks.", "Evaluate mitigation progress and plan next assessment."], "a": [1, 2, 3], "r": "", "src": "cap"}, {"id": 12, "d": 0, "q": "Gary is the project manager of his organization. He is managing a project that is similar to a project his organization completed recently. Gary has decided that he will use the information from the past project to help him and the project team to identify the risks that may be present in the project. Management agrees that this checklist approach is ideal and will save time in the project. Which of the following statement is most accurate about the limitations of the checklist analysis approach for Gary?", "o": ["The checklist analysis approach is fast but it is impossible to build and exhaustive checklist.", "The checklist analysis approach only uses qualitative analysis.", "The checklist analysis approach saves time, but can cost more.", "The checklist is also known as top down risk assessment"], "a": [0], "r": "", "src": "cap"}, {"id": 13, "d": 0, "q": "What are the subordinate tasks of the Initiate and Plan IA C&A phase of the DIACAP process? Each correct answer represents a complete solution. Choose all that apply.", "o": ["Develop DIACAP strategy.", "Assign IA controls.", "Assemble DIACAP team.", "Initiate IA implementation plan.", "Register system with DoD Component IA Program.", "Conduct validation activity."], "a": [0, 1, 2, 3, 4], "r": "", "src": "cap"}, {"id": 14, "d": 0, "q": "Information risk management (IRM) is the process of identifying and assessing risk, reducing it to an acceptable level, and implementing the right mechanisms to maintain that level. What are the different categories of risk? Each correct answer represents a complete solution. Choose all that apply.", "o": ["System interaction", "Human interaction", "Equipment malfunction", "Inside and outside attacks", "Social status", "Physical damage"], "a": [1, 2, 3, 4, 5], "r": "", "src": "cap"}, {"id": 15, "d": 0, "q": "Neil works as a project manager for SoftTech Inc. He is working with Tom, the COO of his company, on several risks within the project. Tom understands that through qualitative analysis Neil has identified many risks in the project. Tom's concern, however, is that the priority list of these risk events are sorted in \"high-risk,\" \"moderate-risk,\" and \"low-risk\" as conditions apply within the project. Tom wants to know that is there any other objective on which Neil can make the priority list for project risks. What will be Neil's reply to Tom?", "o": ["Risk may be listed by the responses inthe near-term", "Risks may be listed by categories", "Risks may be listed by the additional analysis and response", "Risks may be listed by priority separately for schedule, cost, and performance"], "a": [3], "r": "", "src": "cap"}, {"id": 16, "d": 0, "q": "In which type of access control do user ID and password system come under?", "o": ["Administrative", "Technical", "Power", "Physical"], "a": [1], "r": "", "src": "cap"}, {"id": 17, "d": 0, "q": "You and your project team are identifying the risks that may exist within your project. Some of the risks are small risks that won't affect your project much if they happen. What should you do with these identified risk events?", "o": ["These risks can be accepted.", "These risks can be added to a low priority risk watch list.", "All risks must have a valid, documented risk response.", "These risks can be dismissed."], "a": [1], "r": "", "src": "cap"}, {"id": 18, "d": 0, "q": "Your project uses a piece of equipment that if the temperature of the machine goes above 450 degree Fahrenheit the machine will overheat and have to be shut down for 48 hours. Should this machine overheat even once it will delay the project's end date. You work with your project to create a response that should the temperature of the machine reach 430, the machine will be paused for at least an hour to cool it down. The temperature of 430 is called what?", "o": ["Risk identification", "Risk response", "Risk trigger", "Risk event"], "a": [2], "r": "", "src": "cap"}, {"id": 19, "d": 0, "q": "Adrian is the project manager of the NHP Project. In her project there are several work packages that deal with electrical wiring. Rather than to manage the risk internally she has decided to hire a vendor to complete all work packages that deal with the electrical wiring. By removing the risk internally to a licensed electrician Adrian feels more comfortable with project team being safe. What type of risk response has Adrian used in this example?", "o": ["Mitigation", "Transference", "Avoidance", "Acceptance"], "a": [1], "r": "", "src": "cap"}, {"id": 20, "d": 0, "q": "James work as an IT systems personnel in SoftTech Inc. He performs the following tasks: - Runs regular backups and routine tests of the validity of the backup data. - Performs data restoration from the backups whenever required. - Maintains the retained records in accordance with the established information classification policy. What is the role played by James in the organization?", "o": ["Manager", "User", "Owner", "Custodian"], "a": [3], "r": "", "src": "cap"}]
+    };
+    const DATASET_META = [{"key": "core115", "label": "Core CAT 115", "count": 115, "kind": "curated domains", "source": "Built into the simulator"}, {"key": "additional69", "label": "Additional Q and A 69", "count": 69, "kind": "markdown import", "source": "70+ Additional dumps.md"}, {"key": "accurate12", "label": "Accurate Wording 12", "count": 12, "kind": "markdown import", "source": "Probably_accurate_wording.md"}, {"key": "thor21", "label": "Thor Reference 21", "count": 21, "kind": "markdown import", "source": "Thor_Sample_cyber_security_exam_questions.md"}, {"key": "ucert115", "label": "UCertify Sample 115", "count": 115, "kind": "pdf import", "source": "SAMPLEisc2.ucertify...pdf"}, {"key": "cap20", "label": "CAP Demo 20", "count": 20, "kind": "pdf import", "source": "CAP-demo.pdf"}, {"key": "ccpdf_ref", "label": "CC Answer PDF Reference", "count": 0, "kind": "reference only", "source": "ISC2 CC Dump with answer.pdf"}];
+    const DOMAIN_NAMES = {1:'Security Principles',2:'BC, DR and IR',3:'Access Controls',4:'Network Security',5:'Security Operations'};
+    const DOMAIN_COLORS = {1:'#cb4b16',2:'#b58900',3:'#859900',4:'#268bd2',5:'#6c71c4',0:'#657b83'};
+
+    const state = {
+      phase: 'menu',
+      datasetKey: 'core115',
+      questions: [],
+      qIdx: 0,
+      selected: [],
+      confirmed: false,
+      answers: [],
+      timer: 7200,
+      examSize: 100,
+      domainFilter: 0,
+      interval: null,
+      showRationale: true
+    };
+
+    function getDatasetQuestions(key) {
+      if (key === 'core115') return CORE_QUESTIONS.map(q => ({ ...q }));
+      if (key === 'ccpdf_ref') return [];
+      return (EXTRA_DATASETS[key] || []).map(q => ({ ...q }));
+    }
+
+    function getDatasetMeta(key) {
+      return DATASET_META.find(d => d.key === key);
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function formatTime(s) {
+      const h = Math.floor(s / 3600);
+      const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+      const sec = String(s % 60).padStart(2, '0');
+      return `${h}:${m}:${sec}`;
+    }
+
+    function normaliseAnswer(a) {
+      if (Array.isArray(a)) return [...a].sort((x, y) => x - y);
+      return [a];
+    }
+
+    function selectedMatches(answer, selected) {
+      const want = normaliseAnswer(answer);
+      const got = [...selected].sort((x, y) => x - y);
+      if (want.length !== got.length) return false;
+      return want.every((v, i) => v === got[i]);
+    }
+
+    function hasMultipleAnswers(q) {
+      return Array.isArray(q.a) && q.a.length > 1;
+    }
+
+    function getActivePool() {
+      let pool = getDatasetQuestions(state.datasetKey);
+      if (state.datasetKey === 'core115' && state.domainFilter !== 0) {
+        pool = pool.filter(q => q.d === state.domainFilter);
+      }
+      return pool;
+    }
+
+    function getAvailableSizes(count) {
+      const base = [10, 20, 25, 50, 75, 100, count];
+      return [...new Set(base.filter(n => n > 0 && n <= count))].sort((a, b) => a - b);
+    }
+
+    function startExam() {
+      const pool = getActivePool();
+      if (!pool.length) return;
+      state.questions = shuffle(pool).slice(0, Math.min(state.examSize, pool.length));
+      state.qIdx = 0;
+      state.selected = [];
+      state.confirmed = false;
+      state.answers = [];
+      state.timer = 7200;
+      state.phase = 'exam';
+      stopTimer();
+      state.interval = setInterval(() => {
+        state.timer -= 1;
+        if (state.timer <= 0) {
+          state.timer = 0;
+          stopTimer();
+          state.phase = 'results';
+        }
+        render();
+      }, 1000);
+      render();
+    }
+
+    function stopTimer() {
+      if (state.interval) {
+        clearInterval(state.interval);
+        state.interval = null;
+      }
+    }
+
+    function toggleSelection(idx) {
+      const q = state.questions[state.qIdx];
+      if (state.confirmed) return;
+      if (hasMultipleAnswers(q)) {
+        if (state.selected.includes(idx)) {
+          state.selected = state.selected.filter(v => v !== idx);
+        } else {
+          state.selected = [...state.selected, idx];
+        }
+      } else {
+        state.selected = [idx];
+      }
+      render();
+    }
+
+    function confirmAnswer() {
+      const q = state.questions[state.qIdx];
+      if (!state.selected.length) return;
+      const correct = selectedMatches(q.a, state.selected);
+      state.answers.push({
+        qId: q.id,
+        domain: q.d || 0,
+        selected: [...state.selected],
+        correct,
+        correctAnswer: normaliseAnswer(q.a),
+        source: q.src || state.datasetKey
+      });
+      state.confirmed = true;
+      render();
+    }
+
+    function nextQuestion() {
+      if (state.qIdx + 1 >= state.questions.length) {
+        stopTimer();
+        state.phase = 'results';
+      } else {
+        state.qIdx += 1;
+        state.selected = [];
+        state.confirmed = false;
+      }
+      render();
+    }
+
+    function restart() {
+      stopTimer();
+      state.phase = 'menu';
+      render();
+    }
+
+    function getScore() {
+      const correct = state.answers.filter(a => a.correct).length;
+      const total = state.answers.length;
+      const pct = total > 0 ? Math.round((correct / total) * 1000) : 0;
+      return { correct, total, pct };
+    }
+
+    function getDomainStats() {
+      const stats = {};
+      const domains = new Set(state.answers.map(a => a.domain));
+      domains.forEach(d => {
+        const domAnswers = state.answers.filter(a => a.domain === d);
+        const correct = domAnswers.filter(a => a.correct).length;
+        stats[d] = {
+          total: domAnswers.length,
+          correct,
+          pct: domAnswers.length ? Math.round((correct / domAnswers.length) * 100) : 0
+        };
+      });
+      return stats;
+    }
+
+    function el(tag, attrs = {}, children = []) {
+      const node = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'class') node.className = v;
+        else if (k === 'html') node.innerHTML = v;
+        else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
+        else if (k === 'style' && typeof v === 'object') Object.assign(node.style, v);
+        else if (v !== null && v !== undefined) node.setAttribute(k, v);
+      }
+      (Array.isArray(children) ? children : [children]).forEach(child => {
+        if (child === null || child === undefined) return;
+        if (typeof child === 'string') node.appendChild(document.createTextNode(child));
+        else node.appendChild(child);
+      });
+      return node;
+    }
+
+    function renderMenu(app) {
+      const wrap = el('div', { class: 'wrap stack' });
+      const activeMeta = getDatasetMeta(state.datasetKey);
+      const activePool = getActivePool();
+      const sizes = getAvailableSizes(activePool.length || getDatasetQuestions(state.datasetKey).length || 0);
+
+      const hero = el('div', { class: 'panel hero' }, [
+        el('div', { class: 'hero-grid' }, [
+          el('div', { class: 'stack' }, [
+            el('div', { class: 'tinycaps' }, 'ISC2 and Cybersecurity Study Website'),
+            el('h1', { class: 'title' }, 'Dataset-aware quiz simulator'),
+            el('p', { class: 'lead' }, 'Use the original domain-based CAT set or switch to any imported practice pack. The interface now supports ordinary single-answer questions as well as multi-answer items from the CAP demo set.'),
+            el('div', { class: 'summary-grid' }, [
+              el('div', { class: 'summary-box' }, [el('div', { class: 'label' }, 'Active dataset'), el('div', { class: 'value', style: { fontSize: '16px' } }, activeMeta ? activeMeta.label : 'Unknown')]),
+              el('div', { class: 'summary-box' }, [el('div', { class: 'label' }, 'Available questions'), el('div', { class: 'value' }, String(activePool.length || getDatasetQuestions(state.datasetKey).length))]),
+              el('div', { class: 'summary-box' }, [el('div', { class: 'label' }, 'Exam timer'), el('div', { class: 'value', style: { fontSize: '16px' } }, '2:00:00')])
+            ])
+          ]),
+          el('div', { class: 'subtle stack' }, [
+            el('div', { style: { fontWeight: '800', color: 'var(--text-strong)' } }, 'Source library'),
+            el('div', { class: 'footer-note' }, 'Imported pools are available for the core CAT set, Additional Q and A, Accurate Wording, Thor Reference, UCertify Sample, and the CAP Demo. The separate CC answer PDF is listed below as a reference item because its raw PDF extraction was too messy to safely auto-convert inside this browser build.')
+          ])
+        ])
+      ]);
+      wrap.appendChild(hero);
+
+      const config = el('div', { class: 'panel stack' });
+      config.appendChild(el('div', { class: 'tinycaps', style: { color: 'var(--muted)' } }, 'Exam configuration'));
+
+      const grid = el('div', { class: 'form-grid' });
+      const datasetBox = el('div', {}, [
+        el('label', {}, 'Dataset'),
+        (() => {
+          const select = el('select', { onchange: (e) => {
+            state.datasetKey = e.target.value;
+            const newCount = getActivePool().length || getDatasetQuestions(state.datasetKey).length;
+            const allowed = getAvailableSizes(newCount);
+            state.examSize = Math.min(state.examSize, newCount || 10);
+            if (!allowed.includes(state.examSize)) state.examSize = allowed[allowed.length - 1] || 10;
+            state.domainFilter = 0;
+            render();
+          } });
+          DATASET_META.forEach(meta => {
+            select.appendChild(el('option', { value: meta.key, ...(meta.key === state.datasetKey ? { selected: 'selected' } : {}) }, `${meta.label}${meta.count ? ` (${meta.count})` : ''}`));
+          });
+          return select;
+        })()
+      ]);
+      grid.appendChild(datasetBox);
+
+      const sizeBox = el('div', {}, [
+        el('label', {}, 'Question count'),
+        (() => {
+          const row = el('div', { class: 'pill-row' });
+          sizes.forEach(n => {
+            row.appendChild(el('button', {
+              class: 'pill' + (state.examSize === n ? ' active' : ''),
+              onclick: () => { state.examSize = n; render(); }
+            }, String(n)));
+          });
+          return row;
+        })()
+      ]);
+      grid.appendChild(sizeBox);
+
+      const domainBox = el('div', {}, [
+        el('label', {}, 'Filter'),
+        (() => {
+          if (state.datasetKey !== 'core115') {
+            return el('div', { class: 'subtle mini' }, 'This dataset does not include the curated domain tags used by the original CAT set.');
+          }
+          const row = el('div', { class: 'pill-row' });
+          row.appendChild(el('button', { class: 'pill' + (state.domainFilter === 0 ? ' active' : ''), onclick: () => { state.domainFilter = 0; render(); } }, 'All domains'));
+          [1,2,3,4,5].forEach(d => {
+            row.appendChild(el('button', {
+              class: 'pill' + (state.domainFilter === d ? ' active' : ''),
+              onclick: () => { state.domainFilter = d; render(); },
+              style: state.domainFilter === d ? { color: DOMAIN_COLORS[d], borderColor: DOMAIN_COLORS[d] } : {}
+            }, `D${d}`));
+          });
+          return row;
+        })()
+      ]);
+      grid.appendChild(domainBox);
+
+      const modeBox = el('div', {}, [
+        el('label', {}, 'Exam mode'),
+        el('div', { class: 'subtle mini' }, activeMeta && activeMeta.key === 'cap20'
+          ? 'CAP Demo includes multi-answer items. Choose every correct option before confirming.'
+          : 'Single-answer quiz flow with no backtracking. Explanations appear after you confirm.')
+      ]);
+      grid.appendChild(modeBox);
+      config.appendChild(grid);
+
+      config.appendChild(el('div', { style: { marginTop: '16px' } }, [
+        el('button', {
+          class: 'btn',
+          onclick: startExam,
+          ...(state.datasetKey === 'ccpdf_ref' ? { disabled: 'disabled' } : {})
+        }, state.datasetKey === 'ccpdf_ref' ? 'Reference only dataset' : 'Begin exam')
+      ]));
+      wrap.appendChild(config);
+
+      const library = el('div', { class: 'panel stack' });
+      library.appendChild(el('div', { class: 'tinycaps', style: { color: 'var(--muted)' } }, 'Dataset library'));
+      const cards = el('div', { class: 'dataset-grid' });
+      DATASET_META.forEach(meta => {
+        cards.appendChild(el('div', { class: 'dataset-card' + (meta.kind === 'reference only' ? ' warn' : '') }, [
+          el('h3', {}, meta.label),
+          el('div', { class: 'dataset-meta' }, [
+            `Type: ${meta.kind}`,
+            el('br'),
+            `Source: ${meta.source}`,
+            el('br'),
+            `Count: ${meta.count || 'Reference'}`
+          ])
+        ]));
+      });
+      library.appendChild(cards);
+      wrap.appendChild(library);
+
+      app.appendChild(wrap);
+    }
+
+    function renderExam(app) {
+      const q = state.questions[state.qIdx];
+      const wrap = el('div', { class: 'wrap stack' });
+      const multi = hasMultipleAnswers(q);
+      const badgeColor = DOMAIN_COLORS[q.d || 0] || DOMAIN_COLORS[0];
+
+      wrap.appendChild(el('div', { class: 'topline' }, [
+        el('div', {}, `${getDatasetMeta(state.datasetKey).label}  |  Question ${state.qIdx + 1} of ${state.questions.length}`),
+        el('div', { style: { color: state.timer < 600 ? 'var(--red)' : 'var(--blue)', fontWeight: '800' } }, formatTime(state.timer))
+      ]));
+
+      wrap.appendChild(el('div', { class: 'progress' }, [
+        el('div', { style: { width: `${((state.qIdx + (state.confirmed ? 1 : 0)) / state.questions.length) * 100}%` } })
+      ]));
+
+      const panel = el('div', { class: 'panel stack' });
+      panel.appendChild(el('div', {
+        class: 'badge',
+        style: {
+          background: badgeColor + '22',
+          color: badgeColor,
+          border: `1px solid ${badgeColor}55`
+        }
+      }, q.d ? `Domain ${q.d}: ${DOMAIN_NAMES[q.d]}` : (q.src ? `Source: ${q.src}` : 'Imported dataset')));
+
+      panel.appendChild(el('h2', { class: 'question' }, q.q));
+      panel.appendChild(el('div', { class: 'hint' }, multi ? 'Select all correct answers, then confirm.' : 'Select one answer, then confirm.'));
+
+      const options = el('div', { class: 'options' });
+      q.o.forEach((opt, i) => {
+        let bg = '#fffdf7';
+        let border = 'var(--border)';
+        let col = 'var(--text)';
+        let keyBg = 'var(--panel2)';
+        let keyCol = 'var(--muted)';
+        let opacity = '1';
+        const isSelected = state.selected.includes(i);
+        const want = normaliseAnswer(q.a).includes(i);
+
+        if (state.confirmed) {
+          if (want) {
+            bg = 'var(--green-soft)';
+            border = 'var(--green)';
+            col = 'var(--text-strong)';
+            keyBg = 'var(--green)';
+            keyCol = '#ffffff';
+          } else if (isSelected && !want) {
+            bg = 'var(--red-soft)';
+            border = 'var(--red)';
+            col = 'var(--text-strong)';
+            keyBg = 'var(--red)';
+            keyCol = '#ffffff';
+          } else {
+            opacity = '0.5';
+          }
+        } else if (isSelected) {
+          bg = '#e8f1f8';
+          border = 'var(--blue)';
+          col = 'var(--text-strong)';
+          keyBg = 'var(--blue)';
+          keyCol = '#ffffff';
+        }
+
+        options.appendChild(el('button', {
+          class: 'option',
+          onclick: () => toggleSelection(i),
+          style: { background: bg, borderColor: border, color: col, opacity },
+          ...(state.confirmed ? { disabled: 'disabled' } : {})
+        }, [
+          el('span', { class: 'optkey', style: { background: keyBg, color: keyCol, borderColor: border } }, String.fromCharCode(65 + i)),
+          el('span', {}, opt)
+        ]));
+      });
+      panel.appendChild(options);
+
+      if (state.confirmed && state.showRationale) {
+        panel.appendChild(el('div', { class: 'rationale' }, [
+          el('div', { style: { fontWeight: '800', color: 'var(--text-strong)', marginBottom: '8px' } }, 'Review'),
+          el('div', { class: 'mini', style: { marginBottom: '8px' } }, `Correct answer: ${normaliseAnswer(q.a).map(i => String.fromCharCode(65 + i)).join(', ')}`),
+          el('div', {}, q.r || 'No explanation was imported for this question.')
+        ]));
+      }
+
+      panel.appendChild(el('button', {
+        class: 'btn',
+        onclick: state.confirmed ? nextQuestion : confirmAnswer,
+        ...(state.confirmed ? {} : !state.selected.length ? { disabled: 'disabled' } : {})
+      }, state.confirmed ? (state.qIdx + 1 >= state.questions.length ? 'View results' : 'Next question') : 'Confirm answer'));
+
+      wrap.appendChild(panel);
+      app.appendChild(wrap);
+    }
+
+    function renderResults(app) {
+      const { correct, total, pct } = getScore();
+      const passed = pct >= 700;
+      const domainStats = getDomainStats();
+      const missed = state.answers.filter(a => !a.correct);
+      const wrap = el('div', { class: 'wrap stack' });
+
+      const head = el('div', { class: 'panel stack' }, [
+        el('div', { class: 'tinycaps' }, 'Exam complete'),
+        el('div', { class: 'score', style: { color: passed ? 'var(--green)' : 'var(--red)' } }, String(pct)),
+        el('div', { class: 'muted' }, '/ 1000 scaled'),
+        el('div', {
+          class: 'status',
+          style: {
+            background: passed ? 'var(--green-soft)' : 'var(--red-soft)',
+            color: passed ? 'var(--green)' : 'var(--red)',
+            border: `1px solid ${passed ? 'var(--green)' : 'var(--red)'}`
+          }
+        }, passed ? 'Pass' : 'Below passing'),
+        el('div', { class: 'lead' }, `${getDatasetMeta(state.datasetKey).label}  |  ${correct} of ${total} correct  |  ${Math.round((correct / total) * 100)} percent raw`)
+      ]);
+      wrap.appendChild(head);
+
+      const domKeys = Object.keys(domainStats).map(Number).sort((a, b) => a - b);
+      if (domKeys.length) {
+        const domPanel = el('div', { class: 'panel stack' });
+        domPanel.appendChild(el('div', { class: 'tinycaps', style: { color: 'var(--muted)' } }, 'Performance breakdown'));
+        domKeys.forEach(d => {
+          const s = domainStats[d];
+          const color = s.pct >= 70 ? 'var(--green)' : s.pct >= 50 ? 'var(--gold)' : 'var(--red)';
+          const fill = s.pct >= 70 ? 'var(--green)' : s.pct >= 50 ? 'var(--gold)' : 'var(--red)';
+          domPanel.appendChild(el('div', { class: 'domain-row' }, [
+            el('div', { class: 'domain-top' }, [
+              el('span', { style: { color: DOMAIN_COLORS[d] || 'var(--muted)' } }, d ? `Domain ${d}: ${DOMAIN_NAMES[d]}` : 'Imported pool'),
+              el('span', { style: { color } }, `${s.correct}/${s.total} (${s.pct}%)`)
+            ]),
+            el('div', { class: 'bar' }, [el('div', { style: { width: `${s.pct}%`, background: fill } })])
+          ]));
+        });
+        wrap.appendChild(domPanel);
+      }
+
+      if (missed.length) {
+        const review = el('div', { class: 'panel stack' });
+        review.appendChild(el('div', { class: 'tinycaps', style: { color: 'var(--muted)' } }, `Review missed (${missed.length})`));
+        const list = el('div', { class: 'missed' });
+        missed.forEach(m => {
+          const q = state.questions.find(qq => qq.id === m.qId) || state.questions.find(qq => qq.id == m.qId);
+          list.appendChild(el('div', { class: 'missed-item' }, [
+            el('div', { class: 'mini', style: { marginBottom: '4px' } }, `Q${q ? q.id : m.qId}`),
+            el('div', { style: { color: 'var(--text-strong)', fontWeight: '700', marginBottom: '6px', lineHeight: '1.5' } }, q ? q.q : 'Question text unavailable'),
+            el('div', { class: 'mini', style: { color: 'var(--red)', marginBottom: '4px' } }, `Your answer: ${m.selected.map(i => String.fromCharCode(65 + i)).join(', ') || 'None'}`),
+            el('div', { class: 'mini', style: { color: 'var(--green)', marginBottom: '6px' } }, `Correct: ${m.correctAnswer.map(i => String.fromCharCode(65 + i)).join(', ')}`),
+            el('div', { class: 'mini' }, q && q.r ? q.r : 'No explanation imported.')
+          ]));
+        });
+        review.appendChild(list);
+        wrap.appendChild(review);
+      }
+
+      wrap.appendChild(el('button', { class: 'btn secondary', onclick: restart }, 'Return to menu'));
+      app.appendChild(wrap);
+    }
+
+    function render() {
+      const app = document.getElementById('app');
+      app.innerHTML = '';
+      if (state.phase === 'menu') renderMenu(app);
+      else if (state.phase === 'exam') renderExam(app);
+      else renderResults(app);
+    }
+
+    render();
+  </script>
+</body>
+</html>

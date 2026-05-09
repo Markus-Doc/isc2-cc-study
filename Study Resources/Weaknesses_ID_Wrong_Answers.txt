@@ -1,0 +1,136 @@
+4. An organization operates in multiple countries with varying legal requirements for retaining customer data. How should the organization manage its data retention policies?
+
+ A. Retain all customer data according to the strictest retention requirement across all regions. 
+ B. Customize retention policies based on the legal requirements of each region where the data is collected. 
+ C. Store customer data indefinitely to avoid any potential non-compliance with regional laws.
+ D. Adopt a single global retention policy that matches the average requirement across all regions.
+Correct Answer: B Explanation: The correct answer is B because customizing retention policies based on regional legal requirements ensures compliance with local laws while avoiding unnecessary storage costs and risks. Option A (A) is incorrect because applying the strictest retention requirement universally could lead to unnecessary data retention, increasing risks and storage costs. Option C (C) is incorrect because storing data indefinitely exposes the organization to significant security risks and regulatory non-compliance. Option D (D) is incorrect because a single global policy based on an average requirement may not meet specific legal mandates in certain regions, resulting in non-compliance.
+
+11. A company needs to ensure secure communication between its web application and its users. The application uses HTTPS for data transmission. Which layer of the OSI model is primarily responsible for ensuring the encryption of the transmitted data?
+
+ A. Presentation Layer 
+ B. Application Layer 
+ C. Transport Layer
+ D. Network Layer
+Correct Answer: A. Presentation Layer Explanation: The correct answer is (A) because the Presentation Layer handles data encryption and decryption, including the SSL/TLS protocols used in HTTPS communication. (B) Application Layer facilitates communication between applications and users but does not handle encryption directly. (C) Transport Layer provides reliable data delivery but relies on the Presentation Layer for encryption processes. (D) Network Layer handles IP routing and addressing, which are unrelated to encryption at the application level.
+
+15. A company relies on a SaaS-based customer relationship management (CRM) system to store sensitive customer data. During a security review, it is discovered that the SaaS provider does not allow the company to manage its own encryption keys. What should the company do to ensure better control over its data?
+
+ A. Use an on-premises CRM solution instead of the SaaS-based platform
+ B. Implement a bring-your-own-key (BYOK) solution with the SaaS provider 
+ C. Encrypt sensitive data before uploading it to the SaaS platform 
+ D. Request the SaaS provider to implement stronger encryption algorithms
+Correct Answer: B. Implement a bring-your-own-key (BYOK) solution with the SaaS provider Explanation: Implementing a bring-your-own-key (BYOK) solution with the SaaS provider (B) is the correct answer because it allows the company to manage its own encryption keys, ensuring better control over data security. Using an on-premises CRM solution (A) may not be feasible due to cost and scalability issues. Encrypting data before uploading it (C) can limit the functionality of the SaaS platform, such as search and analytics. Requesting stronger encryption algorithms (D) does not address the lack of control over encryption keys. BYOK provides enhanced control and aligns with the company’s security requirements.
+
+16. An organization has a network closet that houses critical switches and routers but lacks robust security measures. To enhance physical security, the organization decides to implement a layered approach. Which combination of controls is most effective for securing the equipment?
+
+ A. Biometric access control and video surveillance 
+ B. Keycard access and locked cabinets 
+ C. Motion sensors and alarm systems
+ D. Locked door and environmental monitoring
+Correct Answer: A. Biometric access control and video surveillance Explanation: Biometric access control and video surveillance (A) are the correct answers because they provide a combination of strong access restriction and monitoring. Biometric systems ensure that only authorized personnel can access the equipment, while video surveillance records activity for auditing and deterrence. Keycard access and locked cabinets (B) are a good option but less secure than biometrics, as keycards can be lost or shared. Motion sensors and alarm systems (C) are useful for detecting unauthorized activity but lack the ability to prevent access proactively. A locked door and environmental monitoring (D) improve basic security and operational efficiency but are not sufficient to address advanced security needs. The combination of biometrics and surveillance offers a comprehensive approach to physical security.
+
+18. An IT manager is negotiating with a vendor to provide managed security services. Both parties agree on drafting a document that will outline their mutual responsibilities and commitments but will remain flexible and non-legally binding to allow adjustments as needed. Which document should they draft?
+
+ A. Contractual Agreement
+ B. Memorandum of Understanding (MOU) 
+ C. Service Level Agreement (SLA) 
+ D. Statement of Work (SOW)
+Correct Answer: B. Memorandum of Understanding (MOU) Explanation: A Memorandum of Understanding (MOU) (B) is the correct answer because it is a flexible, non-legally binding document that outlines mutual responsibilities and commitments, making it suitable for situations where adjustments may be necessary. A Contractual Agreement (A) is legally binding and less flexible, which is not suitable for the described scenario. A Service Level Agreement (SLA) (C) is specific to defining performance metrics and service obligations, typically within a legally binding framework. A Statement of Work (SOW) (D) provides detailed project deliverables and timelines but is often part of a legally binding agreement. An MOU is the best choice to facilitate collaboration while maintaining flexibility.
+
+22. An organization deploys an IPS to protect its network. During a zero-day attack simulation, the IPS detects and blocks anomalous traffic that does not match any known signatures. What type of detection mechanism is the IPS using?
+
+ A. Signature-based detection 
+ B. Anomaly-based detection 
+ C. Behavior-based detection
+ D. Heuristic-based detection
+Correct Answer: B. Anomaly-based detection Explanation: The IPS detects and blocks traffic based on anomalies, or deviations from normal behavior, which is indicative of anomaly-based detection (B). This method is effective against zero-day attacks, which do not have predefined signatures. Option A, Signature-based detection, relies on known attack patterns and cannot detect new or unknown threats. Option C, Behavior-based detection, monitors the behavior of traffic but is broader and not specific to anomalies. Option D, Heuristic-based detection, evaluates patterns or rules but does not explicitly involve baseline anomaly comparison.
+
+25. An administrator is configuring log retention policies for a financial institution's critical systems. Which policy best aligns with regulatory requirements and supports effective incident response?
+
+ A. Retain logs for six months to ensure storage costs remain manageable.
+ B. Retain logs for a period defined by the organization's internal policies, regardless of regulations.
+ C. Retain logs for at least one year and ensure logs are tamper-proof and accessible for audits. 
+ D. Retain only logs that indicate known security events to conserve storage space. 
+Correct Answer: C Explanation: The correct answer is C because retaining logs for at least one year, ensuring they are tamper-proof, and maintaining accessibility aligns with typical regulatory requirements in the financial sector and supports effective incident response and audits. Option A (A) is incorrect because six months may not meet regulatory or forensic investigation needs. Option B (B) is incorrect because retention policies must comply with external regulations, not just internal policies. Option D (D) is incorrect because retaining only logs of known security events may overlook important context required for thorough investigations and compliance.
+
+36. A company is implementing digital signatures to ensure the integrity and authenticity of critical business documents. Which of the following describes how asymmetric encryption is applied in this context?
+
+ A. The document is encrypted with the recipient's public key, and the recipient decrypts it with their private key. 
+ B. The document is signed with the sender's private key, and the recipient verifies the signature using the sender's public key. 
+ C. The document is encrypted with the sender's public key, and the recipient decrypts it using their private key.
+ D. The document is signed with the recipient's private key, and the sender verifies it using the recipient's public key.
+Correct Answer: B Explanation: The correct answer is B because digital signatures involve signing the document with the sender’s private key to prove authenticity and integrity. The recipient then verifies the signature using the sender’s public key, ensuring the document was not altered and came from the claimed sender. Option A (A) is incorrect because encrypting with the recipient's public key is used for confidentiality, not for creating digital signatures. Option C (C) is incorrect because encrypting with the sender's public key does not involve the use of the recipient’s private key in the signature verification process. Option D (D) is incorrect because the recipient’s private key is not used to sign documents; instead, private keys are used for either decryption or signing by their respective owners.
+
+37. Which of the following physical security measures is most likely to be used in conjunction with a badge-based access control system to reduce the risk of unauthorized access?
+
+ A. CCTV cameras monitoring the entrances 
+ B. Security guards verifying badges at the entrance
+ C. Automated email alerts when access attempts fail
+ D. Tailgate detection sensors 
+Correct Answer: D) Tailgate detection sensors Explanation: Tailgate detection sensors (D) are specifically designed to prevent unauthorized access by detecting when someone enters behind an authorized person, commonly used in combination with badge-based access systems. CCTV cameras (A) are useful for surveillance but do not directly prevent unauthorized entry. Security guards (B) are helpful but add operational overhead and may not be as effective as automated controls. Automated email alerts (C) are useful for monitoring but would not physically prevent unauthorized access in real-time.
+
+38. To protect a highly secure laboratory, an organization installs a set of locked gates and guards the entrances with security personnel. Which physical control is being used in this scenario?
+
+ A. Access control 
+ B. Surveillance
+ C. Barriers 
+ D. Monitoring
+Correct Answer: C) Barriers Explanation: The locked gates and security personnel are a form of physical barriers, which physically prevent unauthorized access to the secure area. Barriers are designed to control physical access to sensitive locations. (A) Access control involves systems like keycards or biometric scanners, but locked gates are specifically a physical barrier. (B) Surveillance, such as CCTV cameras, involves monitoring but does not provide a physical deterrent to entry. (D) Monitoring refers to the observation of activities, like using CCTV or logs, but physical barriers are the primary measure in this scenario.
+
+49. A network administrator detects an unauthorized scan originating from an external IP address. The scan attempts to probe a wide range of ports on the organization’s firewall to identify open ports. What type of scanning activity is the attacker likely conducting?
+
+ A. OS fingerprinting scan
+ B. SYN scan 
+ C. Full-connect scan
+ D. Horizontal scan 
+Correct Answer: D. Horizontal scan Explanation: A horizontal scan (D) involves probing a range of ports on a single target to identify open services, as described in this scenario. Option A, OS fingerprinting scan, attempts to determine the operating system of a target based on its responses but does not focus on probing multiple ports. Option B, SYN scan, is a stealthy technique that checks specific ports using SYN packets but does not describe the broad range of port probing mentioned here. Option C, Full-connect scan, completes the TCP handshake on each port but is less commonly used due to its detectability and does not define the scenario.
+
+52. An organization experiences frequent WiFi performance issues due to interference from neighboring networks. To minimize interference, which WiFi channel should they use in a 2.4 GHz network?
+
+ A. Channel 1
+ B. Channel 6 
+ C. Channel 11 
+ D. Channel 8
+Correct Answer: B. Channel 6 Explanation: The correct answer is (B) because Channels 1, 6, and 11 are non-overlapping channels in the 2.4 GHz band and are recommended to minimize interference from overlapping frequencies. Channel 6 is one of these non-overlapping channels and may provide optimal performance depending on the network environment. (A) Channel 1 and (C) Channel 11 are also non-overlapping and valid options but might not be optimal if other networks in the vicinity heavily use them. (D) Channel 8 is incorrect because it overlaps with adjacent channels, causing interference and reducing network performance.
+
+53. A marketing manager is asked to provide their credentials to an external vendor to facilitate a project involving third-party software. The organization’s Acceptable Use Policy (AUP) prohibits sharing credentials under any circumstances. How should the marketing manager proceed while ensuring compliance with the AUP?
+
+ A. Share their credentials with the vendor but change their password afterward.
+ B. Request a temporary exception to the AUP from the IT department.
+ C. Set up a separate account for the vendor with limited permissions. 
+ D. Refuse to provide credentials and escalate the request to the IT department. 
+Correct Answer: D Explanation: The correct answer is (D) because refusing to provide credentials and escalating the issue ensures compliance with the AUP and allows the IT department to address the request securely, such as through a temporary account. (A) is incorrect because sharing credentials, even temporarily, violates the AUP and creates a significant security risk. (B) is incorrect because exceptions to the AUP for credential sharing compromise the integrity of the policy. (C) is incorrect because setting up a separate account without IT oversight could lead to improper configuration or policy violations. Escalating the request ensures the appropriate security measures are applied.
+
+58. A company’s disaster recovery plan specifies the use of both hot and cold sites to ensure operational continuity. After a major incident, the hot site was activated immediately, while the cold site was prepared for extended use. What key component of a disaster recovery plan is being applied in this scenario?
+
+ A. Data backup strategy
+ B. Alternate site arrangements 
+ C. Risk assessment
+ D. Emergency response procedures 
+Correct Answer: B. Alternate site arrangements Explanation: The scenario demonstrates the implementation of alternate site arrangements, a critical component of disaster recovery, which provides options like hot and cold sites to maintain operations during and after a disaster (B). A data backup strategy (A) focuses on preserving data integrity but does not cover operational sites. Risk assessment (C) is conducted prior to disasters to identify vulnerabilities, not during the activation of recovery sites. Emergency response procedures (D) involve immediate actions to stabilize situations but do not specifically relate to the use of alternate sites. Thus, B is the correct choice.
+
+63. A network administrator configures a security device to monitor all traffic passing through the organization’s main gateway. The device identifies unusual traffic patterns consistent with a distributed denial-of-service (DDoS) attack and generates an alert for the security team. What type of security tool is being described?
+
+ A. Host-based Intrusion Detection System (HIDS)
+ B. Network Intrusion Detection System (NIDS) 
+ C. Firewall 
+ D. Packet analyzer
+Correct Answer: B. Network Intrusion Detection System (NIDS) Explanation: The described device monitors traffic at the network level and identifies unusual patterns, such as a DDoS attack, which is characteristic of a Network Intrusion Detection System (NIDS) (B). NIDS is designed to analyze network traffic in real-time for potential threats. Option A, Host-based Intrusion Detection System (HIDS), monitors individual devices rather than network traffic. Option C, Firewall, filters traffic based on predefined rules but does not analyze patterns to detect intrusions. Option D, Packet analyzer, captures and inspects traffic but lacks the automated threat detection capabilities of NIDS.
+
+9. An organization implements a database system to track employee records. During an audit, it is discovered that several records were altered without authorization, resulting in inaccurate payroll processing. What measure should the organization prioritize to address this issue and ensure integrity?
+
+ A. Encrypt database backups
+ B. Implement data hashing 
+ C. Strengthen user authentication 
+ D. Enable database replication
+Correct Answer: B. Implement data hashing Explanation: The organization should prioritize implementing data hashing (B) to ensure the integrity of the employee records. Hashing generates a fixed-size, unique value for data, making it possible to detect unauthorized changes by comparing hashes. Option A (Encrypt database backups) protects confidentiality, not integrity. Option C (Strengthen user authentication) reduces unauthorized access but does not detect or prevent data alterations once accessed. Option D (Enable database replication) improves availability and fault tolerance but does not address unauthorized data modifications. Hashing ensures tampering is easily detected, addressing the root cause of the integrity breach.
+
+100. An IT administrator notices that data packets from a user's computer are not reaching the destination server due to issues with logical addressing. Which layer of the TCP/IP model should the administrator investigate to resolve the problem?
+
+ A. Application Layer
+ B. Transport Layer 
+ C. Internet Layer 
+ D. Network Interface Layer
+Correct Answer: C. Internet Layer Explanation: The correct answer is (C) because the Internet Layer of the TCP/IP model is responsible for logical addressing and routing, primarily through the use of IP addresses. If data packets are not reaching their destination, the administrator should check IP configurations, routing tables, and subnetting. (A) Application Layer handles user-facing protocols and interfaces but does not deal with addressing or routing. (B) Transport Layer is responsible for end-to-end communication and data segmentation but relies on the Internet Layer for addressing. (D) Network Interface Layer focuses on hardware-level communication, such as MAC addresses and physical connections, and does not address logical routing issues.
+

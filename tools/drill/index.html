@@ -68,7 +68,7 @@
             <span class="pill" id="modePill">Normal cram mode</span>
           </div>
           <h2 id="taskTitle">Read the question, then test yourself.</h2>
-          <p class="muted" id="taskText">Try to answer the card from memory before revealing the correct answer. Be honest when sorting the card.</p>
+          <p class="muted" id="taskText">Think about how well you know the subject, then reveal the answer and grade yourself.</p>
         </article>
 
         <article class="card flashcard">
@@ -84,9 +84,9 @@
             <p id="memoryHook"></p>
           </div>
           <div class="actions">
-            <button class="primary" id="revealBtn">1. Reveal answer</button>
-            <button id="knownBtn">2. I know this</button>
-            <button class="danger" id="weakBtn">2. I need to review this</button>
+            <button class="primary" id="revealBtn">Reveal answer</button>
+            <button id="knownBtn">I know this</button>
+            <button class="danger" id="weakBtn">I need to review this</button>
             <button class="ghost" id="nextBtn">Skip card</button>
             <button class="ghost" id="finishBtn">Finish session and build report</button>
           </div>
@@ -132,6 +132,7 @@
     let skippedCards = []
     let currentIndex = 0
     let revealed = false
+    let graded = false
     let weakReviewMode = false
     let lastReport = ''
 
@@ -152,8 +153,10 @@
       taskTitle: document.getElementById('taskTitle'),
       taskText: document.getElementById('taskText'),
       modePill: document.getElementById('modePill'),
+      revealBtn: document.getElementById('revealBtn'),
       knownBtn: document.getElementById('knownBtn'),
       weakBtn: document.getElementById('weakBtn'),
+      nextBtn: document.getElementById('nextBtn'),
       reportSection: document.getElementById('reportSection'),
       reportBox: document.getElementById('reportBox')
     }
@@ -166,10 +169,10 @@
     }
 
     function bindEvents() {
-      document.getElementById('revealBtn').onclick = reveal
-      document.getElementById('knownBtn').onclick = markKnown
-      document.getElementById('weakBtn').onclick = markWeak
-      document.getElementById('nextBtn').onclick = skipCard
+      els.revealBtn.onclick = reveal
+      els.knownBtn.onclick = markKnown
+      els.weakBtn.onclick = markWeak
+      els.nextBtn.onclick = handleNextButton
       document.getElementById('shuffleBtn').onclick = shuffleCards
       document.getElementById('weakOnlyBtn').onclick = reviewWeakOnly
       document.getElementById('resetBtn').onclick = resetSession
@@ -186,6 +189,12 @@
 
     function uniquePush(list, card) {
       if (!list.some(item => item.id === card.id)) list.push(card)
+    }
+
+    function setDisabled(button, disabled) {
+      button.disabled = disabled
+      button.style.opacity = disabled ? '0.45' : '1'
+      button.style.cursor = disabled ? 'not-allowed' : 'pointer'
     }
 
     function applyFilters() {
@@ -214,6 +223,7 @@
 
       const card = currentCard()
       revealed = false
+      graded = false
       els.promptTitle.textContent = card.prompt
       els.answerText.textContent = card.answer
       els.memoryHook.textContent = card.memoryHook || 'No memory hook added yet.'
@@ -225,41 +235,81 @@
       els.weakCounter.textContent = `Review ${weakCards.length}`
       els.progressBar.style.width = `${((currentIndex + 1) / filteredCards.length) * 100}%`
       els.taskTitle.textContent = 'Read the question, then test yourself.'
-      els.taskText.textContent = 'Try to answer from memory before revealing. After you reveal, sort the card into I know this or I need to review this.'
+      els.taskText.textContent = 'Think about how well you know the subject, then reveal the answer and grade yourself.'
       els.modePill.textContent = weakReviewMode ? 'Review pile mode' : 'Normal cram mode'
-      els.knownBtn.style.opacity = '0.58'
-      els.weakBtn.style.opacity = '0.58'
+
+      els.revealBtn.classList.remove('ghost')
+      els.revealBtn.classList.add('primary')
+      setDisabled(els.revealBtn, false)
+      els.knownBtn.classList.add('hidden')
+      els.weakBtn.classList.add('hidden')
+      els.nextBtn.classList.remove('hidden')
+      els.nextBtn.textContent = 'Skip card'
+      setDisabled(els.knownBtn, false)
+      setDisabled(els.weakBtn, false)
+      setDisabled(els.nextBtn, false)
+
       renderWeakList()
     }
 
     function reveal() {
+      if (revealed) return
       revealed = true
       els.answerBox.classList.remove('hidden')
-      els.taskTitle.textContent = 'Now sort the card.'
+      els.taskTitle.textContent = 'Now grade yourself.'
       els.taskText.textContent = 'Choose I know this if recall was fast and accurate. Choose I need to review this if it was slow, fuzzy, incomplete, or wrong.'
-      els.knownBtn.style.opacity = '1'
-      els.weakBtn.style.opacity = '1'
+      els.revealBtn.classList.remove('primary')
+      els.revealBtn.classList.add('ghost')
+      setDisabled(els.revealBtn, true)
+      els.knownBtn.classList.remove('hidden')
+      els.weakBtn.classList.remove('hidden')
+      els.nextBtn.classList.add('hidden')
     }
 
     function markKnown() {
-      if (!revealed) {
-        reveal()
-        return
-      }
+      if (!revealed || graded) return
       const card = currentCard()
       uniquePush(knownCards, card)
       weakCards = weakCards.filter(item => item.id !== card.id)
-      nextCard()
+      graded = true
+      lockGrade('known')
     }
 
     function markWeak() {
-      if (!revealed) {
-        reveal()
-        return
-      }
+      if (!revealed || graded) return
       const card = currentCard()
       uniquePush(weakCards, card)
       knownCards = knownCards.filter(item => item.id !== card.id)
+      graded = true
+      lockGrade('weak')
+    }
+
+    function lockGrade(choice) {
+      setDisabled(els.knownBtn, true)
+      setDisabled(els.weakBtn, true)
+      if (choice === 'known') {
+        els.knownBtn.style.opacity = '1'
+        els.weakBtn.style.opacity = '0.35'
+        els.taskTitle.textContent = 'Card marked as known.'
+        els.taskText.textContent = 'Great. Move to the next card when you are ready.'
+      } else {
+        els.knownBtn.style.opacity = '0.35'
+        els.weakBtn.style.opacity = '1'
+        els.taskTitle.textContent = 'Card added to your review pile.'
+        els.taskText.textContent = 'This topic will appear in your study report so you can review and retest it later.'
+      }
+      els.nextBtn.textContent = 'Next card'
+      els.nextBtn.classList.remove('hidden')
+      els.knownCounter.textContent = `Known ${knownCards.length}`
+      els.weakCounter.textContent = `Review ${weakCards.length}`
+      renderWeakList()
+    }
+
+    function handleNextButton() {
+      if (!revealed) {
+        skipCard()
+        return
+      }
       nextCard()
     }
 

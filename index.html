@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ISC2 CC Cyber Study Lab</title>
+  <meta name="description" content="A cyber themed ISC2 Certified in Cybersecurity study lab with drill and quiz tools.">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="nav">
+      <a class="brand" href="index.html" aria-label="ISC2 CC Cyber Study Lab home">
+        <div class="logo">CC</div>
+        <div>
+          <div class="brand-title">ISC2 CC Cyber Study Lab</div>
+          <div class="brand-subtitle">Drill mode • Quiz mode • Exam cram system</div>
+        </div>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a class="nav-link" href="tools/drill/index.html">Launch Study Drill</a>
+        <a class="nav-link" href="tools/quiz/index.html">Launch Quiz</a>
+        <a class="nav-link" href="docs/PROJECT_PLAN.md">Project Plan</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="kicker"><span class="kicker-dot"></span> Private exam lab ready for public showcase polish</div>
+          <h1>Cyber study, rebuilt as a <span class="gradient-text">mission control</span> app.</h1>
+          <p class="lead">A gorgeous local-first ISC2 Certified in Cybersecurity study platform with two launchable tools: a fast recall drill trainer and a full multiple choice quiz player.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="tools/drill/index.html">Start drill session</a>
+            <a class="button ghost" href="tools/quiz/index.html">Start quiz run</a>
+          </div>
+          <div class="stats">
+            <div class="stat"><strong id="domainCount">5</strong><span>ISC2 CC domains mapped</span></div>
+            <div class="stat"><strong id="drillCount">15</strong><span>starter cram cards</span></div>
+            <div class="stat"><strong id="questionCount">12</strong><span>starter quiz questions</span></div>
+          </div>
+        </div>
+
+        <div class="cyber-card" aria-label="Cyber study visual panel">
+          <div class="ring"></div>
+          <div class="orb"></div>
+          <div class="console">
+            <div class="console-line"><span class="console-key">status</span><span>study lab online</span></div>
+            <div class="console-line"><span class="console-key">mode</span><span>drill weak areas • quiz all questions</span></div>
+            <div class="console-line"><span class="console-key">source</span><span>ISC2 CC study repo</span></div>
+            <div class="console-line"><span class="console-key">objective</span><span>remember fast, answer accurately</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>Choose your training mode</h2>
+            <p class="muted">Two focused tools, designed so you know exactly what to do when you open them.</p>
+          </div>
+        </div>
+        <div class="grid two">
+          <article class="tool-card">
+            <div class="tool-icon">⚡</div>
+            <h3>Study Drill</h3>
+            <p class="muted">Fast flashcard style recall for acronyms, definitions, weak areas, and the concepts that need to stick before exam day.</p>
+            <ul class="feature-list">
+              <li>Reveal answer only when ready</li>
+              <li>Mark cards as Known or Weak</li>
+              <li>Review only weak cards</li>
+              <li>Track local session progress</li>
+            </ul>
+            <a class="button primary" href="tools/drill/index.html">Launch Study Drill</a>
+          </article>
+
+          <article class="tool-card">
+            <div class="tool-icon">◎</div>
+            <h3>Quiz Player</h3>
+            <p class="muted">Multiple choice exam practice with answer locking, explanations, wrong answer review, domain filtering, and score tracking.</p>
+            <ul class="feature-list">
+              <li>Click an answer and lock it in</li>
+              <li>See clear correct answer feedback</li>
+              <li>Filter by ISC2 CC domain</li>
+              <li>Export missed questions for review</li>
+            </ul>
+            <a class="button primary" href="tools/quiz/index.html">Launch Quiz Player</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>How to use it</h2>
+            <p class="muted">Simple exam cram rhythm that turns mistakes into review fuel.</p>
+          </div>
+        </div>
+        <div class="grid three">
+          <div class="card">
+            <span class="pill good">01</span>
+            <h3>Drill memory</h3>
+            <p class="muted">Open Study Drill. Reveal each answer. Mark weak concepts honestly so the app can loop them back.</p>
+          </div>
+          <div class="card">
+            <span class="pill warn">02</span>
+            <h3>Run quiz mode</h3>
+            <p class="muted">Open Quiz Player. Choose a domain or run everything. Lock answers and read feedback before moving on.</p>
+          </div>
+          <div class="card">
+            <span class="pill bad">03</span>
+            <h3>Review misses</h3>
+            <p class="muted">Export wrong answers and turn repeat mistakes into new drill cards for targeted revision.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>ISC2 CC Cyber Study Lab</span>
+      <span>Local-first static app • No backend required</span>
+    </footer>
+  </div>
+
+  <script src="data/app-data.js"></script>
+  <script>
+    const data = window.ISC2_CC_DATA || { domains: [], drills: [], questions: [] }
+    document.getElementById('domainCount').textContent = data.domains.length
+    document.getElementById('drillCount').textContent = data.drills.length
+    document.getElementById('questionCount').textContent = data.questions.length
+  </script>
+</body>
+</html>

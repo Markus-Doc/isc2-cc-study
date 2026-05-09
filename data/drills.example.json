@@ -1,0 +1,18 @@
+[
+  {
+    "id": "d001",
+    "domain": "Security Principles",
+    "prompt": "CIA triad",
+    "answer": "Confidentiality, Integrity, and Availability.",
+    "memoryHook": "Protect secrecy, prevent unauthorised change, keep systems usable.",
+    "confidence": "high"
+  },
+  {
+    "id": "d002",
+    "domain": "Business Continuity, Disaster Recovery, and Incident Response Concepts",
+    "prompt": "Incident response phases",
+    "answer": "Preparation, detection and analysis, containment, eradication, recovery, and lessons learned.",
+    "memoryHook": "Prepare, detect, contain, remove, recover, improve.",
+    "confidence": "high"
+  }
+]

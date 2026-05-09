@@ -69,6 +69,15 @@
           </div>
           <h2 id="taskTitle">Read the question, then test yourself.</h2>
           <p class="muted" id="taskText">Think about how well you know the subject, then reveal the answer and grade yourself.</p>
+          <div class="hidden" id="lastActionBox">
+            <div class="feedback">
+              <h3 id="lastActionTitle">Last card summary</h3>
+              <p id="lastActionText" class="muted"></p>
+              <div class="actions">
+                <button class="ghost" id="goBackBtn">Go back and redo last card</button>
+              </div>
+            </div>
+          </div>
         </article>
 
         <article class="card flashcard">
@@ -83,11 +92,15 @@
             <strong>Memory hook</strong>
             <p id="memoryHook"></p>
           </div>
+          <div class="hidden" id="noteBox">
+            <label class="muted" for="reviewNote">Optional review note</label>
+            <textarea id="reviewNote" placeholder="Example: I keep forgetting Integrity means unauthorised modification."></textarea>
+          </div>
           <div class="actions">
             <button class="primary" id="revealBtn">Reveal answer</button>
             <button id="knownBtn">I know this</button>
             <button class="danger" id="weakBtn">I need to review this</button>
-            <button class="ghost" id="nextBtn">Skip card</button>
+            <button class="ghost" id="skipBtn">Skip card</button>
             <button class="ghost" id="finishBtn">Finish session and build report</button>
           </div>
         </article>
@@ -130,11 +143,12 @@
     let weakCards = []
     let knownCards = []
     let skippedCards = []
+    let reviewNotes = {}
     let currentIndex = 0
     let revealed = false
-    let graded = false
     let weakReviewMode = false
     let lastReport = ''
+    let lastAction = null
 
     const els = {
       cardCounter: document.getElementById('cardCounter'),
@@ -156,7 +170,13 @@
       revealBtn: document.getElementById('revealBtn'),
       knownBtn: document.getElementById('knownBtn'),
       weakBtn: document.getElementById('weakBtn'),
-      nextBtn: document.getElementById('nextBtn'),
+      skipBtn: document.getElementById('skipBtn'),
+      noteBox: document.getElementById('noteBox'),
+      reviewNote: document.getElementById('reviewNote'),
+      lastActionBox: document.getElementById('lastActionBox'),
+      lastActionTitle: document.getElementById('lastActionTitle'),
+      lastActionText: document.getElementById('lastActionText'),
+      goBackBtn: document.getElementById('goBackBtn'),
       reportSection: document.getElementById('reportSection'),
       reportBox: document.getElementById('reportBox')
     }
@@ -172,7 +192,8 @@
       els.revealBtn.onclick = reveal
       els.knownBtn.onclick = markKnown
       els.weakBtn.onclick = markWeak
-      els.nextBtn.onclick = handleNextButton
+      els.skipBtn.onclick = skipCard
+      els.goBackBtn.onclick = goBackToLastCard
       document.getElementById('shuffleBtn').onclick = shuffleCards
       document.getElementById('weakOnlyBtn').onclick = reviewWeakOnly
       document.getElementById('resetBtn').onclick = resetSession
@@ -191,10 +212,11 @@
       if (!list.some(item => item.id === card.id)) list.push(card)
     }
 
-    function setDisabled(button, disabled) {
-      button.disabled = disabled
-      button.style.opacity = disabled ? '0.45' : '1'
-      button.style.cursor = disabled ? 'not-allowed' : 'pointer'
+    function removeCardFromLists(card) {
+      knownCards = knownCards.filter(item => item.id !== card.id)
+      weakCards = weakCards.filter(item => item.id !== card.id)
+      skippedCards = skippedCards.filter(item => item.id !== card.id)
+      delete reviewNotes[card.id]
     }
 
     function applyFilters() {
@@ -214,6 +236,7 @@
       if (!filteredCards.length) {
         els.promptTitle.textContent = 'No cards match this filter'
         els.answerBox.classList.add('hidden')
+        els.noteBox.classList.add('hidden')
         els.cardCounter.textContent = 'Card 0 of 0'
         els.progressBar.style.width = '0%'
         els.taskTitle.textContent = 'No matching cards found.'
@@ -223,99 +246,113 @@
 
       const card = currentCard()
       revealed = false
-      graded = false
       els.promptTitle.textContent = card.prompt
       els.answerText.textContent = card.answer
       els.memoryHook.textContent = card.memoryHook || 'No memory hook added yet.'
       els.domainPill.textContent = card.domain || 'Unmapped domain'
       els.tagPill.textContent = (card.tags || ['study card']).join(' • ')
       els.answerBox.classList.add('hidden')
+      els.noteBox.classList.add('hidden')
+      els.reviewNote.value = reviewNotes[card.id] || ''
       els.cardCounter.textContent = `Card ${currentIndex + 1} of ${filteredCards.length}`
       els.knownCounter.textContent = `Known ${knownCards.length}`
       els.weakCounter.textContent = `Review ${weakCards.length}`
       els.progressBar.style.width = `${((currentIndex + 1) / filteredCards.length) * 100}%`
-      els.taskTitle.textContent = 'Read the question, then test yourself.'
+      els.taskTitle.textContent = lastAction ? 'Last choice saved. Continue with the next card.' : 'Read the question, then test yourself.'
       els.taskText.textContent = 'Think about how well you know the subject, then reveal the answer and grade yourself.'
       els.modePill.textContent = weakReviewMode ? 'Review pile mode' : 'Normal cram mode'
 
       els.revealBtn.classList.remove('ghost')
       els.revealBtn.classList.add('primary')
-      setDisabled(els.revealBtn, false)
+      els.revealBtn.disabled = false
+      els.revealBtn.style.opacity = '1'
+      els.revealBtn.style.cursor = 'pointer'
       els.knownBtn.classList.add('hidden')
       els.weakBtn.classList.add('hidden')
-      els.nextBtn.classList.remove('hidden')
-      els.nextBtn.textContent = 'Skip card'
-      setDisabled(els.knownBtn, false)
-      setDisabled(els.weakBtn, false)
-      setDisabled(els.nextBtn, false)
+      els.skipBtn.classList.remove('hidden')
 
       renderWeakList()
+      renderLastAction()
     }
 
     function reveal() {
       if (revealed) return
       revealed = true
       els.answerBox.classList.remove('hidden')
+      els.noteBox.classList.remove('hidden')
       els.taskTitle.textContent = 'Now grade yourself.'
-      els.taskText.textContent = 'Choose I know this if recall was fast and accurate. Choose I need to review this if it was slow, fuzzy, incomplete, or wrong.'
+      els.taskText.textContent = 'Add a note if useful, then choose whether you know this or need to review it. Your choice will move to the next card automatically.'
       els.revealBtn.classList.remove('primary')
       els.revealBtn.classList.add('ghost')
-      setDisabled(els.revealBtn, true)
+      els.revealBtn.disabled = true
+      els.revealBtn.style.opacity = '0.45'
+      els.revealBtn.style.cursor = 'not-allowed'
       els.knownBtn.classList.remove('hidden')
       els.weakBtn.classList.remove('hidden')
-      els.nextBtn.classList.add('hidden')
+      els.skipBtn.classList.add('hidden')
     }
 
     function markKnown() {
-      if (!revealed || graded) return
+      if (!revealed) return
       const card = currentCard()
+      removeCardFromLists(card)
       uniquePush(knownCards, card)
-      weakCards = weakCards.filter(item => item.id !== card.id)
-      graded = true
-      lockGrade('known')
+      saveLastAction(card, 'known', els.reviewNote.value.trim())
+      nextCard()
     }
 
     function markWeak() {
-      if (!revealed || graded) return
+      if (!revealed) return
       const card = currentCard()
+      const note = els.reviewNote.value.trim()
+      removeCardFromLists(card)
       uniquePush(weakCards, card)
-      knownCards = knownCards.filter(item => item.id !== card.id)
-      graded = true
-      lockGrade('weak')
+      if (note) reviewNotes[card.id] = note
+      saveLastAction(card, 'review', note)
+      nextCard()
     }
 
-    function lockGrade(choice) {
-      setDisabled(els.knownBtn, true)
-      setDisabled(els.weakBtn, true)
-      if (choice === 'known') {
-        els.knownBtn.style.opacity = '1'
-        els.weakBtn.style.opacity = '0.35'
-        els.taskTitle.textContent = 'Card marked as known.'
-        els.taskText.textContent = 'Great. Move to the next card when you are ready.'
-      } else {
-        els.knownBtn.style.opacity = '0.35'
-        els.weakBtn.style.opacity = '1'
-        els.taskTitle.textContent = 'Card added to your review pile.'
-        els.taskText.textContent = 'This topic will appear in your study report so you can review and retest it later.'
+    function saveLastAction(card, choice, note) {
+      lastAction = {
+        card,
+        cardId: card.id,
+        originalIndex: currentIndex,
+        choice,
+        note
       }
-      els.nextBtn.textContent = 'Next card'
-      els.nextBtn.classList.remove('hidden')
-      els.knownCounter.textContent = `Known ${knownCards.length}`
-      els.weakCounter.textContent = `Review ${weakCards.length}`
-      renderWeakList()
     }
 
-    function handleNextButton() {
-      if (!revealed) {
-        skipCard()
+    function renderLastAction() {
+      if (!lastAction) {
+        els.lastActionBox.classList.add('hidden')
         return
       }
-      nextCard()
+      const choiceText = lastAction.choice === 'known' ? 'I know this' : lastAction.choice === 'review' ? 'I need to review this' : 'Skipped'
+      els.lastActionBox.classList.remove('hidden')
+      els.lastActionTitle.textContent = `Last card: ${lastAction.card.prompt}`
+      els.lastActionText.textContent = lastAction.note ? `Choice: ${choiceText}. Note: ${lastAction.note}` : `Choice: ${choiceText}.`
+    }
+
+    function goBackToLastCard() {
+      if (!lastAction) return
+      const card = lastAction.card
+      removeCardFromLists(card)
+      const existingIndex = filteredCards.findIndex(item => item.id === card.id)
+      if (existingIndex >= 0) {
+        currentIndex = existingIndex
+      } else {
+        filteredCards.unshift(card)
+        currentIndex = 0
+      }
+      lastAction = null
+      render()
     }
 
     function skipCard() {
       const card = currentCard()
+      removeCardFromLists(card)
       uniquePush(skippedCards, card)
+      saveLastAction(card, 'skipped', '')
       nextCard()
     }
 
@@ -347,6 +384,8 @@
       weakCards = []
       knownCards = []
       skippedCards = []
+      reviewNotes = {}
+      lastAction = null
       filteredCards = [...allCards]
       currentIndex = 0
       els.domainFilter.value = 'All domains'
@@ -360,7 +399,10 @@
         els.weakList.innerHTML = '<p class="muted">No review cards yet. When a card is fuzzy, click I need to review this and it will appear here.</p>'
         return
       }
-      els.weakList.innerHTML = weakCards.map(card => `<div class="list-row"><span>${card.prompt}</span><span class="pill warn">${card.domain}</span></div>`).join('')
+      els.weakList.innerHTML = weakCards.map(card => {
+        const note = reviewNotes[card.id] ? `<p class="muted">Note: ${escapeHtml(reviewNotes[card.id])}</p>` : ''
+        return `<div class="list-row"><span>${card.prompt}${note}</span><span class="pill warn">${card.domain}</span></div>`
+      }).join('')
     }
 
     function groupByDomain(cards) {
@@ -387,16 +429,19 @@
       lines.push('')
       lines.push('Study next:')
       if (!weakCards.length) {
-        lines.push('- No weak cards marked. Run another shuffled pass or move to quiz mode.')
+        lines.push('- No review cards marked. Run another shuffled pass or move to quiz mode.')
       } else {
         Object.entries(weakByDomain).forEach(([domain, cards]) => {
           lines.push(`- ${domain}: ${cards.length} card(s)`)
-          cards.slice(0, 12).forEach(card => lines.push(`  - ${card.prompt}`))
+          cards.slice(0, 12).forEach(card => {
+            lines.push(`  - ${card.prompt}`)
+            if (reviewNotes[card.id]) lines.push(`    Note: ${reviewNotes[card.id]}`)
+          })
         })
       }
       lines.push('')
       lines.push('Next action:')
-      lines.push('- Re-study the weak topics above, then run Study review pile and retest.')
+      lines.push('- Re-study the review topics above, then run Study review pile and retest.')
       lines.push('- After that, open Quiz Player and attempt related questions.')
 
       lastReport = lines.join('\n')
@@ -406,11 +451,12 @@
     }
 
     function escapeHtml(text) {
-      return text.replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]))
+      return String(text).replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]))
     }
 
     function copyWeak() {
-      navigator.clipboard.writeText(JSON.stringify(weakCards, null, 2))
+      const exportCards = weakCards.map(card => ({ ...card, reviewNote: reviewNotes[card.id] || '' }))
+      navigator.clipboard.writeText(JSON.stringify(exportCards, null, 2))
       alert('Review pile copied to clipboard')
     }
 

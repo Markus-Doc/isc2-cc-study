@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ISC2 CC Study Drill</title>
-  <meta name="description" content="A cyber styled ISC2 CC drill trainer for fast recall and weak area review.">
+  <meta name="description" content="A cyber styled ISC2 CC drill trainer for fast recall, weak area review, and study reporting.">
   <link rel="stylesheet" href="../../assets/styles.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
         <div class="logo">CC</div>
         <div>
           <div class="brand-title">Study Drill</div>
-          <div class="brand-subtitle">Fast recall • Weak area loop • Exam cram</div>
+          <div class="brand-subtitle">Read card • Self-test • Sort result • Generate report</div>
         </div>
       </a>
       <nav class="nav-links">
@@ -28,14 +28,26 @@
         <section class="panel">
           <div class="pill-row">
             <span class="pill good" id="cardCounter">Card 1 of 1</span>
-            <span class="pill warn" id="weakCounter">Review pile 0</span>
+            <span class="pill" id="knownCounter">Known 0</span>
+            <span class="pill warn" id="weakCounter">Review 0</span>
           </div>
           <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
         </section>
 
         <section class="panel">
+          <h3>Instructions</h3>
+          <div class="table-list">
+            <div class="list-row"><span>1. Read the card question</span><span class="pill">read</span></div>
+            <div class="list-row"><span>2. Decide if you know it</span><span class="pill">think</span></div>
+            <div class="list-row"><span>3. Reveal the answer</span><span class="pill">check</span></div>
+            <div class="list-row"><span>4. Choose I know this or I need to review this</span><span class="pill">sort</span></div>
+            <div class="list-row"><span>5. Finish session to generate a study report</span><span class="pill">report</span></div>
+          </div>
+        </section>
+
+        <section class="panel">
           <h3>Session controls</h3>
-          <p class="muted">Use these only when you want to narrow the deck. For a normal cram session, leave the domain as All domains and work through the cards.</p>
+          <p class="muted">Leave this on All domains for a full cram run, or narrow the deck when you want focused revision.</p>
           <label class="muted" for="domainFilter">Domain</label>
           <select class="select" id="domainFilter"></select>
           <br><br>
@@ -47,26 +59,16 @@
             <button class="danger" id="resetBtn">Reset session</button>
           </div>
         </section>
-
-        <section class="panel">
-          <h3>How this drill works</h3>
-          <div class="table-list">
-            <div class="list-row"><span>1. Read the big prompt</span><span class="pill">try</span></div>
-            <div class="list-row"><span>2. Say the answer from memory</span><span class="pill">recall</span></div>
-            <div class="list-row"><span>3. Click Reveal answer</span><span class="pill">check</span></div>
-            <div class="list-row"><span>4. Choose Remembered or Needs review</span><span class="pill">sort</span></div>
-          </div>
-        </section>
       </aside>
 
       <section>
         <article class="card">
           <div class="pill-row">
-            <span class="pill good">What do I do now?</span>
+            <span class="pill good">Current task</span>
             <span class="pill" id="modePill">Normal cram mode</span>
           </div>
-          <h2 id="taskTitle">Try to answer before looking.</h2>
-          <p class="muted" id="taskText">Read the big prompt below. Do not click Reveal until you have tried to say the answer out loud or in your head.</p>
+          <h2 id="taskTitle">Read the question, then test yourself.</h2>
+          <p class="muted" id="taskText">Try to answer the card from memory before revealing the correct answer. Be honest when sorting the card.</p>
         </article>
 
         <article class="card flashcard">
@@ -83,9 +85,10 @@
           </div>
           <div class="actions">
             <button class="primary" id="revealBtn">1. Reveal answer</button>
-            <button id="knownBtn">2. I remembered it</button>
-            <button class="danger" id="weakBtn">2. I need to review it</button>
+            <button id="knownBtn">2. I know this</button>
+            <button class="danger" id="weakBtn">2. I need to review this</button>
             <button class="ghost" id="nextBtn">Skip card</button>
+            <button class="ghost" id="finishBtn">Finish session and build report</button>
           </div>
         </article>
 
@@ -93,11 +96,22 @@
           <div class="section-head">
             <div>
               <h2>Review pile</h2>
-              <p class="muted">Cards you mark as needing review land here. Click Study review pile to drill only these weak cards.</p>
+              <p class="muted">Cards marked for review appear here. The final report turns this into a targeted study list.</p>
             </div>
             <button class="ghost" id="copyWeakBtn">Copy review pile</button>
           </div>
           <div class="panel table-list" id="weakList"></div>
+        </section>
+
+        <section class="section hidden" id="reportSection">
+          <div class="section-head">
+            <div>
+              <h2>Study report</h2>
+              <p class="muted">Use this report to decide what to study next. Later, this can feed generated study material and retesting.</p>
+            </div>
+            <button class="ghost" id="copyReportBtn">Copy report</button>
+          </div>
+          <div class="panel" id="reportBox"></div>
         </section>
       </section>
     </main>
@@ -114,12 +128,16 @@
     const allCards = data.drills || []
     let filteredCards = [...allCards]
     let weakCards = []
+    let knownCards = []
+    let skippedCards = []
     let currentIndex = 0
     let revealed = false
     let weakReviewMode = false
+    let lastReport = ''
 
     const els = {
       cardCounter: document.getElementById('cardCounter'),
+      knownCounter: document.getElementById('knownCounter'),
       weakCounter: document.getElementById('weakCounter'),
       progressBar: document.getElementById('progressBar'),
       domainFilter: document.getElementById('domainFilter'),
@@ -135,7 +153,9 @@
       taskText: document.getElementById('taskText'),
       modePill: document.getElementById('modePill'),
       knownBtn: document.getElementById('knownBtn'),
-      weakBtn: document.getElementById('weakBtn')
+      weakBtn: document.getElementById('weakBtn'),
+      reportSection: document.getElementById('reportSection'),
+      reportBox: document.getElementById('reportBox')
     }
 
     function init() {
@@ -149,17 +169,23 @@
       document.getElementById('revealBtn').onclick = reveal
       document.getElementById('knownBtn').onclick = markKnown
       document.getElementById('weakBtn').onclick = markWeak
-      document.getElementById('nextBtn').onclick = nextCard
+      document.getElementById('nextBtn').onclick = skipCard
       document.getElementById('shuffleBtn').onclick = shuffleCards
       document.getElementById('weakOnlyBtn').onclick = reviewWeakOnly
       document.getElementById('resetBtn').onclick = resetSession
       document.getElementById('copyWeakBtn').onclick = copyWeak
+      document.getElementById('finishBtn').onclick = finishSession
+      document.getElementById('copyReportBtn').onclick = copyReport
       els.domainFilter.onchange = applyFilters
       els.searchInput.oninput = applyFilters
     }
 
     function currentCard() {
       return filteredCards[currentIndex]
+    }
+
+    function uniquePush(list, card) {
+      if (!list.some(item => item.id === card.id)) list.push(card)
     }
 
     function applyFilters() {
@@ -195,21 +221,22 @@
       els.tagPill.textContent = (card.tags || ['study card']).join(' • ')
       els.answerBox.classList.add('hidden')
       els.cardCounter.textContent = `Card ${currentIndex + 1} of ${filteredCards.length}`
-      els.weakCounter.textContent = `Review pile ${weakCards.length}`
+      els.knownCounter.textContent = `Known ${knownCards.length}`
+      els.weakCounter.textContent = `Review ${weakCards.length}`
       els.progressBar.style.width = `${((currentIndex + 1) / filteredCards.length) * 100}%`
-      els.taskTitle.textContent = 'Try to answer before looking.'
-      els.taskText.textContent = 'Read the big prompt. Say what it means from memory, then click Reveal answer to check yourself.'
+      els.taskTitle.textContent = 'Read the question, then test yourself.'
+      els.taskText.textContent = 'Try to answer from memory before revealing. After you reveal, sort the card into I know this or I need to review this.'
       els.modePill.textContent = weakReviewMode ? 'Review pile mode' : 'Normal cram mode'
-      els.knownBtn.style.opacity = '0.48'
-      els.weakBtn.style.opacity = '0.48'
+      els.knownBtn.style.opacity = '0.58'
+      els.weakBtn.style.opacity = '0.58'
       renderWeakList()
     }
 
     function reveal() {
       revealed = true
       els.answerBox.classList.remove('hidden')
-      els.taskTitle.textContent = 'Now choose your result.'
-      els.taskText.textContent = 'If you knew it without help, click I remembered it. If it was fuzzy, wrong, or slow, click I need to review it.'
+      els.taskTitle.textContent = 'Now sort the card.'
+      els.taskText.textContent = 'Choose I know this if recall was fast and accurate. Choose I need to review this if it was slow, fuzzy, incomplete, or wrong.'
       els.knownBtn.style.opacity = '1'
       els.weakBtn.style.opacity = '1'
     }
@@ -220,6 +247,7 @@
         return
       }
       const card = currentCard()
+      uniquePush(knownCards, card)
       weakCards = weakCards.filter(item => item.id !== card.id)
       nextCard()
     }
@@ -230,7 +258,14 @@
         return
       }
       const card = currentCard()
-      if (!weakCards.some(item => item.id === card.id)) weakCards.push(card)
+      uniquePush(weakCards, card)
+      knownCards = knownCards.filter(item => item.id !== card.id)
+      nextCard()
+    }
+
+    function skipCard() {
+      const card = currentCard()
+      uniquePush(skippedCards, card)
       nextCard()
     }
 
@@ -248,7 +283,7 @@
 
     function reviewWeakOnly() {
       if (!weakCards.length) {
-        alert('No review cards yet. Mark something as I need to review it first.')
+        alert('No review cards yet. Mark something as I need to review this first.')
         return
       }
       weakReviewMode = true
@@ -260,24 +295,78 @@
     function resetSession() {
       weakReviewMode = false
       weakCards = []
+      knownCards = []
+      skippedCards = []
       filteredCards = [...allCards]
       currentIndex = 0
       els.domainFilter.value = 'All domains'
       els.searchInput.value = ''
+      els.reportSection.classList.add('hidden')
       render()
     }
 
     function renderWeakList() {
       if (!weakCards.length) {
-        els.weakList.innerHTML = '<p class="muted">No review cards yet. When a card is fuzzy, click I need to review it and it will appear here.</p>'
+        els.weakList.innerHTML = '<p class="muted">No review cards yet. When a card is fuzzy, click I need to review this and it will appear here.</p>'
         return
       }
       els.weakList.innerHTML = weakCards.map(card => `<div class="list-row"><span>${card.prompt}</span><span class="pill warn">${card.domain}</span></div>`).join('')
     }
 
+    function groupByDomain(cards) {
+      return cards.reduce((acc, card) => {
+        const domain = card.domain || 'Unmapped'
+        acc[domain] = acc[domain] || []
+        acc[domain].push(card)
+        return acc
+      }, {})
+    }
+
+    function finishSession() {
+      const reviewedIds = new Set([...knownCards, ...weakCards].map(card => card.id))
+      const notReviewed = allCards.filter(card => !reviewedIds.has(card.id))
+      const weakByDomain = groupByDomain(weakCards)
+      const lines = []
+      lines.push('ISC2 CC Study Drill Report')
+      lines.push(`Generated: ${new Date().toLocaleString()}`)
+      lines.push('')
+      lines.push(`Cards in deck: ${allCards.length}`)
+      lines.push(`Marked known: ${knownCards.length}`)
+      lines.push(`Needs review: ${weakCards.length}`)
+      lines.push(`Not yet sorted: ${notReviewed.length}`)
+      lines.push('')
+      lines.push('Study next:')
+      if (!weakCards.length) {
+        lines.push('- No weak cards marked. Run another shuffled pass or move to quiz mode.')
+      } else {
+        Object.entries(weakByDomain).forEach(([domain, cards]) => {
+          lines.push(`- ${domain}: ${cards.length} card(s)`)
+          cards.slice(0, 12).forEach(card => lines.push(`  - ${card.prompt}`))
+        })
+      }
+      lines.push('')
+      lines.push('Next action:')
+      lines.push('- Re-study the weak topics above, then run Study review pile and retest.')
+      lines.push('- After that, open Quiz Player and attempt related questions.')
+
+      lastReport = lines.join('\n')
+      els.reportSection.classList.remove('hidden')
+      els.reportBox.innerHTML = `<pre style="white-space:pre-wrap;line-height:1.55;margin:0">${escapeHtml(lastReport)}</pre>`
+      els.reportSection.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]))
+    }
+
     function copyWeak() {
       navigator.clipboard.writeText(JSON.stringify(weakCards, null, 2))
       alert('Review pile copied to clipboard')
+    }
+
+    function copyReport() {
+      navigator.clipboard.writeText(lastReport || 'No report generated yet')
+      alert('Study report copied to clipboard')
     }
 
     init()

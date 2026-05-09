@@ -1,0 +1,34 @@
+[
+  {
+    "id": "q001",
+    "domain": "Access Controls Concepts",
+    "question": "Which security principle means users should only have the access needed to perform their authorised tasks?",
+    "options": [
+      "Separation of duties",
+      "Least privilege",
+      "Defence in depth",
+      "Nonrepudiation"
+    ],
+    "correctIndex": 1,
+    "explanation": "Least privilege limits access to the minimum required for an authorised purpose.",
+    "answerSource": "manual_seed",
+    "confidence": "high",
+    "needsReview": false
+  },
+  {
+    "id": "q002",
+    "domain": "Security Principles",
+    "question": "Which part of the CIA triad focuses on preventing unauthorised disclosure of information?",
+    "options": [
+      "Integrity",
+      "Availability",
+      "Confidentiality",
+      "Accountability"
+    ],
+    "correctIndex": 2,
+    "explanation": "Confidentiality protects information from unauthorised access or disclosure.",
+    "answerSource": "manual_seed",
+    "confidence": "high",
+    "needsReview": false
+  }
+]

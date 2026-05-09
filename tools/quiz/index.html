@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ISC2 CC Quiz Player</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #18202a;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .muted {
+      color: #687385;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      background: #1f6feb;
+      color: white;
+    }
+    button.secondary {
+      background: #e9eef5;
+      color: #18202a;
+    }
+    button.option {
+      width: 100%;
+      text-align: left;
+      background: #f2f5f8;
+      color: #18202a;
+      margin: 8px 0;
+      border: 2px solid transparent;
+    }
+    button.option.selected {
+      border-color: #1f6feb;
+      background: #e8f0ff;
+    }
+    button.option.correct {
+      border-color: #16833a;
+      background: #e8f7ee;
+    }
+    button.option.wrong {
+      border-color: #c73232;
+      background: #fff0f0;
+    }
+    .pill {
+      display: inline-block;
+      background: #eef2f7;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-right: 6px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      border-radius: 12px;
+      border: 1px solid #c8d0dc;
+      padding: 12px;
+      font-family: Consolas, monospace;
+      box-sizing: border-box;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>ISC2 CC Quiz Player</h1>
+      <p class="muted">One question at a time. Pick an answer, lock it in, review the explanation, then move forward.</p>
+      <div class="row">
+        <span class="pill" id="progress">Question 1 of 2</span>
+        <span class="pill" id="score">Score 0</span>
+        <span class="pill" id="domain">Domain</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="question">Question text</h2>
+      <div id="options"></div>
+      <div class="row">
+        <button id="lockBtn">Lock answer</button>
+        <button class="secondary" id="nextBtn">Next question</button>
+        <button class="secondary" id="resetBtn">Reset</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="feedbackCard">
+      <h2>Feedback</h2>
+      <p id="feedback"></p>
+      <p class="muted" id="sourceInfo"></p>
+    </section>
+
+    <section class="card">
+      <h2>Load Questions</h2>
+      <p class="muted">Paste generated question JSON here, then click Load. This allows the page to work without a backend.</p>
+      <textarea id="jsonInput"></textarea>
+      <div class="row">
+        <button class="secondary" id="loadBtn">Load pasted JSON</button>
+        <button class="secondary" id="exportWrongBtn">Export wrong answers</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const seedQuestions = [
+      {
+        id: 'q001',
+        domain: 'Access Controls Concepts',
+        question: 'Which security principle means users should only have the access needed to perform their authorised tasks?',
+        options: ['Separation of duties', 'Least privilege', 'Defence in depth', 'Nonrepudiation'],
+        correctIndex: 1,
+        explanation: 'Least privilege limits access to the minimum required for an authorised purpose.',
+        answerSource: 'manual_seed',
+        confidence: 'high',
+        needsReview: false
+      },
+      {
+        id: 'q002',
+        domain: 'Security Principles',
+        question: 'Which part of the CIA triad focuses on preventing unauthorised disclosure of information?',
+        options: ['Integrity', 'Availability', 'Confidentiality', 'Accountability'],
+        correctIndex: 2,
+        explanation: 'Confidentiality protects information from unauthorised access or disclosure.',
+        answerSource: 'manual_seed',
+        confidence: 'high',
+        needsReview: false
+      }
+    ]
+
+    let questions = seedQuestions
+    let index = 0
+    let selectedIndex = null
+    let locked = false
+    let score = 0
+    let wrongAnswers = []
+
+    const questionEl = document.getElementById('question')
+    const optionsEl = document.getElementById('options')
+    const progressEl = document.getElementById('progress')
+    const scoreEl = document.getElementById('score')
+    const domainEl = document.getElementById('domain')
+    const feedbackCard = document.getElementById('feedbackCard')
+    const feedbackEl = document.getElementById('feedback')
+    const sourceInfoEl = document.getElementById('sourceInfo')
+    const jsonInput = document.getElementById('jsonInput')
+
+    function render() {
+      const current = questions[index]
+      selectedIndex = null
+      locked = false
+      questionEl.textContent = current.question
+      progressEl.textContent = `Question ${index + 1} of ${questions.length}`
+      scoreEl.textContent = `Score ${score}`
+      domainEl.textContent = current.domain || 'Unmapped domain'
+      feedbackCard.classList.add('hidden')
+      feedbackEl.textContent = ''
+      sourceInfoEl.textContent = ''
+      optionsEl.innerHTML = ''
+
+      current.options.forEach((option, optionIndex) => {
+        const button = document.createElement('button')
+        button.className = 'option'
+        button.textContent = `${String.fromCharCode(65 + optionIndex)}. ${option}`
+        button.onclick = () => selectOption(optionIndex)
+        optionsEl.appendChild(button)
+      })
+    }
+
+    function selectOption(optionIndex) {
+      if (locked) return
+      selectedIndex = optionIndex
+      Array.from(optionsEl.children).forEach((button, idx) => {
+        button.classList.toggle('selected', idx === optionIndex)
+      })
+    }
+
+    function lockAnswer() {
+      if (locked) return
+      if (selectedIndex === null) return
+      const current = questions[index]
+      locked = true
+      const isCorrect = selectedIndex === current.correctIndex
+      if (isCorrect) score = score + 1
+      if (!isCorrect) wrongAnswers.push(current)
+
+      Array.from(optionsEl.children).forEach((button, idx) => {
+        if (idx === current.correctIndex) button.classList.add('correct')
+        if (idx === selectedIndex && !isCorrect) button.classList.add('wrong')
+      })
+
+      feedbackCard.classList.remove('hidden')
+      feedbackEl.textContent = current.explanation || 'No explanation supplied yet.'
+      sourceInfoEl.textContent = `Answer source: ${current.answerSource || 'unknown'} | Confidence: ${current.confidence || 'unknown'}`
+      scoreEl.textContent = `Score ${score}`
+    }
+
+    function nextQuestion() {
+      if (index < questions.length - 1) {
+        index = index + 1
+        render()
+        return
+      }
+      feedbackCard.classList.remove('hidden')
+      feedbackEl.textContent = `Finished. Final score: ${score} out of ${questions.length}`
+      sourceInfoEl.textContent = `Wrong answers tracked: ${wrongAnswers.length}`
+    }
+
+    function resetQuiz() {
+      index = 0
+      selectedIndex = null
+      locked = false
+      score = 0
+      wrongAnswers = []
+      render()
+    }
+
+    function loadJson() {
+      try {
+        const parsed = JSON.parse(jsonInput.value)
+        if (!Array.isArray(parsed)) throw new Error('JSON must be an array of questions')
+        questions = parsed
+        resetQuiz()
+      } catch (error) {
+        alert(error.message)
+      }
+    }
+
+    function exportWrong() {
+      const text = JSON.stringify(wrongAnswers, null, 2)
+      navigator.clipboard.writeText(text)
+      alert('Wrong answers copied to clipboard')
+    }
+
+    document.getElementById('lockBtn').onclick = lockAnswer
+    document.getElementById('nextBtn').onclick = nextQuestion
+    document.getElementById('resetBtn').onclick = resetQuiz
+    document.getElementById('loadBtn').onclick = loadJson
+    document.getElementById('exportWrongBtn').onclick = exportWrong
+
+    jsonInput.value = JSON.stringify(seedQuestions, null, 2)
+    render()
+  </script>
+</body>
+</html>

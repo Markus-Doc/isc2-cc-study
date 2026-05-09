@@ -1,86 +1,104 @@
-# ISC2 CC Study
+# ISC2 CC Cyber Study Lab
 
-Private study repository for ISC2 Certified in Cybersecurity exam preparation.
+A polished local-first study platform for ISC2 Certified in Cybersecurity preparation.
 
-## Purpose
+This project has two launchable browser tools:
 
-This repository is being organised into two main study tools:
+- **Study Drill** for fast recall, weak area loops, definitions, acronyms, and cram cards
+- **Quiz Player** for multiple choice practice with answer locking, explanations, score tracking, domain filters, and missed question review
 
-1. Drill tool
-   - A fast cram style trainer for key facts, definitions, acronyms, concepts, processes, and weak areas.
-   - Intended for quick repeated recall before the exam.
+## Launch
 
-2. Quiz tool
-   - A browser based multiple choice question player.
-   - Presents questions one at a time.
-   - Lets me choose an answer, lock it in, review feedback, then move through the full question set.
-
-## Current Source Material
-
-The existing source material remains in place and can be used as the raw study base.
-
-Visible source areas include:
-
-- Certified in Cybersecurity 2023 material
-- Example_Questions
-- Study Resources
-- Reconstructed exam question bank files
-
-## New Project Structure
+Open this file first:
 
 ```text
-.
-├── README.md
-├── docs
-│   ├── PROJECT_PLAN.md
-│   ├── AI_ANSWER_POLICY.md
-│   └── STUDY_WORKFLOW.md
-├── data
-│   ├── questions.example.json
-│   └── drills.example.json
-└── tools
-    ├── drill
-    │   └── index.html
-    └── quiz
-        └── index.html
+index.html
 ```
 
-## Tool 1: Drill Trainer
-
-Open this file in a browser:
+From the landing page, choose:
 
 ```text
 tools/drill/index.html
 ```
 
-Use it to cram concepts quickly. The first version loads example drill cards from embedded data. Later versions can be generated from the study PDFs, question banks, and notes.
-
-## Tool 2: Multiple Choice Quiz Player
-
-Open this file in a browser:
+or:
 
 ```text
 tools/quiz/index.html
 ```
 
-Use it to move through questions one at a time, lock answers, view feedback, and track progress.
+No build step, package install, or backend is required.
 
-## Data Files
+## Current Structure
 
-The tools are designed around simple JSON structures.
+```text
+.
+├── index.html
+├── assets
+│   └── styles.css
+├── data
+│   ├── app-data.js
+│   ├── drills.example.json
+│   └── questions.example.json
+├── docs
+│   ├── AI_ANSWER_POLICY.md
+│   ├── PROJECT_PLAN.md
+│   └── STUDY_WORKFLOW.md
+├── tools
+│   ├── drill
+│   │   └── index.html
+│   └── quiz
+│       └── index.html
+└── source study material folders and files
+```
 
-- `data/questions.example.json` shows the shape for quiz questions.
-- `data/drills.example.json` shows the shape for drill cards.
+## Study Drill
 
-These can later be replaced or expanded with extracted questions from the source files.
+Use this when you need rapid memorisation.
 
-## Answer Key Policy
+Features:
 
-The preferred source of truth is always:
+- Cyber styled flashcard interface
+- Domain filtering
+- Search
+- Reveal answer when ready
+- Mark cards as Known or Weak
+- Weak-only review mode
+- Copy weak cards as JSON
 
-1. Explicit answer key in the source material
-2. Official ISC2 learning objective or glossary wording
-3. Trusted security reference material
+## Quiz Player
+
+Use this when you want exam style practice.
+
+Features:
+
+- One question at a time
+- Clear answer choices
+- Click and lock answer flow
+- Correct and wrong answer highlighting
+- Explanation panel
+- Score and missed question tracking
+- Domain filtering
+- Missed-only review mode
+- Copy missed questions as JSON
+
+## Data
+
+The main app data file is:
+
+```text
+data/app-data.js
+```
+
+It currently contains starter drill cards and starter quiz questions. Later, extracted questions from the source material can be added here or generated into a separate file.
+
+## Answer Policy
+
+The intended answer source order is:
+
+1. Explicit answer key from source material
+2. Official ISC2 material or glossary wording
+3. Trusted cybersecurity references
 4. AI reasoning only when no answer key is available
 
 See:
@@ -89,6 +107,6 @@ See:
 docs/AI_ANSWER_POLICY.md
 ```
 
-## Important Note
+## Notes
 
-The HTML tools in this repository are static local tools. They do not perform live web searches by themselves. If live verification is needed, an AI assistant or separate backend workflow should be used to enrich the question data before loading it into the quiz tool.
+This is currently a static local app. It does not perform live web lookups by itself. Live verification should be handled by a separate AI or research workflow before data is added to the quiz player.

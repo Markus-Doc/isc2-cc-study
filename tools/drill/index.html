@@ -48,6 +48,7 @@
         <section class="panel">
           <h3>Session controls</h3>
           <p class="muted">Leave this on All domains for a full cram run, or narrow the deck when you want focused revision.</p>
+          <p class="muted">Progress is saved in this browser automatically so you can resume a session if the page closes.</p>
           <label class="muted" for="domainFilter">Domain</label>
           <select class="select" id="domainFilter"></select>
           <br><br>
@@ -58,6 +59,7 @@
             <button class="ghost" id="weakOnlyBtn">Study review pile</button>
             <button class="danger" id="resetBtn">Reset session</button>
           </div>
+          <p class="muted">Risky actions such as reset, shuffle, review-only focus, or early report generation ask for confirmation first.</p>
         </section>
       </aside>
 
@@ -109,9 +111,12 @@
           <div class="section-head">
             <div>
               <h2>Review pile</h2>
-              <p class="muted">Cards marked for review appear here. The final report turns this into a targeted study list.</p>
+              <p class="muted">Cards marked for review appear here. Use Study review pile to retest only those cards. Use Copy review pile to copy the selected cards as JSON so you can paste them into your preferred LLM, notes app, or manual study workflow.</p>
             </div>
-            <button class="ghost" id="copyWeakBtn">Copy review pile</button>
+            <div class="actions">
+              <button class="ghost" id="weakOnlySectionBtn">Study review pile</button>
+              <button class="ghost" id="copyWeakBtn">Copy review pile</button>
+            </div>
           </div>
           <div class="panel table-list" id="weakList"></div>
         </section>
@@ -139,6 +144,7 @@
   <script>
     const data = window.ISC2_CC_DATA || { domains: [], drills: [] }
     const allCards = data.drills || []
+    const STORAGE_KEY = 'isc2CcStudyDrillSessionV1'
     let filteredCards = [...allCards]
     let weakCards = []
     let knownCards = []
@@ -149,6 +155,7 @@
     let weakReviewMode = false
     let lastReport = ''
     let lastAction = null
+    let isRestoringSession = false
 
     const els = {
       cardCounter: document.getElementById('cardCounter'),
@@ -183,9 +190,9 @@
 
     function init() {
       const domains = ['All domains', ...new Set(allCards.map(card => card.domain).filter(Boolean))]
-      els.domainFilter.innerHTML = domains.map(domain => `<option value="${domain}">${domain}</option>`).join('')
-      applyFilters()
+      els.domainFilter.innerHTML = domains.map(domain => `<option value="${escapeHtml(domain)}">${escapeHtml(domain)}</option>`).join('')
       bindEvents()
+      if (!restoreSavedSession()) applyFilters()
     }
 
     function bindEvents() {
@@ -196,6 +203,7 @@
       els.goBackBtn.onclick = goBackToLastCard
       document.getElementById('shuffleBtn').onclick = shuffleCards
       document.getElementById('weakOnlyBtn').onclick = reviewWeakOnly
+      document.getElementById('weakOnlySectionBtn').onclick = reviewWeakOnly
       document.getElementById('resetBtn').onclick = resetSession
       document.getElementById('copyWeakBtn').onclick = copyWeak
       document.getElementById('finishBtn').onclick = finishSession
@@ -206,6 +214,14 @@
 
     function currentCard() {
       return filteredCards[currentIndex]
+    }
+
+    function findCardById(id) {
+      return allCards.find(card => card.id === id)
+    }
+
+    function cardsFromIds(ids) {
+      return (ids || []).map(findCardById).filter(Boolean)
     }
 
     function uniquePush(list, card) {
@@ -219,15 +235,27 @@
       delete reviewNotes[card.id]
     }
 
+    function hasActiveProgress() {
+      return knownCards.length > 0 || weakCards.length > 0 || skippedCards.length > 0 || currentIndex > 0 || lastAction !== null
+    }
+
+    function confirmRisk(message) {
+      return window.confirm(message)
+    }
+
+    function getFilteredDeck(domain, query) {
+      const selectedDomain = domain || 'All domains'
+      const selectedQuery = (query || '').trim().toLowerCase()
+      return allCards.filter(card => {
+        const domainMatch = selectedDomain === 'All domains' || card.domain === selectedDomain
+        const searchable = `${card.prompt} ${card.answer} ${card.memoryHook || ''} ${(card.tags || []).join(' ')}`.toLowerCase()
+        return domainMatch && searchable.includes(selectedQuery)
+      })
+    }
+
     function applyFilters() {
       weakReviewMode = false
-      const domain = els.domainFilter.value || 'All domains'
-      const query = els.searchInput.value.trim().toLowerCase()
-      filteredCards = allCards.filter(card => {
-        const domainMatch = domain === 'All domains' || card.domain === domain
-        const searchable = `${card.prompt} ${card.answer} ${card.memoryHook || ''} ${(card.tags || []).join(' ')}`.toLowerCase()
-        return domainMatch && searchable.includes(query)
-      })
+      filteredCards = getFilteredDeck(els.domainFilter.value, els.searchInput.value)
       currentIndex = 0
       render()
     }
@@ -241,6 +269,7 @@
         els.progressBar.style.width = '0%'
         els.taskTitle.textContent = 'No matching cards found.'
         els.taskText.textContent = 'Clear the search box or choose All domains to bring cards back.'
+        saveSession()
         return
       }
 
@@ -273,6 +302,7 @@
 
       renderWeakList()
       renderLastAction()
+      saveSession()
     }
 
     function reveal() {
@@ -290,6 +320,7 @@
       els.knownBtn.classList.remove('hidden')
       els.weakBtn.classList.remove('hidden')
       els.skipBtn.classList.add('hidden')
+      saveSession()
     }
 
     function markKnown() {
@@ -363,6 +394,7 @@
     }
 
     function shuffleCards() {
+      if (hasActiveProgress() && !confirmRisk('Shuffle will change the current card order and restart this view at card 1. Your known and review piles will stay saved. Continue?')) return
       filteredCards = filteredCards.map(value => ({ value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(item => item.value)
       currentIndex = 0
       render()
@@ -373,6 +405,7 @@
         alert('No review cards yet. Mark something as I need to review this first.')
         return
       }
+      if (hasActiveProgress() && !weakReviewMode && !confirmRisk('Switch to Study review pile mode? Your full-session progress will stay saved, but this view will focus only on cards currently flagged for review.')) return
       weakReviewMode = true
       filteredCards = [...weakCards]
       currentIndex = 0
@@ -380,17 +413,20 @@
     }
 
     function resetSession() {
+      if (!confirmRisk('Reset this study session? This clears known cards, review pile, skipped cards, notes, report, and saved browser progress.')) return
       weakReviewMode = false
       weakCards = []
       knownCards = []
       skippedCards = []
       reviewNotes = {}
       lastAction = null
+      lastReport = ''
       filteredCards = [...allCards]
       currentIndex = 0
       els.domainFilter.value = 'All domains'
       els.searchInput.value = ''
       els.reportSection.classList.add('hidden')
+      localStorage.removeItem(STORAGE_KEY)
       render()
     }
 
@@ -401,7 +437,7 @@
       }
       els.weakList.innerHTML = weakCards.map(card => {
         const note = reviewNotes[card.id] ? `<p class="muted">Note: ${escapeHtml(reviewNotes[card.id])}</p>` : ''
-        return `<div class="list-row"><span>${card.prompt}${note}</span><span class="pill warn">${card.domain}</span></div>`
+        return `<div class="list-row"><span>${escapeHtml(card.prompt)}${note}</span><span class="pill warn">${escapeHtml(card.domain)}</span></div>`
       }).join('')
     }
 
@@ -417,6 +453,7 @@
     function finishSession() {
       const reviewedIds = new Set([...knownCards, ...weakCards].map(card => card.id))
       const notReviewed = allCards.filter(card => !reviewedIds.has(card.id))
+      if (notReviewed.length && !confirmRisk(`Build the report now? You still have ${notReviewed.length} unsorted card(s). Your progress will stay saved, but this may be earlier than intended.`)) return
       const weakByDomain = groupByDomain(weakCards)
       const lines = []
       lines.push('ISC2 CC Study Drill Report')
@@ -448,6 +485,7 @@
       els.reportSection.classList.remove('hidden')
       els.reportBox.innerHTML = `<pre style="white-space:pre-wrap;line-height:1.55;margin:0">${escapeHtml(lastReport)}</pre>`
       els.reportSection.scrollIntoView({ behavior: 'smooth' })
+      saveSession()
     }
 
     function escapeHtml(text) {
@@ -457,12 +495,84 @@
     function copyWeak() {
       const exportCards = weakCards.map(card => ({ ...card, reviewNote: reviewNotes[card.id] || '' }))
       navigator.clipboard.writeText(JSON.stringify(exportCards, null, 2))
-      alert('Review pile copied to clipboard')
+      alert('Review pile JSON copied to clipboard. Paste it into your preferred LLM, notes app, or manual study file for deeper review.')
     }
 
     function copyReport() {
       navigator.clipboard.writeText(lastReport || 'No report generated yet')
       alert('Study report copied to clipboard')
+    }
+
+    function saveSession() {
+      if (isRestoringSession) return
+      const session = {
+        savedAt: new Date().toISOString(),
+        knownCardIds: knownCards.map(card => card.id),
+        weakCardIds: weakCards.map(card => card.id),
+        skippedCardIds: skippedCards.map(card => card.id),
+        filteredCardIds: filteredCards.map(card => card.id),
+        reviewNotes,
+        currentIndex,
+        weakReviewMode,
+        lastReport,
+        domainFilter: els.domainFilter.value || 'All domains',
+        searchInput: els.searchInput.value || '',
+        lastAction: lastAction ? {
+          cardId: lastAction.cardId,
+          originalIndex: lastAction.originalIndex,
+          choice: lastAction.choice,
+          note: lastAction.note
+        } : null
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+    }
+
+    function restoreSavedSession() {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return false
+      let session
+      try {
+        session = JSON.parse(raw)
+      } catch (error) {
+        localStorage.removeItem(STORAGE_KEY)
+        return false
+      }
+
+      const hasSavedWork = (session.knownCardIds || []).length || (session.weakCardIds || []).length || (session.skippedCardIds || []).length || session.currentIndex > 0
+      if (!hasSavedWork) return false
+      if (!confirmRisk('Resume your saved study drill session? Choose Cancel to start from the beginning without deleting saved progress.')) return false
+
+      isRestoringSession = true
+      knownCards = cardsFromIds(session.knownCardIds)
+      weakCards = cardsFromIds(session.weakCardIds)
+      skippedCards = cardsFromIds(session.skippedCardIds)
+      reviewNotes = session.reviewNotes || {}
+      weakReviewMode = Boolean(session.weakReviewMode)
+      lastReport = session.lastReport || ''
+      els.domainFilter.value = session.domainFilter || 'All domains'
+      els.searchInput.value = session.searchInput || ''
+      filteredCards = weakReviewMode ? [...weakCards] : cardsFromIds(session.filteredCardIds)
+      if (!filteredCards.length) filteredCards = getFilteredDeck(els.domainFilter.value, els.searchInput.value)
+      currentIndex = Math.min(session.currentIndex || 0, Math.max(filteredCards.length - 1, 0))
+      if (session.lastAction && session.lastAction.cardId) {
+        const actionCard = findCardById(session.lastAction.cardId)
+        if (actionCard) {
+          lastAction = {
+            card: actionCard,
+            cardId: actionCard.id,
+            originalIndex: session.lastAction.originalIndex || 0,
+            choice: session.lastAction.choice,
+            note: session.lastAction.note || ''
+          }
+        }
+      }
+      if (lastReport) {
+        els.reportSection.classList.remove('hidden')
+        els.reportBox.innerHTML = `<pre style="white-space:pre-wrap;line-height:1.55;margin:0">${escapeHtml(lastReport)}</pre>`
+      }
+      isRestoringSession = false
+      render()
+      return true
     }
 
     init()

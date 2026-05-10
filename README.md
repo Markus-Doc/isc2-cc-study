@@ -2,6 +2,9 @@
 
 A polished local-first study platform for ISC2 Certified in Cybersecurity preparation.
 
+## Link
+https://markus-doc.github.io/isc2-cc-study/
+
 This project has two launchable browser tools:
 
 - **Study Drill** for fast recall, weak area loops, definitions, acronyms, and cram cards

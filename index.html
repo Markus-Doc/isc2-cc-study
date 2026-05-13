@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ISC2 CC Packet Courier</title>
-  <meta name="description" content="A cyber Messenger-inspired ISC2 Certified in Cybersecurity study world with drill cards, quiz runs, and weak-area delivery routes.">
-  <link rel="stylesheet" href="assets/styles.css">
+  <meta name="description" content="A cyber planet ISC2 Certified in Cybersecurity study app with drill cards, quiz gates, weak routes, and readiness reports.">
+  <link rel="stylesheet" href="assets/styles.css?v=20260513">
 </head>
 <body>
   <div class="app-shell">
@@ -14,7 +14,7 @@
         <div class="logo">PKT</div>
         <div>
           <div class="brand-title">Packet Courier</div>
-          <div class="brand-subtitle">ISC2 CC delivery routes / recall packets / quiz checkpoints</div>
+          <div class="brand-subtitle">Cyber planet study routes / recall packets / quiz checkpoints</div>
         </div>
       </a>
       <nav class="nav-links" aria-label="Primary navigation">
@@ -31,39 +31,97 @@
     </header>
 
     <main>
-      <section class="hero">
-        <div>
-          <div class="kicker"><span class="kicker-dot"></span> Cyber delivery game for ISC2 CC learners</div>
-          <h1>Deliver every weak signal before exam day.</h1>
-          <p class="lead">Packet Courier turns the study app into a small security planet: recall cards become delivery jobs, weak topics become flagged routes, and quiz misses become locked checkpoints for the next run.</p>
-          <div class="hero-actions">
-            <a class="button primary" href="tools/drill/index.html">Start delivery route</a>
-            <a class="button ghost" href="tools/quiz/index.html">Enter quiz gate</a>
+      <section class="hero" aria-label="Packet Courier mission control">
+        <div class="hero-copy">
+          <div>
+            <h1>Deliver every weak signal before exam day.</h1>
+            <p class="lead">Packet Courier turns ISC2 CC study into a compact cyber planet: recall cards become delivery jobs, weak topics become flagged routes, and quiz misses become locked checkpoints for the next run.</p>
+            <div class="hero-actions">
+              <a class="button primary" href="tools/drill/index.html">Start Drill Route</a>
+              <a class="button ghost" href="tools/quiz/index.html">Open Quiz Gate</a>
+            </div>
+          </div>
+
+          <div class="mission-strip" aria-label="Study mission launcher">
+            <div class="mission-row">
+              <div class="mission-icon">01</div>
+              <div>
+                <strong>Drill Route</strong>
+                <span>Recall first, reveal proof, then route the packet honestly.</span>
+              </div>
+              <span class="pill good">Recall</span>
+            </div>
+            <div class="mission-row">
+              <div class="mission-icon">02</div>
+              <div>
+                <strong>Quiz Gate</strong>
+                <span>Commit to one answer, lock the gate, inspect the rationale.</span>
+              </div>
+              <span class="pill warn">Validate</span>
+            </div>
+            <div class="mission-row">
+              <div class="mission-icon">03</div>
+              <div>
+                <strong>Weak Routes</strong>
+                <span>Send uncertain topics into the next focused study loop.</span>
+              </div>
+              <span class="pill bad">Review</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="planet-stage" aria-label="Cyber study planet visualization">
+          <div class="planet-title">
+            <strong>Security Planet</strong>
+            <span>Domain routes online</span>
+          </div>
+          <div class="route-message one">
+            <strong>incoming packet</strong>
+            CIA triad route requires clean recall before delivery confirmation.
+          </div>
+          <div class="route-line one" aria-hidden="true"></div>
+          <div class="route-line two" aria-hidden="true"></div>
+          <div class="planet"></div>
+          <div class="courier">TLS</div>
+          <div class="domain-chip security">
+            <strong>District 07</strong>
+            <span>Security Principles</span>
+          </div>
+          <div class="domain-chip risk">
+            <strong>District 11</strong>
+            <span>Risk Management</span>
+          </div>
+          <div class="domain-chip network">
+            <strong>District 03</strong>
+            <span>Network Security</span>
+          </div>
+          <div class="route-message two">
+            <strong>route flagged</strong>
+            Weak domains loop back until the signal clears.
+          </div>
+        </div>
+
+        <aside class="readiness-panel" aria-label="Readiness console">
+          <div class="readiness-score">
+            <strong id="readinessScore">72%</strong>
+            <span>Readiness signal</span>
           </div>
           <div class="stats" aria-label="Study system metrics">
             <div class="stat"><strong id="domainCount">12</strong><span>security districts</span></div>
             <div class="stat"><strong id="drillCount">95</strong><span>recall packets</span></div>
             <div class="stat"><strong id="questionCount">25</strong><span>quiz checkpoints</span></div>
           </div>
-        </div>
-
-        <div class="planet-stage" aria-label="Cyber study planet visualization">
-          <div class="route-message one">
-            <strong>incoming packet</strong>
-            CIA triad route requires clean recall before delivery confirmation.
+          <div class="console">
+            <div class="console-line"><span class="console-key">Signal</span><span>Independent study tool, not official ISC2 training.</span></div>
+            <div class="console-line"><span class="console-key">Next loop</span><span>Drill weak cards, then validate through Quiz Gate.</span></div>
+            <div class="console-line"><span class="console-key">Future branch</span><span>Game HUD, map nodes, rewards, route unlocks, and streaks are ready to expand.</span></div>
           </div>
-          <div class="planet"></div>
-          <div class="courier">TLS</div>
-          <div class="route-message two">
-            <strong>route flagged</strong>
-            Weak domains loop back until the signal clears.
-          </div>
-        </div>
+        </aside>
       </section>
 
       <section class="section" aria-label="Independent study disclaimer">
         <div class="card">
-          <span class="pill warn">Independent study world</span>
+          <span class="pill warn">Independent study tool</span>
           <h2>Built for repetition, not certification claims.</h2>
           <p class="muted">This project is an independent study tool. It is not official ISC2 training material and is not endorsed, certified, or recognised by ISC2. Use it to practise recall, identify weak areas, and verify important topics against official ISC2 guidance.</p>
           <div class="actions">
@@ -77,12 +135,12 @@
           <div>
             <span class="pill good">Two engines preserved</span>
             <h2>Run the route, then validate at the gate.</h2>
-            <p class="muted">The original study card and quiz content remains intact. The redesign changes the shell, visual language, and learning atmosphere around those existing engines.</p>
+            <p class="muted">The redesign keeps the study card and quiz content intact. It changes the shell, navigation, visual language, and learning atmosphere around those engines.</p>
           </div>
         </div>
         <div class="grid two">
           <article class="tool-card">
-            <div class="tool-icon">01</div>
+            <div class="tool-icon">DR</div>
             <h3>Drill Route</h3>
             <p class="muted">A delivery loop for recall. Read the prompt cold, reveal the answer, then route the packet as cleared, flagged, skipped, or ready for report.</p>
             <ul class="feature-list">
@@ -95,9 +153,9 @@
           </article>
 
           <article class="tool-card">
-            <div class="tool-icon">02</div>
+            <div class="tool-icon">QG</div>
             <h3>Quiz Gate</h3>
-            <p class="muted">A security checkpoint for multiple-choice decisions. Pick one route, lock the answer, inspect the rationale, and rerun missed checkpoints.</p>
+            <p class="muted">A checkpoint for multiple-choice decisions. Pick one route, lock the answer, inspect the rationale, and rerun missed checkpoints.</p>
             <ul class="feature-list">
               <li>Preserved quiz content and explanations</li>
               <li>Answer locking and visible states</li>
@@ -112,9 +170,9 @@
       <section class="section">
         <div class="section-head">
           <div>
-            <span class="pill">Mission rhythm</span>
-            <h2>A small planet, one tight study loop.</h2>
-            <p class="muted">The experience borrows the reference's playful delivery premise, then turns it cyber: packets, checkpoints, trust routes, and incident-style review signals.</p>
+            <span class="pill">Gamification-ready</span>
+            <h2>A map-based foundation for the next branch.</h2>
+            <p class="muted">The current redesign deliberately separates the study engines from the game-like shell. That gives the next gamification branch clear places to add district unlocks, route rewards, streaks, animated packet delivery, and exam-readiness progression.</p>
           </div>
         </div>
         <div class="grid three">
@@ -144,12 +202,17 @@
   </div>
 
   <script src="data/app-data.js"></script>
-  <script src="assets/theme.js"></script>
+  <script src="assets/theme.js?v=20260513"></script>
   <script>
     const data = window.ISC2_CC_DATA || { domains: [], drills: [], questions: [] }
-    document.getElementById('domainCount').textContent = data.domains.length
-    document.getElementById('drillCount').textContent = data.drills.length
-    document.getElementById('questionCount').textContent = data.questions.length
+    const domainCount = data.domains.length
+    const drillCount = data.drills.length
+    const questionCount = data.questions.length
+    const readiness = Math.min(92, Math.max(58, Math.round((questionCount / Math.max(domainCount, 1)) * 34)))
+    document.getElementById('domainCount').textContent = domainCount
+    document.getElementById('drillCount').textContent = drillCount
+    document.getElementById('questionCount').textContent = questionCount
+    document.getElementById('readinessScore').textContent = `${readiness}%`
   </script>
 </body>
 </html>

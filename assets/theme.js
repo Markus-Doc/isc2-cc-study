@@ -5,7 +5,7 @@
   function preferredTheme() {
     const saved = localStorage.getItem(THEME_KEY)
     if (saved === 'light' || saved === 'dark') return saved
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+    return 'dark'
   }
 
   function applyTheme(theme) {
@@ -61,7 +61,12 @@
       })
     }, { threshold: 0.14, rootMargin: '0px 0px -7% 0px' })
 
-    targets.forEach(target => observer.observe(target))
+    targets.forEach(target => {
+      if (target.getBoundingClientRect().top < window.innerHeight * 1.2) {
+        target.classList.add('is-visible')
+      }
+      observer.observe(target)
+    })
   }
 
   applyTheme(preferredTheme())

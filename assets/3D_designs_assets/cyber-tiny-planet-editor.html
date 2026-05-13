@@ -1,0 +1,783 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cyber Tiny Planet Editor</title>
+<style>
+:root {
+  --bg:      oklch(98% 0.005 250);
+  --surface: oklch(100% 0 0);
+  --fg:      oklch(22% 0.02 240);
+  --muted:   oklch(50% 0.018 240);
+  --border:  oklch(90% 0.008 240);
+  --accent:  oklch(58% 0.16 145);
+
+  --font-display: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+button, input, select { font: inherit; }
+
+.app {
+  display: grid;
+  grid-template-columns: 320px minmax(420px, 1fr) 340px;
+  grid-template-rows: 56px minmax(0, 1fr) 34px;
+  height: 100vh;
+  border: 1px solid var(--border);
+}
+
+header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: color-mix(in oklch, var(--surface) 92%, var(--bg));
+  border-bottom: 1px solid var(--border);
+}
+
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.mark {
+  width: 26px;
+  height: 26px;
+  border: 1px solid color-mix(in oklch, var(--accent) 60%, var(--fg));
+  background:
+    linear-gradient(90deg, transparent 48%, color-mix(in oklch, var(--accent) 40%, transparent) 49% 51%, transparent 52%),
+    linear-gradient(0deg, transparent 48%, color-mix(in oklch, var(--accent) 40%, transparent) 49% 51%, transparent 52%);
+}
+
+h1 { margin: 0; font: 650 15px/1.1 var(--font-display); letter-spacing: 0; }
+
+.sub {
+  margin-top: 3px;
+  color: var(--muted);
+  font: 12px/1 var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-actions { display: flex; align-items: center; gap: 8px; }
+
+.panel {
+  min-height: 0;
+  overflow: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+
+.panel.right { border-right: 0; border-left: 1px solid var(--border); }
+
+.panel-section { padding: 14px; border-bottom: 1px solid var(--border); }
+
+.panel-section h2 {
+  margin: 0 0 10px;
+  color: var(--fg);
+  font: 650 12px/1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.control { display: grid; gap: 6px; margin: 11px 0; }
+.control:first-of-type { margin-top: 0; }
+
+label, .label { color: var(--muted); font: 12px/1 var(--font-mono); }
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.triple { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+input[type="color"] {
+  width: 100%;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+input[type="number"], select {
+  width: 100%;
+  height: 34px;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 9px;
+}
+
+.value {
+  color: var(--fg);
+  font: 12px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.btn {
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--fg);
+  background: var(--surface);
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.btn:hover { border-color: color-mix(in oklch, var(--accent) 65%, var(--border)); }
+
+.btn.primary {
+  color: white;
+  border-color: color-mix(in oklch, var(--accent) 82%, black);
+  background: color-mix(in oklch, var(--accent) 88%, black);
+}
+
+.viewport-wrap {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--border) 62%, transparent) 1px, transparent 1px),
+    linear-gradient(0deg, color-mix(in oklch, var(--border) 62%, transparent) 1px, transparent 1px),
+    color-mix(in oklch, var(--bg) 78%, black);
+  background-size: 36px 36px;
+}
+
+canvas { display: block; width: 100%; height: 100%; }
+
+.hud {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  display: grid;
+  gap: 8px;
+  width: min(340px, calc(100% - 28px));
+  pointer-events: none;
+}
+
+.hud-card {
+  background: color-mix(in oklch, var(--surface) 86%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 11px;
+  backdrop-filter: blur(8px);
+}
+
+.hud-title {
+  font: 650 12px/1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hud-copy { margin-top: 5px; color: var(--muted); font: 12px/1.35 var(--font-body); }
+
+.mesh-list { display: grid; gap: 6px; max-height: 228px; overflow: auto; }
+
+.mesh-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.mesh-item.active {
+  border-color: var(--accent);
+  background: color-mix(in oklch, var(--accent) 9%, var(--surface));
+}
+
+.mesh-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 12px/1 var(--font-mono);
+}
+
+.pill {
+  border: 1px solid color-mix(in oklch, var(--accent) 40%, var(--border));
+  border-radius: 999px;
+  padding: 2px 6px;
+  color: color-mix(in oklch, var(--accent) 72%, var(--fg));
+  background: color-mix(in oklch, var(--accent) 10%, transparent);
+  font: 11px/1 var(--font-mono);
+}
+
+.status {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  color: var(--muted);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 0 12px;
+  font: 12px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.status span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.codebox {
+  margin: 0;
+  overflow: auto;
+  max-height: 120px;
+  padding: 10px;
+  color: var(--fg);
+  background: color-mix(in oklch, var(--bg) 80%, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: 11px/1.45 var(--font-mono);
+}
+
+.empty {
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  padding: 10px;
+  font: 12px/1.35 var(--font-body);
+}
+
+@media (max-width: 1080px) {
+  body { overflow: auto; }
+
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 56px 70vh auto auto 34px;
+    min-height: 100vh;
+    height: auto;
+  }
+
+  .panel, .panel.right {
+    border: 0;
+    border-top: 1px solid var(--border);
+  }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div>
+        <h1>Cyber Tiny Planet Editor</h1>
+        <div class="sub">Models_Assets/cyber_tiny_planet_glb_viewer_simple_folder/cyber_tiny_planet_lively_full.glb</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="resetBtn" type="button">Reset</button>
+      <button class="btn" id="shotBtn" type="button">Screenshot</button>
+      <button class="btn primary" id="exportBtn" type="button">Export GLB</button>
+    </div>
+  </header>
+
+  <aside class="panel">
+    <section class="panel-section">
+      <h2>Scene</h2>
+      <div class="control">
+        <label for="preset">Camera preset</label>
+        <select id="preset">
+          <option value="hero">Front hero</option>
+          <option value="top">Top down</option>
+          <option value="underside">Underside</option>
+          <option value="wide">Wide orbit</option>
+        </select>
+      </div>
+      <div class="control">
+        <div class="row"><label for="autoRotate">Auto rotate</label><span class="value" id="autoRotateVal">on</span></div>
+        <input id="autoRotate" type="range" min="0" max="1" step="1" value="1">
+      </div>
+      <div class="control">
+        <div class="row"><label for="background">Background</label><span class="value" id="backgroundVal">#f6f8fb</span></div>
+        <input id="background" type="color" value="#f6f8fb">
+      </div>
+      <div class="control">
+        <div class="row"><label for="gridOpacity">Grid opacity</label><span class="value" id="gridOpacityVal">0.32</span></div>
+        <input id="gridOpacity" type="range" min="0" max="1" step="0.01" value="0.32">
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <h2>Lighting</h2>
+      <div class="control">
+        <div class="row"><label for="ambient">Ambient</label><span class="value" id="ambientVal">1.20</span></div>
+        <input id="ambient" type="range" min="0" max="4" step="0.05" value="1.2">
+      </div>
+      <div class="control">
+        <div class="row"><label for="key">Key light</label><span class="value" id="keyVal">2.10</span></div>
+        <input id="key" type="range" min="0" max="6" step="0.05" value="2.1">
+      </div>
+      <div class="control">
+        <div class="row"><label for="rim">Rim light</label><span class="value" id="rimVal">1.40</span></div>
+        <input id="rim" type="range" min="0" max="6" step="0.05" value="1.4">
+      </div>
+      <div class="control">
+        <div class="row"><label for="exposure">Exposure</label><span class="value" id="exposureVal">1.05</span></div>
+        <input id="exposure" type="range" min="0.2" max="2.5" step="0.01" value="1.05">
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <h2>Host locally</h2>
+      <pre class="codebox">python -m http.server 8080
+
+open:
+http://localhost:8080/cyber-tiny-planet-editor.html</pre>
+    </section>
+  </aside>
+
+  <main class="viewport-wrap" id="viewport">
+    <canvas id="stage"></canvas>
+    <div class="hud">
+      <div class="hud-card">
+        <div class="hud-title" id="loadTitle">Loading GLB</div>
+        <div class="hud-copy" id="loadCopy">Drag to orbit. Scroll to zoom. Select a mesh from the inspector to tune its material.</div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="panel right">
+    <section class="panel-section">
+      <h2>Meshes</h2>
+      <div id="meshList" class="mesh-list">
+        <div class="empty">Mesh list appears after the GLB loads.</div>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <h2>Material</h2>
+      <div class="control">
+        <div class="row"><label for="baseColor">Base color</label><span class="value" id="baseColorVal">#ffffff</span></div>
+        <input id="baseColor" type="color" value="#ffffff">
+      </div>
+      <div class="control">
+        <div class="row"><label for="emissiveColor">Glow color</label><span class="value" id="emissiveColorVal">#33ff99</span></div>
+        <input id="emissiveColor" type="color" value="#33ff99">
+      </div>
+      <div class="control">
+        <div class="row"><label for="emissive">Glow strength</label><span class="value" id="emissiveVal">0.00</span></div>
+        <input id="emissive" type="range" min="0" max="3" step="0.01" value="0">
+      </div>
+      <div class="control">
+        <div class="row"><label for="metalness">Metalness</label><span class="value" id="metalnessVal">0.35</span></div>
+        <input id="metalness" type="range" min="0" max="1" step="0.01" value="0.35">
+      </div>
+      <div class="control">
+        <div class="row"><label for="roughness">Roughness</label><span class="value" id="roughnessVal">0.45</span></div>
+        <input id="roughness" type="range" min="0" max="1" step="0.01" value="0.45">
+      </div>
+      <div class="control triple">
+        <button class="btn" id="applySelectedBtn" type="button">Apply selected</button>
+        <button class="btn" id="applyAllBtn" type="button">Apply all</button>
+        <button class="btn" id="restoreMaterialsBtn" type="button">Restore</button>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <h2>Preset JSON</h2>
+      <pre class="codebox" id="presetJson">{}</pre>
+    </section>
+  </aside>
+
+  <footer class="status">
+    <span id="statusLeft">Waiting for renderer...</span>
+    <span id="statusRight">0 meshes</span>
+  </footer>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFExporter } from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/exporters/GLTFExporter.js';
+
+const MODEL_URL = 'Models_Assets/cyber_tiny_planet_glb_viewer_simple_folder/cyber_tiny_planet_lively_full.glb';
+
+const els = {
+  viewport: document.getElementById('viewport'),
+  canvas: document.getElementById('stage'),
+  meshList: document.getElementById('meshList'),
+  statusLeft: document.getElementById('statusLeft'),
+  statusRight: document.getElementById('statusRight'),
+  loadTitle: document.getElementById('loadTitle'),
+  loadCopy: document.getElementById('loadCopy'),
+  presetJson: document.getElementById('presetJson'),
+  preset: document.getElementById('preset'),
+  autoRotate: document.getElementById('autoRotate'),
+  background: document.getElementById('background'),
+  gridOpacity: document.getElementById('gridOpacity'),
+  ambient: document.getElementById('ambient'),
+  key: document.getElementById('key'),
+  rim: document.getElementById('rim'),
+  exposure: document.getElementById('exposure'),
+  baseColor: document.getElementById('baseColor'),
+  emissiveColor: document.getElementById('emissiveColor'),
+  emissive: document.getElementById('emissive'),
+  metalness: document.getElementById('metalness'),
+  roughness: document.getElementById('roughness')
+};
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 2000);
+const renderer = new THREE.WebGLRenderer({ canvas: els.canvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = Number(els.exposure.value);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.85;
+
+const ambientLight = new THREE.AmbientLight(0xffffff, Number(els.ambient.value));
+const keyLight = new THREE.DirectionalLight(0xffffff, Number(els.key.value));
+keyLight.position.set(4, 5, 6);
+const rimLight = new THREE.DirectionalLight(0x8fffd1, Number(els.rim.value));
+rimLight.position.set(-5, 2, -4);
+scene.add(ambientLight, keyLight, rimLight);
+
+const grid = new THREE.GridHelper(28, 28, 0x69d99d, 0xb9c3cf);
+grid.material.transparent = true;
+grid.material.opacity = Number(els.gridOpacity.value);
+grid.position.y = -1.15;
+scene.add(grid);
+
+const meshRecords = [];
+const originalMaterials = new Map();
+let root = null;
+let selectedMesh = null;
+
+function setStatus(left, right) {
+  if (left) els.statusLeft.textContent = left;
+  if (right) els.statusRight.textContent = right;
+}
+
+function hexToThree(hex) { return new THREE.Color(hex); }
+function colorToHex(color) { return `#${color.getHexString()}`; }
+
+function makeEditableMaterial(source) {
+  const material = source && source.isMaterial ? source.clone() : new THREE.MeshStandardMaterial();
+  if (!('metalness' in material) || !('roughness' in material)) {
+    return new THREE.MeshStandardMaterial({
+      color: material.color ? material.color.clone() : new THREE.Color(0xffffff),
+      map: material.map || null,
+      normalMap: material.normalMap || null,
+      emissive: material.emissive ? material.emissive.clone() : new THREE.Color(0x000000),
+      emissiveMap: material.emissiveMap || null
+    });
+  }
+  return material;
+}
+
+function fitCamera(object, preset = 'hero') {
+  const box = new THREE.Box3().setFromObject(object);
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const radius = Math.max(sphere.radius, 1);
+  const center = sphere.center;
+  const positions = {
+    hero: [radius * 1.8, radius * 1.05, radius * 2.35],
+    top: [0.01, radius * 3.1, radius * 0.1],
+    underside: [radius * 1.55, -radius * 1.4, radius * 2.2],
+    wide: [radius * 3.1, radius * 1.8, radius * 3.8]
+  };
+  const [x, y, z] = positions[preset] || positions.hero;
+  camera.near = radius / 100;
+  camera.far = radius * 100;
+  camera.position.set(center.x + x, center.y + y, center.z + z);
+  camera.updateProjectionMatrix();
+  controls.target.copy(center);
+  controls.minDistance = radius * 0.4;
+  controls.maxDistance = radius * 8;
+  controls.update();
+}
+
+function updateMeshList() {
+  els.meshList.innerHTML = '';
+  meshRecords.forEach((record, index) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = `mesh-item${record.mesh === selectedMesh ? ' active' : ''}`;
+    item.innerHTML = `<span class="mesh-name">${record.name}</span><span class="pill">${record.triangles}</span>`;
+    item.addEventListener('click', () => {
+      selectedMesh = record.mesh;
+      syncControlsFromMesh(selectedMesh);
+      updateMeshList();
+      updatePresetJson();
+      setStatus(`Selected mesh ${index + 1}: ${record.name}`);
+    });
+    els.meshList.appendChild(item);
+  });
+}
+
+function syncControlsFromMesh(mesh) {
+  if (!mesh || !mesh.material) return;
+  const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+  els.baseColor.value = material.color ? colorToHex(material.color) : '#ffffff';
+  els.emissiveColor.value = material.emissive ? colorToHex(material.emissive) : '#000000';
+  els.emissive.value = String(material.emissiveIntensity ?? 0);
+  els.metalness.value = String(material.metalness ?? 0);
+  els.roughness.value = String(material.roughness ?? 0.5);
+  updateValueLabels();
+}
+
+function applyMaterial(mesh) {
+  if (!mesh) return;
+  const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  materials.forEach((material) => {
+    if (!material) return;
+    if (material.color) material.color.copy(hexToThree(els.baseColor.value));
+    if (material.emissive) material.emissive.copy(hexToThree(els.emissiveColor.value));
+    material.emissiveIntensity = Number(els.emissive.value);
+    if ('metalness' in material) material.metalness = Number(els.metalness.value);
+    if ('roughness' in material) material.roughness = Number(els.roughness.value);
+    material.needsUpdate = true;
+  });
+}
+
+function restoreMaterials() {
+  meshRecords.forEach(({ mesh }) => {
+    const original = originalMaterials.get(mesh.uuid);
+    if (original) mesh.material = Array.isArray(original) ? original.map((mat) => mat.clone()) : original.clone();
+  });
+  if (selectedMesh) syncControlsFromMesh(selectedMesh);
+  updatePresetJson();
+  setStatus('Original materials restored.');
+}
+
+function updateValueLabels() {
+  [
+    ['autoRotate', els.autoRotate.value === '1' ? 'on' : 'off'],
+    ['background', els.background.value],
+    ['gridOpacity', Number(els.gridOpacity.value).toFixed(2)],
+    ['ambient', Number(els.ambient.value).toFixed(2)],
+    ['key', Number(els.key.value).toFixed(2)],
+    ['rim', Number(els.rim.value).toFixed(2)],
+    ['exposure', Number(els.exposure.value).toFixed(2)],
+    ['baseColor', els.baseColor.value],
+    ['emissiveColor', els.emissiveColor.value],
+    ['emissive', Number(els.emissive.value).toFixed(2)],
+    ['metalness', Number(els.metalness.value).toFixed(2)],
+    ['roughness', Number(els.roughness.value).toFixed(2)]
+  ].forEach(([id, value]) => {
+    const target = document.getElementById(`${id}Val`);
+    if (target) target.textContent = value;
+  });
+}
+
+function updateSceneControls() {
+  controls.autoRotate = els.autoRotate.value === '1';
+  scene.background = hexToThree(els.background.value);
+  grid.material.opacity = Number(els.gridOpacity.value);
+  ambientLight.intensity = Number(els.ambient.value);
+  keyLight.intensity = Number(els.key.value);
+  rimLight.intensity = Number(els.rim.value);
+  renderer.toneMappingExposure = Number(els.exposure.value);
+  updateValueLabels();
+  updatePresetJson();
+}
+
+function updatePresetJson() {
+  const payload = {
+    asset: MODEL_URL,
+    selectedMesh: selectedMesh ? (selectedMesh.name || selectedMesh.uuid) : 'all',
+    cameraPreset: els.preset.value,
+    scene: {
+      background: els.background.value,
+      gridOpacity: Number(els.gridOpacity.value),
+      autoRotate: els.autoRotate.value === '1'
+    },
+    lighting: {
+      ambient: Number(els.ambient.value),
+      key: Number(els.key.value),
+      rim: Number(els.rim.value),
+      exposure: Number(els.exposure.value)
+    },
+    material: {
+      baseColor: els.baseColor.value,
+      emissiveColor: els.emissiveColor.value,
+      emissiveIntensity: Number(els.emissive.value),
+      metalness: Number(els.metalness.value),
+      roughness: Number(els.roughness.value)
+    }
+  };
+  els.presetJson.textContent = JSON.stringify(payload, null, 2);
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function resize() {
+  const rect = els.viewport.getBoundingClientRect();
+  renderer.setSize(rect.width, rect.height, false);
+  camera.aspect = rect.width / Math.max(rect.height, 1);
+  camera.updateProjectionMatrix();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+new ResizeObserver(resize).observe(els.viewport);
+updateSceneControls();
+animate();
+
+const loader = new GLTFLoader();
+loader.load(
+  MODEL_URL,
+  (gltf) => {
+    root = gltf.scene;
+    root.traverse((child) => {
+      if (!child.isMesh) return;
+      child.castShadow = true;
+      child.receiveShadow = true;
+      originalMaterials.set(child.uuid, Array.isArray(child.material) ? child.material.map((mat) => mat.clone()) : child.material.clone());
+      child.material = Array.isArray(child.material)
+        ? child.material.map(makeEditableMaterial)
+        : makeEditableMaterial(child.material);
+      const triangles = child.geometry?.index
+        ? Math.round(child.geometry.index.count / 3)
+        : Math.round((child.geometry?.attributes?.position?.count || 0) / 3);
+      meshRecords.push({ mesh: child, name: child.name || `mesh-${meshRecords.length + 1}`, triangles });
+    });
+    scene.add(root);
+    selectedMesh = meshRecords[0]?.mesh || null;
+    fitCamera(root, els.preset.value);
+    if (selectedMesh) syncControlsFromMesh(selectedMesh);
+    updateMeshList();
+    updatePresetJson();
+    els.loadTitle.textContent = 'GLB loaded';
+    els.loadCopy.textContent = 'Use the side panels to edit materials, lighting, and camera. Export writes a changed GLB from the current scene.';
+    setStatus('Loaded cyber_tiny_planet_lively_full.glb', `${meshRecords.length} meshes`);
+  },
+  (event) => {
+    if (event.total) setStatus(`Loading ${(event.loaded / event.total * 100).toFixed(0)}%`);
+  },
+  (error) => {
+    console.error(error);
+    els.loadTitle.textContent = 'GLB load failed';
+    els.loadCopy.textContent = 'Run from a local server at the project root so the relative GLB path can be fetched.';
+    setStatus('Load failed. Start a local server from the project root.');
+  }
+);
+
+['autoRotate', 'background', 'gridOpacity', 'ambient', 'key', 'rim', 'exposure'].forEach((id) => {
+  els[id].addEventListener('input', updateSceneControls);
+});
+
+['baseColor', 'emissiveColor', 'emissive', 'metalness', 'roughness'].forEach((id) => {
+  els[id].addEventListener('input', () => {
+    updateValueLabels();
+    updatePresetJson();
+  });
+});
+
+els.preset.addEventListener('change', () => {
+  if (root) fitCamera(root, els.preset.value);
+  updatePresetJson();
+});
+
+document.getElementById('applySelectedBtn').addEventListener('click', () => {
+  applyMaterial(selectedMesh);
+  updatePresetJson();
+  setStatus('Applied material values to selected mesh.');
+});
+
+document.getElementById('applyAllBtn').addEventListener('click', () => {
+  meshRecords.forEach(({ mesh }) => applyMaterial(mesh));
+  updatePresetJson();
+  setStatus('Applied material values to all meshes.');
+});
+
+document.getElementById('restoreMaterialsBtn').addEventListener('click', restoreMaterials);
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  els.preset.value = 'hero';
+  els.autoRotate.value = '1';
+  els.background.value = '#f6f8fb';
+  els.gridOpacity.value = '0.32';
+  els.ambient.value = '1.2';
+  els.key.value = '2.1';
+  els.rim.value = '1.4';
+  els.exposure.value = '1.05';
+  restoreMaterials();
+  updateSceneControls();
+  if (root) fitCamera(root, 'hero');
+  setStatus('Editor controls reset.');
+});
+
+document.getElementById('shotBtn').addEventListener('click', () => {
+  renderer.render(scene, camera);
+  renderer.domElement.toBlob((blob) => {
+    if (blob) downloadBlob(blob, 'cyber-tiny-planet-screenshot.png');
+  }, 'image/png');
+  setStatus('Screenshot exported.');
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (!root) {
+    setStatus('Cannot export before the GLB loads.');
+    return;
+  }
+  const exporter = new GLTFExporter();
+  exporter.parse(
+    root,
+    (result) => {
+      const blob = result instanceof ArrayBuffer
+        ? new Blob([result], { type: 'model/gltf-binary' })
+        : new Blob([JSON.stringify(result, null, 2)], { type: 'model/gltf+json' });
+      downloadBlob(blob, 'cyber-tiny-planet-edited.glb');
+      setStatus('Edited GLB exported.');
+    },
+    (error) => {
+      console.error(error);
+      setStatus('Export failed. Check browser console for details.');
+    },
+    { binary: true }
+  );
+});
+</script>
+</body>
+</html>

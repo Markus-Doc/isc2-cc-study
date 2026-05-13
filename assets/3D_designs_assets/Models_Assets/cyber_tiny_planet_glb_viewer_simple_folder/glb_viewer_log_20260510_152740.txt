@@ -1,0 +1,10 @@
+﻿[2026-05-10 15:27:40] Starting GLB viewer
+[2026-05-10 15:27:40] Folder: C:\Users\marku\OneDrive\Documents\10. AI Projects\3D_designs_assets\Models_Assets\cyber_tiny_planet_glb_viewer_simple_folder
+[2026-05-10 15:27:40] Model: cyber_tiny_planet_lively_full.glb
+[2026-05-10 15:27:40] Port: 8877
+[2026-05-10 15:27:40] Viewer URL: http://127.0.0.1:8877/_glb_viewer_index.html
+[2026-05-10 15:27:40] Viewer HTML written: C:\Users\marku\OneDrive\Documents\10. AI Projects\3D_designs_assets\Models_Assets\cyber_tiny_planet_glb_viewer_simple_folder\_glb_viewer_index.html
+[2026-05-10 15:27:40] Python: C:\WINDOWS\py.exe
+[2026-05-10 15:27:40] Starting local HTTP server
+[2026-05-10 15:27:42] Viewer URL copied to clipboard
+[2026-05-10 15:27:42] Opening browser

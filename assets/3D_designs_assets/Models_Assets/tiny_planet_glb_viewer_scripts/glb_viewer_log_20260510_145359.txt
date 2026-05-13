@@ -1,0 +1,2 @@
+﻿[2026-05-10 14:53:59] Starting local GLB viewer
+[2026-05-10 14:53:59] Script folder: C:\Users\marku\OneDrive\Documents\10. AI Projects\3D_designs_assets\Models_Assets\tiny_planet_glb_viewer_scripts

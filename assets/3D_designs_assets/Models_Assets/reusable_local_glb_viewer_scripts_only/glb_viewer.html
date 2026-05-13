@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local GLB Viewer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #070b18;
+      color: #d7f7ff;
+    }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 70% 15%, rgba(41, 161, 255, 0.22), transparent 32%),
+        radial-gradient(circle at 20% 80%, rgba(187, 88, 255, 0.18), transparent 28%),
+        #070b18;
+    }
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      --poster-color: transparent;
+    }
+    .panel {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      max-width: 760px;
+      color: #d7f7ff;
+      background: rgba(0, 0, 0, 0.58);
+      border: 1px solid rgba(128, 220, 255, 0.24);
+      backdrop-filter: blur(10px);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.35;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    }
+    .title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #ffffff;
+    }
+    .muted {
+      opacity: 0.82;
+    }
+    .status {
+      margin-top: 8px;
+      color: #89f7ff;
+      word-break: break-all;
+    }
+    .error {
+      color: #ffb3b3;
+    }
+    button {
+      appearance: none;
+      border: 1px solid rgba(137, 247, 255, 0.45);
+      background: rgba(20, 120, 180, 0.24);
+      color: #d7f7ff;
+      border-radius: 10px;
+      padding: 7px 10px;
+      margin-top: 8px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: rgba(20, 150, 220, 0.36);
+    }
+  </style>
+</head>
+<body>
+  <model-viewer id="viewer"
+    camera-controls
+    auto-rotate
+    shadow-intensity="1"
+    exposure="1.15"
+    environment-image="neutral"
+    ar
+    alt="Local GLB asset">
+  </model-viewer>
+
+  <div class="panel">
+    <div class="title">Local GLB Viewer</div>
+    <div class="muted">Drag to orbit. Scroll to zoom. Right-click drag to pan.</div>
+    <button id="resetCamera">Reset camera</button>
+    <button id="toggleRotate">Toggle auto-rotate</button>
+    <div id="status" class="status">Preparing viewer...</div>
+  </div>
+
+  <script type="module">
+    const statusEl = document.getElementById('status');
+    const viewer = document.getElementById('viewer');
+    const params = new URLSearchParams(window.location.search);
+    const modelName = params.get('model') || 'cyber_tiny_planet_lively_full.glb';
+
+    async function loadModelViewer() {
+      const sources = [
+        'https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js',
+        'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js'
+      ];
+
+      for (const src of sources) {
+        try {
+          await import(src);
+          return src;
+        } catch (err) {
+          console.warn('model-viewer import failed:', src, err);
+        }
+      }
+
+      throw new Error('Could not load Google model-viewer. Check internet access or CDN blocking.');
+    }
+
+    function setStatus(text, isError = false) {
+      statusEl.textContent = text;
+      statusEl.classList.toggle('error', isError);
+    }
+
+    document.getElementById('resetCamera').addEventListener('click', () => {
+      viewer.cameraOrbit = '45deg 60deg auto';
+      viewer.cameraTarget = 'auto auto auto';
+      viewer.jumpCameraToGoal();
+    });
+
+    document.getElementById('toggleRotate').addEventListener('click', () => {
+      viewer.toggleAttribute('auto-rotate');
+    });
+
+    viewer.addEventListener('load', () => {
+      setStatus('Loaded: ' + modelName);
+    });
+
+    viewer.addEventListener('error', () => {
+      setStatus('Model failed to load: ' + modelName + '. Make sure the GLB is in the served folder and launch through the CMD script, not by opening this HTML directly.', true);
+    });
+
+    try {
+      const sourceUsed = await loadModelViewer();
+      viewer.src = modelName;
+      setStatus('Loading ' + modelName + ' using ' + sourceUsed);
+    } catch (err) {
+      setStatus(err.message, true);
+    }
+  </script>
+</body>
+</html>

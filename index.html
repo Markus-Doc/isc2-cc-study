@@ -3,216 +3,165 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ISC2 CC Packet Courier</title>
-  <meta name="description" content="A cyber planet ISC2 Certified in Cybersecurity study app with drill cards, quiz gates, weak routes, and readiness reports.">
-  <link rel="stylesheet" href="assets/styles.css?v=20260513">
+  <title>ISC2 CC Cyber Planet</title>
+  <meta name="description" content="A 3D gamified ISC2 Certified in Cybersecurity study app with mission nodes, quiz gates, XP, and tiny cyber planet progression.">
+  <link rel="stylesheet" href="assets/styles.css?v=20260513-3d">
 </head>
-<body>
-  <div class="app-shell">
-    <header class="nav">
-      <a class="brand" href="index.html" aria-label="ISC2 CC Packet Courier home">
-        <div class="logo">PKT</div>
-        <div>
-          <div class="brand-title">Packet Courier</div>
-          <div class="brand-subtitle">Cyber planet study routes / recall packets / quiz checkpoints</div>
-        </div>
+<body class="game-body">
+  <div class="game-shell">
+    <header class="game-nav">
+      <a class="game-brand" href="index.html" aria-label="ISC2 CC Cyber Planet home">
+        <img class="game-brand-mark" src="assets/sentinel-assets-theme-packs/sentinel-assets-light/01_brand/logo-mark.png" alt="" aria-hidden="true">
+        <span>
+          <strong>Cyber Planet</strong>
+          <small>ISC2 CC mission control</small>
+        </span>
       </a>
-      <nav class="nav-links" aria-label="Primary navigation">
-        <a class="nav-link" href="tools/drill/index.html">Drill Route</a>
-        <a class="nav-link" href="tools/quiz/index.html">Quiz Gate</a>
-        <a class="nav-link" href="docs/STUDY_WORKFLOW.md">Field Manual</a>
+      <nav class="game-nav-links" aria-label="Primary navigation">
+        <a href="tools/drill/index.html">Drill Route</a>
+        <a href="tools/quiz/index.html">Quiz Gate</a>
+        <a href="docs/STUDY_WORKFLOW.md">Field Manual</a>
       </nav>
-      <div class="nav-actions">
-        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Toggle light and dark theme">
+      <div class="game-nav-actions">
+        <button class="icon-btn" type="button" id="resetRunBtn" aria-label="Reset run" title="Reset run">
+          <span aria-hidden="true">R</span>
+        </button>
+        <button class="theme-toggle compact-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Toggle light and dark theme">
           <span data-theme-label>Dark</span>
           <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
         </button>
       </div>
     </header>
 
-    <main>
-      <section class="hero" aria-label="Packet Courier mission control">
-        <div class="hero-copy">
-          <div>
-            <h1>Deliver every weak signal before exam day.</h1>
-            <p class="lead">Packet Courier turns ISC2 CC study into a compact cyber planet: recall cards become delivery jobs, weak topics become flagged routes, and quiz misses become locked checkpoints for the next run.</p>
-            <div class="hero-actions">
-              <a class="button primary" href="tools/drill/index.html">Start Drill Route</a>
-              <a class="button ghost" href="tools/quiz/index.html">Open Quiz Gate</a>
-            </div>
-          </div>
+    <main class="game-board" aria-label="3D gamified study app">
+      <section class="planet-arena" aria-label="Interactive cyber planet">
+        <canvas id="planetCanvas" aria-label="3D cyber tiny planet scene"></canvas>
+        <div class="arena-scrim" aria-hidden="true"></div>
 
-          <div class="mission-strip" aria-label="Study mission launcher">
-            <div class="mission-row">
-              <div class="mission-icon">01</div>
-              <div>
-                <strong>Drill Route</strong>
-                <span>Recall first, reveal proof, then route the packet honestly.</span>
-              </div>
-              <span class="pill good">Recall</span>
-            </div>
-            <div class="mission-row">
-              <div class="mission-icon">02</div>
-              <div>
-                <strong>Quiz Gate</strong>
-                <span>Commit to one answer, lock the gate, inspect the rationale.</span>
-              </div>
-              <span class="pill warn">Validate</span>
-            </div>
-            <div class="mission-row">
-              <div class="mission-icon">03</div>
-              <div>
-                <strong>Weak Routes</strong>
-                <span>Send uncertain topics into the next focused study loop.</span>
-              </div>
-              <span class="pill bad">Review</span>
-            </div>
-          </div>
+        <div class="arena-hud top-left">
+          <span class="hud-label">Current mission</span>
+          <strong id="activeDomainLabel">Security Principles</strong>
+          <small id="activeDomainMeta">0 packets / 0 gates</small>
         </div>
 
-        <div class="planet-stage" aria-label="Cyber study planet visualization">
-          <div class="planet-title">
-            <strong>Security Planet</strong>
-            <span>Domain routes online</span>
-          </div>
-          <div class="route-message one">
-            <strong>incoming packet</strong>
-            CIA triad route requires clean recall before delivery confirmation.
-          </div>
-          <div class="route-line one" aria-hidden="true"></div>
-          <div class="route-line two" aria-hidden="true"></div>
-          <div class="planet"></div>
-          <div class="courier">TLS</div>
-          <div class="domain-chip security">
-            <strong>District 07</strong>
-            <span>Security Principles</span>
-          </div>
-          <div class="domain-chip risk">
-            <strong>District 11</strong>
-            <span>Risk Management</span>
-          </div>
-          <div class="domain-chip network">
-            <strong>District 03</strong>
-            <span>Network Security</span>
-          </div>
-          <div class="route-message two">
-            <strong>route flagged</strong>
-            Weak domains loop back until the signal clears.
-          </div>
+        <div class="arena-hud bottom-left">
+          <span class="hud-label">3D controls</span>
+          <strong>Drag to orbit</strong>
+          <small>Scroll to zoom. Pick a mission node to focus the route.</small>
         </div>
 
-        <aside class="readiness-panel" aria-label="Readiness console">
-          <div class="readiness-score">
-            <strong id="readinessScore">72%</strong>
-            <span>Readiness signal</span>
-          </div>
-          <div class="stats" aria-label="Study system metrics">
-            <div class="stat"><strong id="domainCount">12</strong><span>security districts</span></div>
-            <div class="stat"><strong id="drillCount">95</strong><span>recall packets</span></div>
-            <div class="stat"><strong id="questionCount">25</strong><span>quiz checkpoints</span></div>
-          </div>
-          <div class="console">
-            <div class="console-line"><span class="console-key">Signal</span><span>Independent study tool, not official ISC2 training.</span></div>
-            <div class="console-line"><span class="console-key">Next loop</span><span>Drill weak cards, then validate through Quiz Gate.</span></div>
-            <div class="console-line"><span class="console-key">Future branch</span><span>Game HUD, map nodes, rewards, route unlocks, and streaks are ready to expand.</span></div>
-          </div>
-        </aside>
-      </section>
-
-      <section class="section" aria-label="Independent study disclaimer">
-        <div class="card">
-          <span class="pill warn">Independent study tool</span>
-          <h2>Built for repetition, not certification claims.</h2>
-          <p class="muted">This project is an independent study tool. It is not official ISC2 training material and is not endorsed, certified, or recognised by ISC2. Use it to practise recall, identify weak areas, and verify important topics against official ISC2 guidance.</p>
-          <div class="actions">
-            <a class="button ghost" href="https://www.isc2.org/certifications/cc/cc-self-study-resources" target="_blank" rel="noopener noreferrer">Open ISC2 self-study resources</a>
-          </div>
+        <div class="arena-hud bottom-right" id="assetStatus">
+          <span class="hud-label">Asset</span>
+          <strong>Loading GLB</strong>
+          <small>cyber_tiny_planet_lively_full.glb</small>
         </div>
       </section>
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <span class="pill good">Two engines preserved</span>
-            <h2>Run the route, then validate at the gate.</h2>
-            <p class="muted">The redesign keeps the study card and quiz content intact. It changes the shell, navigation, visual language, and learning atmosphere around those engines.</p>
+      <aside class="command-panel" aria-label="Study command panel">
+        <section class="run-card">
+          <div class="run-title">
+            <div>
+              <span class="hud-label">Readiness run</span>
+              <h1>Clear the planet before exam day.</h1>
+            </div>
+            <div class="rank-badge">
+              <strong id="rankLabel">Rookie</strong>
+              <span id="xpLabel">0 XP</span>
+            </div>
           </div>
-        </div>
-        <div class="grid two">
-          <article class="tool-card">
-            <div class="tool-icon">DR</div>
-            <h3>Drill Route</h3>
-            <p class="muted">A delivery loop for recall. Read the prompt cold, reveal the answer, then route the packet as cleared, flagged, skipped, or ready for report.</p>
-            <ul class="feature-list">
-              <li>Preserved study cards and domain filters</li>
-              <li>Weak-route queue for uncertain topics</li>
-              <li>Saved browser progress</li>
-              <li>Exportable remediation signal</li>
-            </ul>
-            <a class="button primary" href="tools/drill/index.html">Launch Drill Route</a>
-          </article>
+          <p class="run-copy">Select a district, answer its gate, and build streaks. Drill and quiz engines remain one click away when a domain needs deeper work.</p>
 
-          <article class="tool-card">
-            <div class="tool-icon">QG</div>
-            <h3>Quiz Gate</h3>
-            <p class="muted">A checkpoint for multiple-choice decisions. Pick one route, lock the answer, inspect the rationale, and rerun missed checkpoints.</p>
-            <ul class="feature-list">
-              <li>Preserved quiz content and explanations</li>
-              <li>Answer locking and visible states</li>
-              <li>Missed-question signal queue</li>
-              <li>Domain and keyword filters</li>
-            </ul>
-            <a class="button primary" href="tools/quiz/index.html">Launch Quiz Gate</a>
-          </article>
-        </div>
-      </section>
+          <div class="metric-grid" aria-label="Run metrics">
+            <div class="metric">
+              <strong id="readinessMetric">0%</strong>
+              <span>readiness</span>
+            </div>
+            <div class="metric">
+              <strong id="streakMetric">0</strong>
+              <span>streak</span>
+            </div>
+            <div class="metric">
+              <strong id="clearedMetric">0/0</strong>
+              <span>districts</span>
+            </div>
+          </div>
+        </section>
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <span class="pill">Gamification-ready</span>
-            <h2>A map-based foundation for the next branch.</h2>
-            <p class="muted">The current redesign deliberately separates the study engines from the game-like shell. That gives the next gamification branch clear places to add district unlocks, route rewards, streaks, animated packet delivery, and exam-readiness progression.</p>
+        <section class="mission-card" aria-label="Mission map">
+          <div class="panel-head">
+            <div>
+              <span class="hud-label">Mission map</span>
+              <h2>Domain districts</h2>
+            </div>
+            <button class="small-btn" type="button" id="scanBtn">Scan</button>
           </div>
-        </div>
-        <div class="grid three">
-          <div class="card">
-            <span class="pill good">Collect</span>
-            <h3>Load the packet</h3>
-            <p class="muted">Each card asks for recall before the answer appears. That pause is where useful uncertainty shows up.</p>
+          <div class="mission-list" id="missionList"></div>
+        </section>
+
+        <section class="quiz-terminal" aria-label="Interactive quiz gate">
+          <div class="terminal-head">
+            <span class="hud-label" id="gateLabel">Quiz gate</span>
+            <span id="gateProgress">1 / 1</span>
           </div>
-          <div class="card">
-            <span class="pill warn">Route</span>
-            <h3>Flag the weak path</h3>
-            <p class="muted">Known material exits the orbit. Weak material becomes a visible route for the next focused pass.</p>
+          <h2 id="questionText">Loading checkpoint...</h2>
+          <div class="answer-grid" id="answerGrid"></div>
+          <div class="feedback-strip" id="feedbackStrip" aria-live="polite"></div>
+          <div class="terminal-actions">
+            <button class="primary game-action" type="button" id="lockAnswerBtn">Lock gate</button>
+            <button class="game-action" type="button" id="nextGateBtn">Next gate</button>
           </div>
-          <div class="card">
-            <span class="pill bad">Validate</span>
-            <h3>Clear the gate</h3>
-            <p class="muted">Quiz mode forces a committed answer, then turns missed checkpoints into the next remediation queue.</p>
+        </section>
+
+        <section class="route-card" aria-label="Study routes">
+          <div class="route-actions">
+            <a class="route-link primary-route" href="tools/drill/index.html">
+              <span>Drill Route</span>
+              <small>Recall cards and weak packets</small>
+            </a>
+            <a class="route-link" href="tools/quiz/index.html">
+              <span>Quiz Gate</span>
+              <small>Full checkpoint bank</small>
+            </a>
           </div>
-        </div>
-      </section>
+          <p>Independent study tool. Not official ISC2 training or endorsed by ISC2.</p>
+        </section>
+      </aside>
     </main>
 
-    <footer class="footer">
-      <span>ISC2 CC Packet Courier</span>
-      <span>Static local app / data loaded from data/app-data.js</span>
+    <section class="intel-strip" aria-label="Study intelligence">
+      <article>
+        <img src="assets/sentinel-assets-theme-packs/sentinel-assets-light/04_section-headers/header-requirement-map.png" alt="" aria-hidden="true">
+        <div>
+          <span class="hud-label">Route intelligence</span>
+          <h2>Mission nodes are generated from the local study deck.</h2>
+          <p>Domains, drills, and quiz gates come from `data/app-data.js`, so the 3D shell stays connected to the existing content instead of becoming a separate demo.</p>
+        </div>
+      </article>
+      <article>
+        <img src="assets/sentinel-assets-theme-packs/sentinel-assets-light/04_section-headers/header-skill-gap.png" alt="" aria-hidden="true">
+        <div>
+          <span class="hud-label">Weak signal loop</span>
+          <h2>Wrong gates route you back to focused practice.</h2>
+          <p>Misses lower the active district signal and point you toward the drill and quiz tools for deeper remediation.</p>
+        </div>
+      </article>
+    </section>
+
+    <footer class="game-footer">
+      <span>ISC2 CC Cyber Planet</span>
+      <span>3D asset path: assets/3D_designs_assets/Models_Assets/cyber_tiny_planet_glb_viewer_simple_folder/cyber_tiny_planet_lively_full.glb</span>
     </footer>
   </div>
 
   <script src="data/app-data.js"></script>
   <script src="assets/theme.js?v=20260513"></script>
-  <script>
-    const data = window.ISC2_CC_DATA || { domains: [], drills: [], questions: [] }
-    const domainCount = data.domains.length
-    const drillCount = data.drills.length
-    const questionCount = data.questions.length
-    const readiness = Math.min(92, Math.max(58, Math.round((questionCount / Math.max(domainCount, 1)) * 34)))
-    document.getElementById('domainCount').textContent = domainCount
-    document.getElementById('drillCount').textContent = drillCount
-    document.getElementById('questionCount').textContent = questionCount
-    document.getElementById('readinessScore').textContent = `${readiness}%`
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js"
+      }
+    }
   </script>
+  <script type="module" src="assets/game-app.js?v=20260513-3d"></script>
 </body>
 </html>

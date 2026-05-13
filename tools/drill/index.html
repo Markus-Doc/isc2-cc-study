@@ -3,24 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ISC2 CC Study Drill</title>
-  <meta name="description" content="A cyber styled ISC2 CC drill trainer for fast recall, weak area review, and study reporting.">
+  <title>ISC2 CC Drill Route</title>
+  <meta name="description" content="A cyber Messenger-inspired ISC2 CC recall route for weak-area delivery, review routing, and study reporting.">
   <link rel="stylesheet" href="../../assets/styles.css">
 </head>
 <body>
   <div class="app-shell app-main">
     <header class="nav">
       <a class="brand" href="../../index.html">
-        <div class="logo">CC</div>
+        <div class="logo">PKT</div>
         <div>
-          <div class="brand-title">Study Drill</div>
-          <div class="brand-subtitle">Read card • Self-test • Sort result • Generate report</div>
+          <div class="brand-title">Drill Route</div>
+          <div class="brand-subtitle">Load packet / reveal proof / route signal / report</div>
         </div>
       </a>
       <nav class="nav-links">
-        <a class="nav-link" href="../../index.html">Home</a>
-        <a class="nav-link" href="../quiz/index.html">Quiz Player</a>
+        <a class="nav-link" href="../../index.html">Planet Map</a>
+        <a class="nav-link" href="../quiz/index.html">Quiz Gate</a>
       </nav>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Toggle light and dark theme">
+          <span data-theme-label>Dark</span>
+          <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+        </button>
+      </div>
     </header>
 
     <main class="workspace">
@@ -35,20 +41,20 @@
         </section>
 
         <section class="panel">
-          <h3>Instructions</h3>
+          <h3>Courier protocol</h3>
           <div class="table-list">
-            <div class="list-row"><span>1. Read the card question</span><span class="pill">read</span></div>
-            <div class="list-row"><span>2. Decide if you know it</span><span class="pill">think</span></div>
-            <div class="list-row"><span>3. Reveal the answer</span><span class="pill">check</span></div>
-            <div class="list-row"><span>4. Choose I know this or I need to review this</span><span class="pill">sort</span></div>
-            <div class="list-row"><span>5. Finish session to generate a study report</span><span class="pill">report</span></div>
+            <div class="list-row"><span>1. Pick up the packet</span><span class="pill">read</span></div>
+            <div class="list-row"><span>2. Recall before opening</span><span class="pill">recall</span></div>
+            <div class="list-row"><span>3. Compare with proof</span><span class="pill">verify</span></div>
+            <div class="list-row"><span>4. Route the signal honestly</span><span class="pill">route</span></div>
+            <div class="list-row"><span>5. Export weak districts</span><span class="pill">report</span></div>
           </div>
         </section>
 
         <section class="panel">
-          <h3>Session controls</h3>
-          <p class="muted">Leave this on All domains for a full cram run, or narrow the deck when you want focused revision.</p>
-          <p class="muted">Progress is saved in this browser automatically so you can resume a session if the page closes.</p>
+          <h3>Route controls</h3>
+          <p class="muted">Run all districts for a full planet loop, or isolate one domain when you want focused remediation.</p>
+          <p class="muted">Progress is saved in this browser automatically so the session can resume after refresh.</p>
           <label class="muted" for="domainFilter">Domain</label>
           <select class="select" id="domainFilter"></select>
           <br><br>
@@ -56,7 +62,7 @@
           <input class="search" id="searchInput" placeholder="CIA, RTO, firewall, risk">
           <div class="actions">
             <button class="ghost" id="shuffleBtn">Shuffle deck</button>
-            <button class="ghost" id="weakOnlyBtn">Study review pile</button>
+            <button class="ghost" id="weakOnlyBtn">Review signal</button>
             <button class="danger" id="resetBtn">Reset session</button>
           </div>
         </section>
@@ -65,11 +71,11 @@
       <section>
         <article class="card">
           <div class="pill-row">
-            <span class="pill good">Current task</span>
+            <span class="pill good">Current delivery</span>
             <span class="pill" id="modePill">Normal cram mode</span>
           </div>
-          <h2 id="taskTitle">Read the question, then test yourself.</h2>
-          <p class="muted" id="taskText">Think about how well you know the subject, then reveal the answer and grade yourself.</p>
+          <h2 id="taskTitle">Read the packet. Do not open it until recall is complete.</h2>
+          <p class="muted" id="taskText">The useful signal is the gap between what felt certain and what the source answer actually says.</p>
           <div class="hidden" id="lastActionBox">
             <div class="feedback">
               <h3 id="lastActionTitle">Last card summary</h3>
@@ -86,7 +92,7 @@
             <span class="pill" id="domainPill">Domain</span>
             <span class="pill" id="tagPill">Study card</span>
           </div>
-          <h1 class="prompt-title" id="promptTitle">Loading</h1>
+          <h1 class="prompt-title" id="promptTitle">Loading route</h1>
           <div class="answer-box hidden" id="answerBox">
             <strong>Correct answer</strong>
             <p id="answerText"></p>
@@ -98,23 +104,23 @@
             <textarea id="reviewNote" rows="2" style="min-height: 72px; height: 72px;" placeholder="Add a short note to attach to this card for review, such as: Research and study this topic more."></textarea>
           </div>
           <div class="actions">
-            <button class="primary" id="revealBtn">Reveal answer</button>
-            <button id="knownBtn">I know this</button>
-            <button class="danger" id="weakBtn">I need to review this</button>
-            <button class="ghost" id="skipBtn">Skip card</button>
-            <button class="ghost" id="finishBtn">Finish session and build report</button>
+            <button class="primary" id="revealBtn">Open packet</button>
+            <button id="knownBtn">Clear route</button>
+            <button class="danger" id="weakBtn">Flag district</button>
+            <button class="ghost" id="skipBtn">Hold packet</button>
+            <button class="ghost" id="finishBtn">Finish route and build report</button>
           </div>
         </article>
 
         <section class="section">
           <div class="section-head">
             <div>
-              <h2>Review pile</h2>
-              <p class="muted">Cards marked for review appear here. Use Study review pile to retest only those cards. Use Copy review pile to copy the selected cards as JSON so you can paste them into your preferred LLM, notes app, or manual study workflow.</p>
+              <h2>Flagged Districts</h2>
+              <p class="muted">Packets flagged for review appear here. Retest only these routes, or copy the signal as JSON for notes, tutoring prompts, or manual study planning.</p>
             </div>
             <div class="actions">
-              <button class="ghost" id="weakOnlySectionBtn">Study review pile</button>
-              <button class="ghost" id="copyWeakBtn">Copy review pile</button>
+              <button class="ghost" id="weakOnlySectionBtn">Review signal</button>
+              <button class="ghost" id="copyWeakBtn">Copy review JSON</button>
             </div>
           </div>
           <div class="panel table-list" id="weakList"></div>
@@ -123,8 +129,8 @@
         <section class="section hidden" id="reportSection">
           <div class="section-head">
             <div>
-              <h2>Study report</h2>
-              <p class="muted">Use this report to decide what to study next. Later, this can feed generated study material and retesting.</p>
+              <h2>Route Report</h2>
+              <p class="muted">Use this report to decide the next study pass. Flagged packets are the highest-value input for retesting and focused review.</p>
             </div>
             <button class="ghost" id="copyReportBtn">Copy report</button>
           </div>
@@ -134,12 +140,13 @@
     </main>
 
     <footer class="footer">
-      <span>ISC2 CC Cyber Study Lab</span>
-      <span>Static local app • Data loaded from data/app-data.js</span>
+      <span>ISC2 CC Drill Route</span>
+      <span>Static local app / data loaded from data/app-data.js</span>
     </footer>
   </div>
 
   <script src="../../data/app-data.js"></script>
+  <script src="../../assets/theme.js"></script>
   <script>
     const data = window.ISC2_CC_DATA || { domains: [], drills: [] }
     const allCards = data.drills || []
@@ -278,7 +285,7 @@
       els.answerText.textContent = card.answer
       els.memoryHook.textContent = card.memoryHook || 'No memory hook added yet.'
       els.domainPill.textContent = card.domain || 'Unmapped domain'
-      els.tagPill.textContent = (card.tags || ['study card']).join(' • ')
+      els.tagPill.textContent = (card.tags || ['study card']).join(' / ')
       els.answerBox.classList.add('hidden')
       els.noteBox.classList.add('hidden')
       els.reviewNote.value = reviewNotes[card.id] || ''
@@ -286,9 +293,9 @@
       els.knownCounter.textContent = `Known ${knownCards.length}`
       els.weakCounter.textContent = `Review ${weakCards.length}`
       els.progressBar.style.width = `${((currentIndex + 1) / filteredCards.length) * 100}%`
-      els.taskTitle.textContent = lastAction ? 'Last choice saved. Continue with the next card.' : 'Read the question, then test yourself.'
-      els.taskText.textContent = 'Think about how well you know the subject, then reveal the answer and grade yourself.'
-      els.modePill.textContent = weakReviewMode ? 'Review pile mode' : 'Normal cram mode'
+      els.taskTitle.textContent = lastAction ? 'Last route saved. Continue with the next packet.' : 'Read the packet. Do not open it until recall is complete.'
+      els.taskText.textContent = 'The useful signal is the gap between what felt certain and what the source answer actually says.'
+      els.modePill.textContent = weakReviewMode ? 'Review Signal mode' : 'Normal cram mode'
 
       els.revealBtn.classList.remove('ghost')
       els.revealBtn.classList.add('primary')
@@ -309,8 +316,8 @@
       revealed = true
       els.answerBox.classList.remove('hidden')
       els.noteBox.classList.remove('hidden')
-      els.taskTitle.textContent = 'Now grade yourself.'
-      els.taskText.textContent = 'Add a note if useful, then choose whether you know this or need to review it. Your choice will move to the next card automatically.'
+      els.taskTitle.textContent = 'Now route the packet.'
+      els.taskText.textContent = 'Add a note if useful, then choose whether the route is clear or the district needs review. Your choice will move to the next packet automatically.'
       els.revealBtn.classList.remove('primary')
       els.revealBtn.classList.add('ghost')
       els.revealBtn.disabled = true
@@ -357,7 +364,7 @@
         els.lastActionBox.classList.add('hidden')
         return
       }
-      const choiceText = lastAction.choice === 'known' ? 'I know this' : lastAction.choice === 'review' ? 'I need to review this' : 'Skipped'
+      const choiceText = lastAction.choice === 'known' ? 'I know this' : lastAction.choice === 'review' ? 'Flag for review' : 'Skipped'
       els.lastActionBox.classList.remove('hidden')
       els.lastActionTitle.textContent = `Last card: ${lastAction.card.prompt}`
       els.lastActionText.textContent = lastAction.note ? `Choice: ${choiceText}. Note: ${lastAction.note}` : `Choice: ${choiceText}.`
@@ -401,10 +408,10 @@
 
     function reviewWeakOnly() {
       if (!weakCards.length) {
-        alert('No review cards yet. Mark something as I need to review this first.')
+        alert('No review cards yet. Mark something as Flag for review first.')
         return
       }
-      if (hasActiveProgress() && !weakReviewMode && !confirmRisk('Switch to Study review pile mode? Your full-session progress will stay saved, but this view will focus only on cards currently flagged for review.')) return
+      if (hasActiveProgress() && !weakReviewMode && !confirmRisk('Switch to Review signal mode? Your full-session progress will stay saved, but this view will focus only on cards currently flagged for review.')) return
       weakReviewMode = true
       filteredCards = [...weakCards]
       currentIndex = 0
@@ -431,7 +438,7 @@
 
     function renderWeakList() {
       if (!weakCards.length) {
-        els.weakList.innerHTML = '<p class="muted">No review cards yet. When a card is fuzzy, click I need to review this and it will appear here.</p>'
+        els.weakList.innerHTML = '<p class="muted">No review cards yet. When a card is fuzzy, click Flag for review and it will appear here.</p>'
         return
       }
       els.weakList.innerHTML = weakCards.map(card => {
@@ -455,7 +462,7 @@
       if (notReviewed.length && !confirmRisk(`Build the report now? You still have ${notReviewed.length} unsorted card(s). Your progress will stay saved, but this may be earlier than intended.`)) return
       const weakByDomain = groupByDomain(weakCards)
       const lines = []
-      lines.push('ISC2 CC Study Drill Report')
+      lines.push('ISC2 CC Drill Route Report')
       lines.push(`Generated: ${new Date().toLocaleString()}`)
       lines.push('')
       lines.push(`Cards in deck: ${allCards.length}`)
@@ -477,13 +484,13 @@
       }
       lines.push('')
       lines.push('Next action:')
-      lines.push('- Re-study the review topics above, then run Study review pile and retest.')
-      lines.push('- After that, open Quiz Player and attempt related questions.')
+      lines.push('- Re-study the review topics above, then run Review signal and retest.')
+      lines.push('- After that, open Quiz Gate and attempt related questions.')
 
       lastReport = lines.join('\n')
       els.reportSection.classList.remove('hidden')
       els.reportBox.innerHTML = `<pre style="white-space:pre-wrap;line-height:1.55;margin:0">${escapeHtml(lastReport)}</pre>`
-      els.reportSection.scrollIntoView({ behavior: 'smooth' })
+      window.scrollTo({ top: els.reportSection.offsetTop - 90, behavior: 'smooth' })
       saveSession()
     }
 
@@ -494,12 +501,12 @@
     function copyWeak() {
       const exportCards = weakCards.map(card => ({ ...card, reviewNote: reviewNotes[card.id] || '' }))
       navigator.clipboard.writeText(JSON.stringify(exportCards, null, 2))
-      alert('Review pile JSON copied to clipboard. Paste it into your preferred LLM, notes app, or manual study file for deeper review.')
+      alert('Review Signal JSON copied to clipboard. Paste it into your preferred LLM, notes app, or manual study file for deeper review.')
     }
 
     function copyReport() {
       navigator.clipboard.writeText(lastReport || 'No report generated yet')
-      alert('Study report copied to clipboard')
+      alert('Session Report copied to clipboard')
     }
 
     function saveSession() {
@@ -578,3 +585,4 @@
   </script>
 </body>
 </html>
+

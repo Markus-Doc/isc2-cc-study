@@ -1,0 +1,74 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ISC2 CC Readiness Firewall</title>
+  <meta name="description" content="A Lucien-inspired ISC2 Certified in Cybersecurity study control room with drill cards, quiz runs, and weak-area detection.">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="nav">
+      <a class="brand" href="index.html" aria-label="ISC2 CC Readiness Firewall home">
+        <div class="logo">CC</div>
+        <div>
+          <div class="brand-title">Readiness Firewall</div>
+          <div class="brand-subtitle">ISC2 CC learning telemetry / drill / quiz / review</div>
+        </div>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a class="nav-link" href="tools/drill/index.html">Study Drill</a>
+        <a class="nav-link" href="tools/quiz/index.html">Quiz Player</a>
+        <a class="nav-link" href="docs/STUDY_WORKFLOW.md">Workflow</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Toggle light and dark theme">
+          <span data-theme-label>Dark</span>
+          <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="kicker"><span class="kicker-dot"></span> Real-time weak-area detection for ISC2 CC learners</div>
+          <h1>Find the gaps before the exam finds them.</h1>
+          <p class="lead">A high-intensity study console for Certified in Cybersecurity candidates. Run recall drills, lock quiz answers, surface weak domains, and turn missed material into the next focused pass.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="tools/drill/index.html">Start drill scan</a>
+            <a class="button ghost" href="tools/quiz/index.html">Run quiz validation</a>
+          </div>
+          <div class="stats" aria-label="Study system metrics">
+            <div class="stat"><strong id="domainCount">12</strong><span>domains mapped</span></div>
+            <div class="stat"><strong id="drillCount">95</strong><span>recall cards loaded</span></div>
+            <div class="stat"><strong id="questionCount">25</strong><span>quiz vectors ready</span></div>
+          </div>
+        </div>
+
+        <div class="cyber-card" aria-label="Readiness firewall visualization">
+          <div class="ring"></div>
+          <div class="orb"></div>
+          <div class="console">
+            <div class="console-line"><span class="console-key">status</span><span>learner environment armed</span></div>
+            <div class="console-line"><span class="console-key">drill</span><span>read prompt / reveal answer / classify certainty</span></div>
+            <div class="console-line"><span class="console-key">quiz</span><span>select option / lock decision / review rationale</span></div>
+            <div class="console-line"><span class="console-key">signal</span><span>review pile becomes the next study order</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="data/app-data.js"></script>
+  <script src="assets/theme.js"></script>
+  <script>
+    const data = window.ISC2_CC_DATA || { domains: [], drills: [], questions: [] }
+    document.getElementById('domainCount').textContent = data.domains.length
+    document.getElementById('drillCount').textContent = data.drills.length
+    document.getElementById('questionCount').textContent = data.questions.length
+  </script>
+</body>
+</html>

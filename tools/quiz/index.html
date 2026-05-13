@@ -3,24 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ISC2 CC Quiz Player</title>
-  <meta name="description" content="A cyber styled ISC2 CC quiz player with answer locking, scoring, and review.">
+  <title>ISC2 CC Quiz Gate</title>
+  <meta name="description" content="A cyber Messenger-inspired ISC2 CC quiz gate with answer locking, scoring, and missed-question review.">
   <link rel="stylesheet" href="../../assets/styles.css">
 </head>
 <body>
   <div class="app-shell app-main">
     <header class="nav">
       <a class="brand" href="../../index.html">
-        <div class="logo">CC</div>
+        <div class="logo">PKT</div>
         <div>
-          <div class="brand-title">Quiz Player</div>
-          <div class="brand-subtitle">Multiple choice • Lock answers • Review mistakes</div>
+          <div class="brand-title">Quiz Gate</div>
+          <div class="brand-subtitle">Choose route / lock gate / read proof / retest</div>
         </div>
       </a>
       <nav class="nav-links">
-        <a class="nav-link" href="../../index.html">Home</a>
-        <a class="nav-link" href="../drill/index.html">Study Drill</a>
+        <a class="nav-link" href="../../index.html">Planet Map</a>
+        <a class="nav-link" href="../drill/index.html">Drill Route</a>
       </nav>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Toggle light and dark theme">
+          <span data-theme-label>Dark</span>
+          <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+        </button>
+      </div>
     </header>
 
     <main class="workspace">
@@ -35,8 +41,8 @@
         </section>
 
         <section class="panel">
-          <h3>Quiz controls</h3>
-          <p class="muted">Run all questions or focus one ISC2 CC domain at a time.</p>
+          <h3>Gate controls</h3>
+          <p class="muted">Run the full checkpoint bank or isolate one ISC2 CC domain for focused validation.</p>
           <label class="muted" for="domainFilter">Domain</label>
           <select class="select" id="domainFilter"></select>
           <br><br>
@@ -44,17 +50,17 @@
           <input class="search" id="searchInput" placeholder="least privilege, RTO, IDS">
           <div class="actions">
             <button class="ghost" id="shuffleBtn">Shuffle</button>
-            <button class="ghost" id="missedOnlyBtn">Missed only</button>
+            <button class="ghost" id="missedOnlyBtn">Blocked gates</button>
             <button class="danger" id="resetBtn">Reset</button>
           </div>
         </section>
 
         <section class="panel">
-          <h3>Exam rhythm</h3>
+          <h3>Gate rhythm</h3>
           <div class="table-list">
-            <div class="list-row"><span>1. Read carefully</span><span class="pill">intent</span></div>
-            <div class="list-row"><span>2. Pick one answer</span><span class="pill">commit</span></div>
-            <div class="list-row"><span>3. Lock and review</span><span class="pill">learn</span></div>
+            <div class="list-row"><span>1. Read the checkpoint</span><span class="pill">intent</span></div>
+            <div class="list-row"><span>2. Choose one route</span><span class="pill">commit</span></div>
+            <div class="list-row"><span>3. Lock, explain, retest</span><span class="pill">retest</span></div>
           </div>
         </section>
       </aside>
@@ -66,11 +72,11 @@
             <span class="pill" id="confidencePill">Confidence</span>
             <span class="pill" id="sourcePill">Source</span>
           </div>
-          <h1 class="question-title" id="questionTitle">Loading</h1>
+          <h1 class="question-title" id="questionTitle">Loading gate</h1>
           <div class="option-list" id="optionList"></div>
           <div class="actions">
-            <button class="primary" id="lockBtn">Lock answer</button>
-            <button class="ghost" id="nextBtn">Next question</button>
+            <button class="primary" id="lockBtn">Lock gate</button>
+            <button class="ghost" id="nextBtn">Next checkpoint</button>
           </div>
           <div class="feedback hidden" id="feedbackBox">
             <h3 id="feedbackTitle">Feedback</h3>
@@ -81,10 +87,10 @@
         <section class="section">
           <div class="section-head">
             <div>
-              <h2>Missed questions</h2>
-              <p class="muted">Wrong answers are captured here for targeted follow-up study.</p>
+              <h2>Blocked Gates</h2>
+              <p class="muted">Wrong answers are captured here as the next remediation queue.</p>
             </div>
-            <button class="ghost" id="copyMissedBtn">Copy missed JSON</button>
+            <button class="ghost" id="copyMissedBtn">Copy blocked JSON</button>
           </div>
           <div class="panel table-list" id="missedList"></div>
         </section>
@@ -92,12 +98,13 @@
     </main>
 
     <footer class="footer">
-      <span>ISC2 CC Cyber Study Lab</span>
+      <span>ISC2 CC Quiz Gate</span>
       <span>Question data loaded from data/app-data.js</span>
     </footer>
   </div>
 
   <script src="../../data/app-data.js"></script>
+  <script src="../../assets/theme.js"></script>
   <script>
     const data = window.ISC2_CC_DATA || { domains: [], questions: [] }
     const allQuestions = data.questions || []
@@ -219,7 +226,7 @@
       })
 
       els.feedbackBox.classList.remove('hidden')
-      els.feedbackTitle.textContent = correct ? 'Correct. Lock it in.' : 'Missed. Review this one.'
+      els.feedbackTitle.textContent = correct ? 'Gate cleared. Lock it in.' : 'Gate blocked. Review this one.'
       els.feedbackText.textContent = question.explanation || 'No explanation supplied yet.'
       els.scoreCounter.textContent = `Score ${score} / ${answered}`
       els.wrongCounter.textContent = `Missed ${missedQuestions.length}`
@@ -263,7 +270,7 @@
 
     function renderMissedList() {
       if (!missedQuestions.length) {
-        els.missedList.innerHTML = '<p class="muted">No missed questions yet. Missed questions will appear here after you lock an incorrect answer.</p>'
+        els.missedList.innerHTML = '<p class="muted">No blocked gates yet. Missed questions will appear here after you lock an incorrect answer.</p>'
         return
       }
       els.missedList.innerHTML = missedQuestions.map(question => `<div class="list-row"><span>${question.question}</span><span class="pill warn">${question.domain}</span></div>`).join('')
@@ -271,10 +278,11 @@
 
     function copyMissed() {
       navigator.clipboard.writeText(JSON.stringify(missedQuestions, null, 2))
-      alert('Missed questions copied to clipboard')
+      alert('Blocked gate JSON copied to clipboard')
     }
 
     init()
   </script>
 </body>
 </html>
+

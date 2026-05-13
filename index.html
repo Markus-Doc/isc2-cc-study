@@ -3,64 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ISC2 CC Cyber Study Lab</title>
-  <meta name="description" content="A cyber themed ISC2 Certified in Cybersecurity study lab with drill and quiz tools for students.">
+  <title>ISC2 CC Packet Courier</title>
+  <meta name="description" content="A cyber Messenger-inspired ISC2 Certified in Cybersecurity study world with drill cards, quiz runs, and weak-area delivery routes.">
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
   <div class="app-shell">
     <header class="nav">
-      <a class="brand" href="index.html" aria-label="ISC2 CC Cyber Study Lab home">
-        <div class="logo">CC</div>
+      <a class="brand" href="index.html" aria-label="ISC2 CC Packet Courier home">
+        <div class="logo">PKT</div>
         <div>
-          <div class="brand-title">ISC2 CC Cyber Study Lab</div>
-          <div class="brand-subtitle">Study drill • Quiz player • Exam readiness reports</div>
+          <div class="brand-title">Packet Courier</div>
+          <div class="brand-subtitle">ISC2 CC delivery routes / recall packets / quiz checkpoints</div>
         </div>
       </a>
       <nav class="nav-links" aria-label="Primary navigation">
-        <a class="nav-link" href="tools/drill/index.html">Launch Study Drill</a>
-        <a class="nav-link" href="tools/quiz/index.html">Launch Quiz</a>
-        <a class="nav-link" href="docs/STUDY_WORKFLOW.md">Study Workflow</a>
+        <a class="nav-link" href="tools/drill/index.html">Drill Route</a>
+        <a class="nav-link" href="tools/quiz/index.html">Quiz Gate</a>
+        <a class="nav-link" href="docs/STUDY_WORKFLOW.md">Field Manual</a>
       </nav>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Toggle light and dark theme">
+          <span data-theme-label>Dark</span>
+          <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+        </button>
+      </div>
     </header>
 
     <main>
       <section class="hero">
         <div>
-          <div class="kicker"><span class="kicker-dot"></span> ISC2 Certified in Cybersecurity study tools for students</div>
-          <h1>Turn exam prep into a <span class="gradient-text">cyber command centre</span>.</h1>
-          <p class="lead">Learn the ISC2 CC essentials with a fast recall drill trainer, a multiple choice quiz player, domain filters, weak area tracking, and end of session study reports.</p>
+          <div class="kicker"><span class="kicker-dot"></span> Cyber delivery game for ISC2 CC learners</div>
+          <h1>Deliver every weak signal before exam day.</h1>
+          <p class="lead">Packet Courier turns the study app into a small security planet: recall cards become delivery jobs, weak topics become flagged routes, and quiz misses become locked checkpoints for the next run.</p>
           <div class="hero-actions">
-            <a class="button primary" href="tools/drill/index.html">Start study drill</a>
-            <a class="button ghost" href="tools/quiz/index.html">Start quiz run</a>
+            <a class="button primary" href="tools/drill/index.html">Start delivery route</a>
+            <a class="button ghost" href="tools/quiz/index.html">Enter quiz gate</a>
           </div>
-          <div class="stats">
-            <div class="stat"><strong id="domainCount">12</strong><span>study categories mapped</span></div>
-            <div class="stat"><strong id="drillCount">95</strong><span>drill cards loaded</span></div>
-            <div class="stat"><strong id="questionCount">25</strong><span>starter quiz questions</span></div>
+          <div class="stats" aria-label="Study system metrics">
+            <div class="stat"><strong id="domainCount">12</strong><span>security districts</span></div>
+            <div class="stat"><strong id="drillCount">95</strong><span>recall packets</span></div>
+            <div class="stat"><strong id="questionCount">25</strong><span>quiz checkpoints</span></div>
           </div>
         </div>
 
-        <div class="cyber-card" aria-label="Cyber study visual panel">
-          <div class="ring"></div>
-          <div class="orb"></div>
-          <div class="console">
-            <div class="console-line"><span class="console-key">status</span><span>student study lab online</span></div>
-            <div class="console-line"><span class="console-key">study</span><span>read card • self test • sort result</span></div>
-            <div class="console-line"><span class="console-key">quiz</span><span>lock answers • review misses • improve</span></div>
-            <div class="console-line"><span class="console-key">report</span><span>weak areas become a study plan</span></div>
+        <div class="planet-stage" aria-label="Cyber study planet visualization">
+          <div class="route-message one">
+            <strong>incoming packet</strong>
+            CIA triad route requires clean recall before delivery confirmation.
+          </div>
+          <div class="planet"></div>
+          <div class="courier">TLS</div>
+          <div class="route-message two">
+            <strong>route flagged</strong>
+            Weak domains loop back until the signal clears.
           </div>
         </div>
       </section>
 
-      <section class="section" aria-label="Project disclaimer">
+      <section class="section" aria-label="Independent study disclaimer">
         <div class="card">
-          <span class="pill warn">Important disclaimer</span>
-          <h2>Independent study tool, not official ISC2 training</h2>
-          <p class="muted">This project is an independent study tool. It is not official ISC2 training material and is not endorsed, certified, or recognised by ISC2. It was built to help students study intentionally, identify weak areas, and practise recall.</p>
-          <p class="muted">This tool does not replace official training material. Use it alongside your preferred official ISC2 resources and verify important topics against ISC2 guidance.</p>
+          <span class="pill warn">Independent study world</span>
+          <h2>Built for repetition, not certification claims.</h2>
+          <p class="muted">This project is an independent study tool. It is not official ISC2 training material and is not endorsed, certified, or recognised by ISC2. Use it to practise recall, identify weak areas, and verify important topics against official ISC2 guidance.</p>
           <div class="actions">
-            <a class="button ghost" href="https://www.isc2.org/certifications/cc/cc-self-study-resources" target="_blank" rel="noopener noreferrer">Open official ISC2 CC self-study resources</a>
+            <a class="button ghost" href="https://www.isc2.org/certifications/cc/cc-self-study-resources" target="_blank" rel="noopener noreferrer">Open ISC2 self-study resources</a>
           </div>
         </div>
       </section>
@@ -68,35 +75,36 @@
       <section class="section">
         <div class="section-head">
           <div>
-            <h2>Choose your training mode</h2>
-            <p class="muted">Two focused tools for different stages of exam preparation.</p>
+            <span class="pill good">Two engines preserved</span>
+            <h2>Run the route, then validate at the gate.</h2>
+            <p class="muted">The original study card and quiz content remains intact. The redesign changes the shell, visual language, and learning atmosphere around those existing engines.</p>
           </div>
         </div>
         <div class="grid two">
           <article class="tool-card">
-            <div class="tool-icon">⚡</div>
-            <h3>Study Drill</h3>
-            <p class="muted">Use this first. Each card asks a recall question. Try to answer before revealing, then sort it into I know this or I need to review this.</p>
+            <div class="tool-icon">01</div>
+            <h3>Drill Route</h3>
+            <p class="muted">A delivery loop for recall. Read the prompt cold, reveal the answer, then route the packet as cleared, flagged, skipped, or ready for report.</p>
             <ul class="feature-list">
-              <li>Question style memory cards</li>
-              <li>Domain filtering and search</li>
-              <li>Review pile for weak cards</li>
-              <li>End of session study report</li>
+              <li>Preserved study cards and domain filters</li>
+              <li>Weak-route queue for uncertain topics</li>
+              <li>Saved browser progress</li>
+              <li>Exportable remediation signal</li>
             </ul>
-            <a class="button primary" href="tools/drill/index.html">Launch Study Drill</a>
+            <a class="button primary" href="tools/drill/index.html">Launch Drill Route</a>
           </article>
 
           <article class="tool-card">
-            <div class="tool-icon">◎</div>
-            <h3>Quiz Player</h3>
-            <p class="muted">Use this after drilling. Answer multiple choice questions, lock your answer, read the explanation, and review missed questions.</p>
+            <div class="tool-icon">02</div>
+            <h3>Quiz Gate</h3>
+            <p class="muted">A security checkpoint for multiple-choice decisions. Pick one route, lock the answer, inspect the rationale, and rerun missed checkpoints.</p>
             <ul class="feature-list">
-              <li>Click and lock answer flow</li>
-              <li>Correct and wrong answer highlighting</li>
-              <li>Domain filtering</li>
-              <li>Missed question review</li>
+              <li>Preserved quiz content and explanations</li>
+              <li>Answer locking and visible states</li>
+              <li>Missed-question signal queue</li>
+              <li>Domain and keyword filters</li>
             </ul>
-            <a class="button primary" href="tools/quiz/index.html">Launch Quiz Player</a>
+            <a class="button primary" href="tools/quiz/index.html">Launch Quiz Gate</a>
           </article>
         </div>
       </section>
@@ -104,37 +112,39 @@
       <section class="section">
         <div class="section-head">
           <div>
-            <h2>Recommended study loop</h2>
-            <p class="muted">A simple rhythm for learning quickly without pretending weak areas are already solved.</p>
+            <span class="pill">Mission rhythm</span>
+            <h2>A small planet, one tight study loop.</h2>
+            <p class="muted">The experience borrows the reference's playful delivery premise, then turns it cyber: packets, checkpoints, trust routes, and incident-style review signals.</p>
           </div>
         </div>
         <div class="grid three">
           <div class="card">
-            <span class="pill good">01</span>
-            <h3>Drill recall</h3>
-            <p class="muted">Read a card, answer from memory, reveal the correct answer, then sort it honestly.</p>
+            <span class="pill good">Collect</span>
+            <h3>Load the packet</h3>
+            <p class="muted">Each card asks for recall before the answer appears. That pause is where useful uncertainty shows up.</p>
           </div>
           <div class="card">
-            <span class="pill warn">02</span>
-            <h3>Generate report</h3>
-            <p class="muted">Finish the session and use the report to see what needs more study.</p>
+            <span class="pill warn">Route</span>
+            <h3>Flag the weak path</h3>
+            <p class="muted">Known material exits the orbit. Weak material becomes a visible route for the next focused pass.</p>
           </div>
           <div class="card">
-            <span class="pill bad">03</span>
-            <h3>Quiz and retest</h3>
-            <p class="muted">Use quiz mode to practise exam style questions and turn missed answers into future drill topics.</p>
+            <span class="pill bad">Validate</span>
+            <h3>Clear the gate</h3>
+            <p class="muted">Quiz mode forces a committed answer, then turns missed checkpoints into the next remediation queue.</p>
           </div>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <span>ISC2 CC Cyber Study Lab</span>
-      <span>Static local web app • Built for focused student revision</span>
+      <span>ISC2 CC Packet Courier</span>
+      <span>Static local app / data loaded from data/app-data.js</span>
     </footer>
   </div>
 
   <script src="data/app-data.js"></script>
+  <script src="assets/theme.js"></script>
   <script>
     const data = window.ISC2_CC_DATA || { domains: [], drills: [], questions: [] }
     document.getElementById('domainCount').textContent = data.domains.length

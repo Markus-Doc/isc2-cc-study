@@ -1,5 +1,9 @@
 # ISC2 CC Cyber Study Lab
 
+## Ownership and independence
+
+The MIT License covers M. Walker's original application code, interface, data structures, and independently authored notes. ISC2 names, marks, certification objectives, curriculum, questions, explanations, and other vendor or training material are excluded. This independent study aid is not affiliated with or endorsed by ISC2. See [NOTICE.md](NOTICE.md).
+
 A polished local-first study platform for ISC2 Certified in Cybersecurity preparation.
 
 ## Link
